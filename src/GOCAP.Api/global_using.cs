@@ -1,0 +1,17 @@
+﻿global using AutoMapper;
+global using GOCAP.Api.Model;
+global using GOCAP.Common;
+global using GOCAP.Domain;
+global using Microsoft.AspNetCore.Mvc;
+global using GOCAP.Services;
+global using GOCAP.Services.Intention;
+global using Microsoft.IdentityModel.Tokens;
+global using System.IdentityModel.Tokens.Jwt;
+global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using System.Text;
+global using GOCAP.Api.AutoMapper;
+global using GOCAP.Api.Common;
+global using System.Reflection;
+global using GOCAP.Services.BlobStorage;
+global using System.Transactions;

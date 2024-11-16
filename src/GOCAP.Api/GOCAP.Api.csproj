@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GOCAP.Api.Common\GOCAP.Api.Common.csproj" />
+    <ProjectReference Include="..\GOCAP.Api.Model\GOCAP.Api.Model.csproj" />
+    <ProjectReference Include="..\GOCAP.Api.Validation\GOCAP.Api.Validation.csproj" />
+    <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
+    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
+    <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
+    <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
+    <ProjectReference Include="..\GOCAP.Repository\GOCAP.Repository.csproj" />
+    <ProjectReference Include="..\GOCAP.Services.Intention\GOCAP.Services.Intention.csproj" />
+    <ProjectReference Include="..\GOCAP.Services\GOCAP.Services.csproj" />
+  </ItemGroup>
+
+</Project>

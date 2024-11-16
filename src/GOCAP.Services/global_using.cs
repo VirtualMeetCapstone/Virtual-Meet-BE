@@ -1,0 +1,8 @@
+﻿global using GOCAP.Common;
+global using GOCAP.Repository.Intention;
+global using GOCAP.Services.Intention;
+global using GOCAP.Domain;
+global using GOCAP.Repository;
+global using Azure.Storage.Blobs;
+global using Azure.Storage.Blobs.Models;
+global using Microsoft.Extensions.Logging;
