@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class User : UserCreatedObject
+public class User : CreatedObjectBase
 {
     public string? Email { get; set; }
     public string? GivenName { get; set; }

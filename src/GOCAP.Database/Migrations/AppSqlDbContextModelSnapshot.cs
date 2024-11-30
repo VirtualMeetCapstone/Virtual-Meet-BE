@@ -4,19 +4,16 @@ using GOCAP.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace GOCAP.Database.Migrations
 {
-    [DbContext(typeof(GoCapMsSqlDbContext))]
-    [Migration("20241006162154_RemoveComment")]
-    partial class RemoveComment
+    [DbContext(typeof(AppSqlDbContext))]
+    partial class AppSqlDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,40 +22,13 @@ namespace GOCAP.Database.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GOCAP.Database.Follow", b =>
+            modelBuilder.Entity("GOCAP.Database.MediaEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("FollowerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FollowingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FollowerId");
-
-                    b.HasIndex("FollowingId");
-
-                    b.ToTable("Follows");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.Media", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PostId")
+                    b.Property<Guid?>("PostEntityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ThumbnailUrl")
@@ -73,22 +43,16 @@ namespace GOCAP.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("PostEntityId");
 
-                    b.ToTable("Medias");
+                    b.ToTable("MediaEntity");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Notification", b =>
+            modelBuilder.Entity("GOCAP.Database.NotificationEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -104,7 +68,7 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Post", b =>
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +91,7 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Role", b =>
+            modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -143,7 +107,7 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.User", b =>
+            modelBuilder.Entity("GOCAP.Database.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,32 +126,11 @@ namespace GOCAP.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FacebookId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FamilyName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GivenName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GoogleId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Hd")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Hometown")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Locale")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
@@ -208,58 +151,31 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserRole", b =>
+            modelBuilder.Entity("RoleEntityUserEntity", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("RolesId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid>("UsersId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasKey("RolesId", "UsersId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("UsersId");
 
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRoles");
+                    b.ToTable("RoleEntityUserEntity");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Follow", b =>
+            modelBuilder.Entity("GOCAP.Database.MediaEntity", b =>
                 {
-                    b.HasOne("GOCAP.Database.User", "Follower")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("GOCAP.Database.User", "Following")
-                        .WithMany("Followers")
-                        .HasForeignKey("FollowingId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Follower");
-
-                    b.Navigation("Following");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.Media", b =>
-                {
-                    b.HasOne("GOCAP.Database.Post", null)
+                    b.HasOne("GOCAP.Database.PostEntity", null)
                         .WithMany("Medias")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PostEntityId");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Notification", b =>
+            modelBuilder.Entity("GOCAP.Database.NotificationEntity", b =>
                 {
-                    b.HasOne("GOCAP.Database.User", "User")
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -268,9 +184,9 @@ namespace GOCAP.Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Post", b =>
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
                 {
-                    b.HasOne("GOCAP.Database.User", "User")
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -279,46 +195,31 @@ namespace GOCAP.Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserRole", b =>
+            modelBuilder.Entity("RoleEntityUserEntity", b =>
                 {
-                    b.HasOne("GOCAP.Database.Role", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
+                    b.HasOne("GOCAP.Database.RoleEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GOCAP.Database.User", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
+                    b.HasOne("GOCAP.Database.UserEntity", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Post", b =>
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
                 {
                     b.Navigation("Medias");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.Role", b =>
+            modelBuilder.Entity("GOCAP.Database.UserEntity", b =>
                 {
-                    b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.User", b =>
-                {
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,22 +1,22 @@
-﻿using AutoMapper;
+﻿namespace GOCAP.Repository;
 
-namespace GOCAP.Repository;
-
-internal abstract class RepositoryBase<TDomain, TEntity>
-    ( DbContextBase _context, IMapper _mapper) : IRepositoryBase<TDomain> 
+internal abstract class SqlRepositoryBase<TDomain, TEntity>
+    (AppSqlDbContext _context, IMapper _mapper) : IRepositoryBase<TDomain>
     where TDomain : DomainBase
-    where TEntity : EntityBase
+    where TEntity : EntitySqlBase
 {
     public virtual async Task<TDomain> AddAsync(TDomain domain)
     {
-        await _context.Set<TDomain>().AddAsync(domain);
+        var entity = _mapper.Map<TEntity>(domain);
+        await _context.Set<TEntity>().AddAsync(entity);
         await _context.SaveChangesAsync();
         return domain;
     }
 
     public virtual async Task<bool> AddRangeAsync(IEnumerable<TDomain> domains)
     {
-        await _context.Set<TDomain>().AddRangeAsync(domains);
+        var entity = _mapper.Map<IEnumerable<TEntity>>(domains);
+        await _context.Set<TEntity>().AddRangeAsync(entity);
         return await _context.SaveChangesAsync() > 0;
     }
 
@@ -73,12 +73,12 @@ internal abstract class RepositoryBase<TDomain, TEntity>
 
     public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
     {
-        var existingEntity = await _context.Set<TDomain>().FindAsync(id);
-        if (existingEntity == null)
+        var entity = await _context.Set<TEntity>().FindAsync(id);
+        if (entity == null)
         {
             return false;
         }
-        _context.Entry(existingEntity).CurrentValues.SetValues(domain);
+        _mapper.Map(domain, entity);
         return await _context.SaveChangesAsync() > 0;
     }
 
@@ -91,7 +91,7 @@ internal abstract class RepositoryBase<TDomain, TEntity>
 
     public virtual async Task<bool> CheckExistAsync(Guid id, string name)
     {
-        var exists = await _context.Set<TDomain>().AnyAsync(
+        var exists = await _context.Set<TEntity>().AnyAsync(
             e => EF.Property<Guid>(e, "Id") != id
             && EF.Property<string>(e, "Name") == name
         );
@@ -100,7 +100,7 @@ internal abstract class RepositoryBase<TDomain, TEntity>
 
     public virtual async Task<bool> CheckExistAsync(Guid id)
     {
-        var exists = await _context.Set<TDomain>().AnyAsync(
+        var exists = await _context.Set<TEntity>().AnyAsync(
             e => EF.Property<Guid>(e, "Id") != id
         );
         return exists;

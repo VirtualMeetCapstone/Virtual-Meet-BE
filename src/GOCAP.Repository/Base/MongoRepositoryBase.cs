@@ -1,29 +1,31 @@
 ﻿namespace GOCAP.Repository;
 
-internal abstract class MongoRepositoryBase<T>(
-    GoCapMongoDbContext _context, 
-    ILogger<MongoRepositoryBase<T>> _logger
-    ) : IRepositoryBase<T> where T : class
+internal abstract class MongoRepositoryBase<TDomain, TEntity>
+    (AppMongoDbContext _context, IMapper _mapper) : IRepositoryBase<TDomain>
+    where TDomain : DomainBase
+    where TEntity : EntityMongoBase
 {
-    private readonly IMongoCollection<T> _collection = _context.GetCollection<T>(typeof(T).Name);
+    private readonly IMongoCollection<TEntity> _collection = _context.GetCollection<TEntity>(typeof(TEntity).Name);
 
-    public virtual async Task<T> AddAsync(T domain)
+    public virtual async Task<TDomain> AddAsync(TDomain domain)
     {
-        await _collection.InsertOneAsync(domain);
+        var entity = _mapper.Map<TEntity>(domain);
+        await _collection.InsertOneAsync(entity);
         return domain;
     }
 
-    public virtual async Task<bool> AddRangeAsync(IEnumerable<T> domains)
+    public virtual async Task<bool> AddRangeAsync(IEnumerable<TDomain> domains)
     {
-        await _collection.InsertManyAsync(domains);
+        var entities = _mapper.Map<IEnumerable<TEntity>>(domains);
+        await _collection.InsertManyAsync(entities);
         return true;
     }
 
     public virtual async Task<bool> CheckExistAsync(Guid id, string name)
     {
-        var filter = Builders<T>.Filter.And(
-            Builders<T>.Filter.Eq("Id", id),
-            Builders<T>.Filter.Eq("Name", name)
+        var filter = Builders<TEntity>.Filter.And(
+            Builders<TEntity>.Filter.Eq("Id", id),
+            Builders<TEntity>.Filter.Eq("Name", name)
         );
         var exists = await _collection.Find(filter).AnyAsync();
         return exists;
@@ -31,55 +33,52 @@ internal abstract class MongoRepositoryBase<T>(
 
     public virtual async Task<bool> CheckExistAsync(Guid id)
     {
-        var filter = Builders<T>.Filter.Eq("Id", id);
+        var filter = Builders<TEntity>.Filter.Eq("Id", id);
         var exists = await _collection.Find(filter).AnyAsync();
         return exists;
     }
 
     public virtual async Task<int> DeleteByIdAsync(Guid id)
     {
-        var filter = Builders<T>.Filter.Eq("Id", id);
+        var filter = Builders<TEntity>.Filter.Eq("Id", id);
         var result = await _collection.DeleteOneAsync(filter);
         if (result.DeletedCount == 0)
         {
-            _logger.LogError("Entity was not found");
             throw new ResourceNotFoundException($"Entity with id {id} not found");
         }
         return (int)result.DeletedCount;
     }
     
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<TDomain>> GetAllAsync()
     {
-        return await _collection.Find(FilterDefinition<T>.Empty).ToListAsync();
+        var entities = await _collection.Find(FilterDefinition<TEntity>.Empty).ToListAsync();
+
+        return _mapper.Map<IEnumerable<TDomain>>(entities);
     }
 
-    public virtual async Task<T> GetByIdAsync(Guid id)
+    public virtual async Task<TDomain> GetByIdAsync(Guid id)
     {
-        var filter = Builders<T>.Filter.Eq("Id", id);
-        var entity = await _collection.Find(filter).FirstOrDefaultAsync();
-        if (entity == null)
-        {
-            _logger.LogError("Entity was not found");
-            throw new ResourceNotFoundException($"Entity with id {id} not found");
-        }
-        return entity;
+        var filter = Builders<TEntity>.Filter.Eq("Id", id);
+        var entity = await _collection.Find(filter).FirstOrDefaultAsync()
+            ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+        return _mapper.Map<TDomain>(entity);
     }
 
-    public virtual async Task<IEnumerable<T>> GetByIdsAsync(List<Guid> ids, string fieldsName)
+    public virtual async Task<IEnumerable<TDomain>> GetByIdsAsync(List<Guid> ids, string fieldsName)
     {
-        var filter = Builders<T>.Filter.In("Id", ids);
-        var projection = Builders<T>.Projection.Include(fieldsName);
-        var results = await _collection.Find(filter).Project<T>(projection).ToListAsync();
+        var filter = Builders<TEntity>.Filter.In("Id", ids);
+        var projection = Builders<TEntity>.Projection.Include(fieldsName);
+        var results = await _collection.Find(filter).Project<TEntity>(projection).ToListAsync();
 
-        return results;
+        return _mapper.Map<IEnumerable<TDomain>>(results);
     }
 
-    public virtual async Task<QueryResult<T>> GetByPageAsync(QueryInfo queryInfo)
+    public virtual async Task<QueryResult<TDomain>> GetByPageAsync(QueryInfo queryInfo)
     {
-        var filter = Builders<T>.Filter.Empty;
+        var filter = Builders<TEntity>.Filter.Empty;
         if (!string.IsNullOrWhiteSpace(queryInfo.Search))
         {
-            filter = Builders<T>.Filter.Regex("Name", new BsonRegularExpression(queryInfo.Search, "i")); // Find no distinct lowercase or uppercase
+            filter = Builders<TEntity>.Filter.Regex("Name", new BsonRegularExpression(queryInfo.Search, "i")); // Find no distinct lowercase or uppercase
         }
 
         var query = _collection.Find(filter);
@@ -87,8 +86,8 @@ internal abstract class MongoRepositoryBase<T>(
         if (!string.IsNullOrWhiteSpace(queryInfo.OrderBy))
         {
             var sort = queryInfo.OrderType == OrderType.Ascending
-                ? Builders<T>.Sort.Ascending(queryInfo.OrderBy)
-                : Builders<T>.Sort.Descending(queryInfo.OrderBy);
+                ? Builders<TEntity>.Sort.Ascending(queryInfo.OrderBy)
+                : Builders<TEntity>.Sort.Descending(queryInfo.OrderBy);
 
             query = query.Sort(sort);
         }
@@ -101,19 +100,20 @@ internal abstract class MongoRepositoryBase<T>(
             totalItems = (int)await _collection.CountDocumentsAsync(filter);
         }
 
-        var items = await query.Skip(queryInfo.Skip).Limit(queryInfo.Top).ToListAsync();
+        var entities = await query.Skip(queryInfo.Skip).Limit(queryInfo.Top).ToListAsync();
 
-        return new QueryResult<T>
+        return new QueryResult<TDomain>
         {
-            Data = items,
+            Data = _mapper.Map<IEnumerable<TDomain>>(entities),
             TotalCount = totalItems
         };
     }
 
-    public virtual async Task<bool> UpdateAsync(Guid id, T domain)
+    public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
     {
-        var filter = Builders<T>.Filter.Eq("Id", id);
-        var result = await _collection.ReplaceOneAsync(filter, domain);
+        var filter = Builders<TEntity>.Filter.Eq("Id", id);
+        var entity = _mapper.Map<TEntity>(domain);
+        var result = await _collection.ReplaceOneAsync(filter, entity);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
 }

@@ -1,9 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace GOCAP.Database;
+﻿namespace GOCAP.Database;
 
 [Table("Notifications")]
-public class NotificationEntity : DateObjectCommon
+public class NotificationEntity : EntitySqlBase
 {
     [Required]
     public string? Message { get; set; }

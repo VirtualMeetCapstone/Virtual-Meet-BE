@@ -6,3 +6,4 @@ global using MongoDB.Bson;
 global using GOCAP.Database;
 global using GOCAP.Domain;
 global using Microsoft.EntityFrameworkCore;
+global using AutoMapper;

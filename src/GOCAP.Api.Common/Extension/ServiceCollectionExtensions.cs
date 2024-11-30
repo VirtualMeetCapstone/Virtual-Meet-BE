@@ -15,13 +15,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString("AzureBlobStorage")));
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
-        services.AddDbContext<GoCapMsSqlDbContext>(options =>
+        services.AddDbContext<AppSqlDbContext>(options =>
                  options.UseSqlServer(configuration.GetConnectionString("GoCapSqlServerConnection")));
         services.AddSingleton(sp =>
         {
             var databaseName = "GOCAP";
             var connectionString = configuration.GetConnectionString("GoCapMongoDbConnection") ?? "";
-            return new GoCapMongoDbContext(databaseName, connectionString);
+            return new AppMongoDbContext(databaseName, connectionString);
         });
 
         services.AddServicesFromAssembly([

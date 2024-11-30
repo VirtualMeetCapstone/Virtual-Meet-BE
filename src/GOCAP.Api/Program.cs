@@ -21,6 +21,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCustomExceptionHandler();
 app.UseResponseCompression();
 app.UseCors();
 app.UseHttpsRedirection();

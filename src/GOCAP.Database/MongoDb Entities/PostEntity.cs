@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace GOCAP.Database;
 
-namespace GOCAP.Database;
-
-[Table("Posts")]
-public class PostEntity : EntityBase
+public class PostEntity : EntitySqlBase
 {
     [Required]
     public string? Content { get; set; }

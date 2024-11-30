@@ -1,9 +1,7 @@
-﻿namespace GOCAP.Database;
+﻿namespace GOCAP.Domain;
 
-public class UserCreatedObject : EntityBase
+public class CreatedObjectBase : DomainBase
 {
-    [Required]
-    [StringLength(100)]
     public string? Name { get; set; }
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }

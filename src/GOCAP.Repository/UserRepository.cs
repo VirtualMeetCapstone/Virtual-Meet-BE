@@ -1,11 +1,11 @@
-﻿using AutoMapper;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
-internal class UserRepository(
-    GoCapMsSqlDbContext _context, IMapper _mapper) : RepositoryBase<User, UserEntity>(_context, _mapper), IUserRepository
+internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<User, UserEntity>(context, mapper), IUserRepository
 {
+    private readonly AppSqlDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         if (string.IsNullOrWhiteSpace(email))

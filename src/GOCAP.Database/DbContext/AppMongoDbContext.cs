@@ -1,15 +1,15 @@
 ﻿namespace GOCAP.Database;
 
-public class GoCapMongoDbContext
+public class AppMongoDbContext
 {
     private readonly IMongoDatabase _database;
-    public IMongoCollection<CommentEntity>? Comments { get; set; }
-    public GoCapMongoDbContext(string databaseName, string connectionString)
+    public IMongoCollection<MediaEntity>? Medias { get; set; }
+    public AppMongoDbContext(string databaseName, string connectionString)
     {
         var _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
 
-        Comments = GetCollection<CommentEntity>(typeof(CommentEntity).Name);
+        Medias = GetCollection<MediaEntity>(typeof(MediaEntity).Name);
     }
 
     public IMongoCollection<T> GetCollection<T>(string name)

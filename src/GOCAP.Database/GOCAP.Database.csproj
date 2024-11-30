@@ -8,5 +8,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
   </ItemGroup>
 </Project>
