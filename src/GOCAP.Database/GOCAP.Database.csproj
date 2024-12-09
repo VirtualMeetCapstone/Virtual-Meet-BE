@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+	
   <ItemGroup>
     <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">

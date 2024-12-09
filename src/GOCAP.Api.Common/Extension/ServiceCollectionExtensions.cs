@@ -5,6 +5,7 @@ using GOCAP.Services.BlobStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -13,16 +14,27 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
+        // Add for using azure blob storage
         services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString("AzureBlobStorage")));
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
+
+        // Add for using sql server
         services.AddDbContext<AppSqlDbContext>(options =>
-                 options.UseSqlServer(configuration.GetConnectionString("GoCapSqlServerConnection")));
+                 options.UseSqlServer(configuration.GetConnectionString("SqlServerConnection")));
+        
+        // Add for using MongoDB
         services.AddSingleton(sp =>
         {
-            var databaseName = "GOCAP";
-            var connectionString = configuration.GetConnectionString("GoCapMongoDbConnection") ?? "";
+            var databaseName = GOCAPConstants.DatabaseName;
+            var connectionString = configuration.GetConnectionString("MongoDbConnection") ?? "";
             return new AppMongoDbContext(databaseName, connectionString);
         });
+
+        // Add for using Redis
+        services.AddDistributedMemoryCache();
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection") ?? ""));
+
+        GOCAPConfiguration.Initialize(configuration); // Setting for all project
 
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),

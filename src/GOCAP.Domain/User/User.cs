@@ -7,7 +7,6 @@ public class User : CreatedObjectBase
     public string? FamilyName { get; set; }
     public string? Picture { get; set; }
     public string? Locale { get; set; }
-    public string? Hd { get; set; } // Domain from Google
     public string? Bio { get; set; }
 
     public string? FacebookId { get; set; }

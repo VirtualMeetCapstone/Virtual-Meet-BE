@@ -9,13 +9,11 @@ public class AppSqlDbContext : DbContext
     public DbSet<RoleEntity> Roles { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
     public DbSet<NotificationEntity> Notifications { get; set; }
-   //public DbSet<FollowEntity> Follows { get; set; }
+    //public DbSet<FollowEntity> Follows { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;
-            Trusted_Connection=SSPI;Encrypt=true;Connection Timeout=30;
-            Pooling=True;Max Pool Size=1000;");
+        optionsBuilder.UseSqlServer(GOCAPConfiguration.GetSqlServerConnectionString());
     }
     //protected override void OnModelCreating(ModelBuilder modelBuilder)
     //{

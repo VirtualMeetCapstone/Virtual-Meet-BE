@@ -9,7 +9,7 @@ internal class UserService(
     public override async Task<User> AddAsync(User user)
     {
         _logger.LogInformation("Start to a new user");
-        user.InitCreation();
+        user.InitCreation();    
         return await _repository.AddAsync(user);
     }
 

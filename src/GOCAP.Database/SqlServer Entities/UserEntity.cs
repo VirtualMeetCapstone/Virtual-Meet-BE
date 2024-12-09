@@ -8,14 +8,16 @@ public class UserEntity : EntitySqlBase
     public string Name { get; set; } = string.Empty;
     [Required]
     [EmailAddress]
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
     public string? Picture { get; set; }
     public string? Bio { get; set; }
     public bool? VerifiedEmail { get; set; }
     public string? Gender { get; set; }
     public string? Birthday { get; set; }
     public string? Location { get; set; }
+    [Required]
     public long CreateTime { get; set; }
+    [Required]
     public long LastModifyTime { get; set; }
 
     // Relationships

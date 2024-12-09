@@ -9,7 +9,6 @@ public class GoogleAuthService(
     IConfiguration _configuration
     ) : IGoogleAuthService
 {
-    private static readonly string REDIRECT_URI = GOCAPConfiguration.REDIRECT_URI;
     public async Task<TokenResponse> ExchangeCodeForTokensAsync(string code)
     {
         var tokenRequest = new Dictionary<string, string>
@@ -17,7 +16,7 @@ public class GoogleAuthService(
             { "code", code },
             { "client_id", _configuration["Authentication:Google:ClientId"] ?? "" },
             { "client_secret", _configuration["Authentication:Google:ClientSecret"] ?? "" },
-            { "redirect_uri", $"{REDIRECT_URI}/{_configuration["Authentication:Google:RedirectUri"] ?? ""}" },
+            { "redirect_uri", $"{GOCAPConstants.REDIRECT_URI}/{_configuration["Authentication:Google:RedirectUri"] ?? ""}" },
             { "grant_type", "authorization_code" }
         };
 

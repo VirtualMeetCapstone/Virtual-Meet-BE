@@ -2,7 +2,7 @@
 
 [Route("users")]
 [ApiController]
-public class UserController(IUserService _userService, IMapper _mapper) : ApiControllerBase
+public class UserController(IUserService _userService, IMediaService _mediaService, IMapper _mapper) : ApiControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<User>> GetAll()
@@ -29,7 +29,31 @@ public class UserController(IUserService _userService, IMapper _mapper) : ApiCon
     public async Task<User> Create([FromBody] UserCreationModel model)
     {
         var domain = _mapper.Map<User>(model);
-        return await _userService.AddAsync(domain);
+
+        using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+        try
+        {
+            // Step 1: Save media to MongoDB
+            var mediaResult = await _mediaService.AddAsync(new Media
+            {
+                Id = Guid.NewGuid(),
+                Url = "",
+                PostId = Guid.NewGuid(),
+            });
+
+            // Step 2: Save user to SQL Server
+            var userResult = await _userService.AddAsync(domain);
+
+            // Commit transaction
+            transaction.Complete();
+        }
+        catch (Exception ex)
+        {
+            // Rollback logic if necessary
+            Console.WriteLine($"Transaction failed: {ex.Message}");
+        }
+        return new User();
     }
 
     [HttpPatch]

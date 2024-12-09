@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Repository;
 
 internal abstract class MongoRepositoryBase<TDomain, TEntity>
-    (AppMongoDbContext _context, IMapper _mapper) : IRepositoryBase<TDomain>
+    (AppMongoDbContext _context, IMapper _mapper) : IMongoRepositoryBase<TDomain>
     where TDomain : DomainBase
     where TEntity : EntityMongoBase
 {

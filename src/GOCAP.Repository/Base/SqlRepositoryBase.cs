@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Repository;
 
 internal abstract class SqlRepositoryBase<TDomain, TEntity>
-    (AppSqlDbContext _context, IMapper _mapper) : IRepositoryBase<TDomain>
+    (AppSqlDbContext _context, IMapper _mapper) : ISqlRepositoryBase<TDomain>
     where TDomain : DomainBase
     where TEntity : EntitySqlBase
 {

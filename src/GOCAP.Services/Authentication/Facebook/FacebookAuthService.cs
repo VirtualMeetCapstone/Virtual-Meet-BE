@@ -9,7 +9,6 @@ public class FacebookAuthService(
     IConfiguration _configuration
     ) : IFacebookAuthService
 {
-    private readonly string REDIRECT_URI = GOCAPConfiguration.REDIRECT_URI;
     public async Task<TokenResponse> ExchangeCodeForTokensAsync(string code)
     {
         var tokenRequest = new Dictionary<string, string>
@@ -17,7 +16,7 @@ public class FacebookAuthService(
             { "code", code },
             { "client_id", _configuration["Authentication:Facebook:AppId"] ?? "" },
             { "client_secret", _configuration["Authentication:Facebook:AppSecret"] ?? "" },
-            { "redirect_uri", $"{REDIRECT_URI}/{_configuration["Authentication:Facebook:RedirectUri"] ?? ""}" },
+            { "redirect_uri", $"{GOCAPConstants.REDIRECT_URI}/{_configuration["Authentication:Facebook:RedirectUri"] ?? ""}" },
             { "grant_type", "authorization_code" }
         };
 

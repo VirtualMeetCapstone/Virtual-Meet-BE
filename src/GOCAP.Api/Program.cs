@@ -12,7 +12,8 @@ builder.Services.AddCorsPolicy()
                 .AddJwtAuthentication(builder.Configuration)
                 .AddServices(builder.Configuration)
                 .AddResponseCompression(options => options.EnableForHttps = true)
-                .AddAutoMapper(typeof(MapperProfileBase))
+                .AddAutoMapper(typeof(ModelMapperProfileBase), 
+                               typeof(EntityMapperProfileBase))
                 .AddFluentValidation(Assembly.Load("gocap.api.validation"));
 
 builder.Services.AddControllers();

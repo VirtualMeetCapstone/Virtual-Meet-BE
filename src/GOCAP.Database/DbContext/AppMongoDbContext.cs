@@ -3,7 +3,7 @@
 public class AppMongoDbContext
 {
     private readonly IMongoDatabase _database;
-    public IMongoCollection<MediaEntity>? Medias { get; set; }
+    public IMongoCollection<MediaEntity> Medias { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
         var _client = new MongoClient(connectionString);
