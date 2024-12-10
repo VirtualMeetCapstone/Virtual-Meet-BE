@@ -16,7 +16,7 @@ public class GoogleAuthService(
             { "code", code },
             { "client_id", _configuration["Authentication:Google:ClientId"] ?? "" },
             { "client_secret", _configuration["Authentication:Google:ClientSecret"] ?? "" },
-            { "redirect_uri", $"{GOCAPConstants.REDIRECT_URI}/{_configuration["Authentication:Google:RedirectUri"] ?? ""}" },
+            { "redirect_uri", $"{GOCAPConstants.REDIRECT_URI}{_configuration["Authentication:Google:RedirectUri"] ?? ""}" },
             { "grant_type", "authorization_code" }
         };
 

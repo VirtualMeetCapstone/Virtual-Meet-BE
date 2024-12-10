@@ -1,8 +1,8 @@
 ﻿namespace GOCAP.Api.AutoMapper;
 
-public class PostMapperProfile : ModelMapperProfileBase
+public class PostModelMapperProfile : ModelMapperProfileBase
 {
-    public PostMapperProfile()
+    public PostModelMapperProfile()
     {
         CreateMap<Media, MediaModel>();
         CreateMap<MediaModel, Media>();

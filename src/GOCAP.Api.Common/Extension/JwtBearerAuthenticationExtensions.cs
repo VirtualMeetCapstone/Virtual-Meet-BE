@@ -35,13 +35,13 @@ public static class JwtBearerAuthenticationExtensions
             {
                 options.ClientId = _configuration["Authentication:Google:ClientId"] ?? "";
                 options.ClientSecret = _configuration["Authentication:Google:ClientSecret"] ?? "";
-                options.SaveTokens = true;
+                options.CallbackPath = _configuration["Authentication:Google:RedirectUri"] ?? "";
             })
             .AddFacebook(options =>
             {
                 options.AppId = _configuration["Authentication:Facebook:AppId"] ?? "";
                 options.AppSecret = _configuration["Authentication:Facebook:AppSecret"] ?? "";
-                options.SaveTokens = true;
+                options.CallbackPath = _configuration["Authentication:Facebook:RedirectUri"] ?? "";
             })
             ;
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();

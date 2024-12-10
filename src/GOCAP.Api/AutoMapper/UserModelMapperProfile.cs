@@ -1,8 +1,8 @@
 ﻿namespace GOCAP.Api.AutoMapper;
 
-public class UserMapperProfile : ModelMapperProfileBase
+public class UserModelMapperProfile : ModelMapperProfileBase
 {
-    public UserMapperProfile()
+    public UserModelMapperProfile()
     {
         CreateMap<User, UserModel>();
         CreateMap<UserModel, User>();

@@ -5,35 +5,37 @@
 public class MediaController(IMediaService _service, IMapper _mapper) : ApiControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<Media>> GetAll()
+    public async Task<IEnumerable<MediaModel>> GetAll()
     {
         var domain = await _service.GetAllAsync();
-        return _mapper.Map<List<Media>>(domain);
+        return _mapper.Map<List<MediaModel>>(domain);
     }
 
     [HttpGet("page")]
-    public async Task<QueryResult<Media>> GetByPage([FromQuery] QueryInfo queryInfo)
+    public async Task<QueryResult<MediaModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
-        var result = await _service.GetByPageAsync(queryInfo);
+        var domain = await _service.GetByPageAsync(queryInfo);
+        var result = _mapper.Map<QueryResult<MediaModel>>(domain);
         return result;
     }
 
     [HttpGet("{id}")]
-    public async Task<Media?> GetById([FromRoute] Guid id)
+    public async Task<MediaModel> GetById([FromRoute] Guid id)
     {
-        var domain = await _service.GetByIdAsync(id);
-        return _mapper.Map<Media>(domain);
+        var domain = await _service.GetByIdAsync(id) ?? throw new ResourceNotFoundException("Media was not found.");
+        return _mapper.Map<MediaModel>(domain);
     }
 
     [HttpPost]
-    public async Task<Media> Create([FromBody] MediaModel model)
+    public async Task<MediaModel> Create([FromBody] MediaCreationModel model)
     {
-        var domain = _mapper.Map<Media>(model);
-        return await _service.AddAsync(domain);
+        var media = _mapper.Map<Media>(model);
+        var result = await _service.AddAsync(media);
+        return _mapper.Map<MediaModel>(result);
     }
 
     [HttpPatch]
-    public async Task<OperationResult> Update(Guid id, [FromBody] UserCreationModel model)
+    public async Task<OperationResult> Update(Guid id, [FromBody] MediaCreationModel model)
     {
         var domain = _mapper.Map<Media>(model);
         return await _service.UpdateAsync(id, domain);
