@@ -5,7 +5,7 @@ internal abstract class MongoRepositoryBase<TDomain, TEntity>
     where TDomain : DomainBase
     where TEntity : EntityMongoBase
 {
-    private readonly IMongoCollection<TEntity> _collection = _context.GetCollection<TEntity>(typeof(TEntity).Name);
+    private readonly IMongoCollection<TEntity> _collection = _context.GetCollection<TEntity>();
 
     public virtual async Task<TDomain> AddAsync(TDomain domain)
     {

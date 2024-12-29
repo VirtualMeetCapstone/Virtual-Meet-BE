@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class DateObjectBase : DomainBase
+public abstract class DateObjectBase : DomainBase
 {
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }

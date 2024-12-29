@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Database;
 
-public class EntitySqlBase
+public abstract class EntitySqlBase
 {
     [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 }

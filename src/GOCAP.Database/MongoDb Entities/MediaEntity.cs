@@ -1,5 +1,6 @@
 ﻿namespace GOCAP.Database;
 
+[BsonCollection("Medias")]
 public class MediaEntity : EntityMongoBase
 {
     public string Url { get; set; } = string.Empty;

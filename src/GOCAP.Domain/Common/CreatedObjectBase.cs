@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class CreatedObjectBase : DomainBase
+public abstract class CreatedObjectBase : DomainBase
 {
     public string? Name { get; set; }
     public long CreateTime { get; set; }

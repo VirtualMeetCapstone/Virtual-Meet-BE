@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Database;
 
-[Table("Follows")]
-public class FollowEntity : EntitySqlBase
+[Table("UserFollows")]
+public class UserFollowEntity : EntitySqlBase
 {
     public Guid FollowerId { get; set; }
     public UserEntity? Follower { get; set; }

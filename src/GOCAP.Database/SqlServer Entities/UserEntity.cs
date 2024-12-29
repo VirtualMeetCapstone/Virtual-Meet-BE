@@ -21,8 +21,14 @@ public class UserEntity : EntitySqlBase
     public long LastModifyTime { get; set; }
 
     // Relationships
-    public ICollection<PostEntity> Posts { get; set; } = [];
-    //public ICollection<FollowEntity> Follows { get; set; } = [];
-    public ICollection<NotificationEntity> Notifications { get; set; } = [];
-    public ICollection<RoleEntity> Roles { get; set; } = [];
+    public IEnumerable<RoomEntity> Rooms { get; set; } = [];
+    public IEnumerable<GroupEntity> Groups { get; set; } = [];
+    public IEnumerable<UserRoleEntity> UserRoles { get; set; } = [];
+    public IEnumerable<UserActivityEntity> UserActivities { get; set; } = [];
+    public IEnumerable<UserFollowEntity> UserFollows { get; set; } = [];
+    public IEnumerable<UserPostEntity> UserPosts { get; set; } = [];
+    public IEnumerable<UserNotificationEntity> UserNotifications { get; set; } = [];
+    public IEnumerable<UserRewardEntity> UserRewards { get; set; } = [];
+    public IEnumerable<UserBlockEntity> UserBlocks { get; set; } = [];
+    public IEnumerable<UserStoryEntity> UserStories { get; set; } = [];
 }
