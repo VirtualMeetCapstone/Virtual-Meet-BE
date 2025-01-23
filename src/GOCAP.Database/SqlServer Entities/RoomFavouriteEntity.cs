@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Database;
 
-[Table("RoomLikes")]
-public class RoomLikeEntity : EntitySqlBase
+[Table("RoomFavourites")]
+public class RoomFavouriteEntity : EntitySqlBase
 {
     public Guid RoomId { get; set; }
     public Guid UserId { get; set; }

@@ -11,7 +11,7 @@ public class OperationResult
         {
             message = "Operation Failed";
         }
-        this.Success = success;
-        this.Message = message;
+        Success = success;
+        Message = message;
     }
 }

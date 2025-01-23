@@ -8,16 +8,13 @@ public class GOCAPConfiguration
     private static readonly object _lock = new();
     private static IConfiguration? _configuration;
 
-    // Private constructor để ngăn khởi tạo từ bên ngoài
     private GOCAPConfiguration(IConfiguration configuration)
     {
         _configuration = configuration;
     }
 
-    // Static method để lấy instance duy nhất
     public static GOCAPConfiguration GetInstance(IConfiguration configuration)
     {
-        // Dùng lock để đảm bảo thread-safe
         lock (_lock)
         {
             _instance ??= new GOCAPConfiguration(configuration);

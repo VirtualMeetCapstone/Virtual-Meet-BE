@@ -1,43 +1,48 @@
 ﻿using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GOCAP.Api.Controllers;
 
 [Route("signin")]
 [ApiController]
 public class AuthController(
-    IConfiguration _configuration, IUserService _userService,
-    IMapper _mapper, IGoogleAuthService _googleAuthService,
-    IFacebookAuthService _facebookAuthService,
-    ILogger<AuthController> _logger
+        IConfiguration _configuration, 
+        IUserService _userService,
+        IMapper _mapper, 
+        IGoogleAuthService _googleAuthService,
+        IFacebookAuthService _facebookAuthService,
+        ILogger<AuthController> _logger
     ) : ApiControllerBase
 {
     [HttpGet("google")]
     public IActionResult GoogleLogin()
     {
-        var redirectUrl = Url.Action("GoogleCallback", "Auth");
-        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-        return Challenge(properties, "Google");
+        //var redirectUrl = Url.Action("GoogleResponse", "Auth");
+        var properties = new AuthenticationProperties ();
+        return Challenge(GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet("google-response")]
+    public async Task<ApiResponse> GoogleResponse()
+    {
+        return await ProviderResponse("Google", ProviderType.Google);
     }
 
     [HttpGet("facebook")]
     public IActionResult FacebookLogin()
     {
-        var redirectUrl = Url.Action("FacebookCallback", "Auth");
+        var redirectUrl = Url.Action("FacebookResponse", "Auth");
         var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-        return Challenge(properties, "Facebook");
+        return Challenge(properties, FacebookDefaults.AuthenticationScheme);
     }
 
-    [HttpGet("google/callback")]
-    public async Task<ApiResponse> GoogleCallBack()
+    [HttpGet("facebook-response")]
+    public async Task<ApiResponse> FacebookResponse(string code)
     {
-        return await ProviderResponse("Google", ProviderType.Google);
-    }
-
-    [HttpGet("facebook/callback")]
-    public async Task<ApiResponse> FacebookCallBack()
-    {
-        return await ProviderResponse("Facebook", ProviderType.Facebook);
+        return await ProviderResponse(code, ProviderType.Facebook);
     }
 
     private async Task<ApiResponse> ProviderResponse(string code, ProviderType providerType)

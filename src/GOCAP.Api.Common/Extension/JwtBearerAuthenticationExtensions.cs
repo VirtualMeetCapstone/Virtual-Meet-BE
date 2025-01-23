@@ -1,5 +1,6 @@
 ﻿using GOCAP.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,9 @@ public static class JwtBearerAuthenticationExtensions
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             })
+            .AddCookie()
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -35,13 +38,12 @@ public static class JwtBearerAuthenticationExtensions
             {
                 options.ClientId = _configuration["Authentication:Google:ClientId"] ?? "";
                 options.ClientSecret = _configuration["Authentication:Google:ClientSecret"] ?? "";
-                options.CallbackPath = _configuration["Authentication:Google:RedirectUri"] ?? "";
+                options.CallbackPath = "/signin/google-response";
             })
             .AddFacebook(options =>
             {
                 options.AppId = _configuration["Authentication:Facebook:AppId"] ?? "";
                 options.AppSecret = _configuration["Authentication:Facebook:AppSecret"] ?? "";
-                options.CallbackPath = _configuration["Authentication:Facebook:RedirectUri"] ?? "";
             })
             ;
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();

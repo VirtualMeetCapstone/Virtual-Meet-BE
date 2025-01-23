@@ -45,7 +45,7 @@ namespace GOCAP.Database.Migrations
                     b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Discription")
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("LastModifyTime")
@@ -57,11 +57,19 @@ namespace GOCAP.Database.Migrations
                     b.Property<string>("Medias")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Topic")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Rooms");
                 });
@@ -88,31 +96,7 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("RoomEvents");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.RoomInvitationEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("InvitedUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvitedUserId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("RoomInvitations");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.RoomLikeEntity", b =>
+            modelBuilder.Entity("GOCAP.Database.RoomFavouriteEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,7 +117,7 @@ namespace GOCAP.Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RoomLikes");
+                    b.ToTable("RoomFavourites");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
@@ -324,6 +308,9 @@ namespace GOCAP.Database.Migrations
                     b.Property<string>("Picture")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
                     b.Property<bool?>("VerifiedEmail")
                         .HasColumnType("bit");
 
@@ -479,21 +466,6 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("GroupEntityUserEntity");
                 });
 
-            modelBuilder.Entity("RoomEntityUserEntity", b =>
-                {
-                    b.Property<Guid>("MembersId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoomsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("MembersId", "RoomsId");
-
-                    b.HasIndex("RoomsId");
-
-                    b.ToTable("RoomEntityUserEntity");
-                });
-
             modelBuilder.Entity("UserEntityUserRoleEntity", b =>
                 {
                     b.Property<Guid>("UserRolesId")
@@ -509,10 +481,21 @@ namespace GOCAP.Database.Migrations
                     b.ToTable("UserEntityUserRoleEntity");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.UserEntity", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomEventEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("RoomEvents")
+                        .WithMany("Events")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -520,37 +503,18 @@ namespace GOCAP.Database.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.RoomInvitationEntity", b =>
+            modelBuilder.Entity("GOCAP.Database.RoomFavouriteEntity", b =>
                 {
-                    b.HasOne("GOCAP.Database.UserEntity", "InvitedUser")
+                    b.HasOne("GOCAP.Database.RoomEntity", "Room")
                         .WithMany()
-                        .HasForeignKey("InvitedUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("RoomInvitations")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InvitedUser");
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.RoomLikeEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("RoomLikes")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("RoomFavourites")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Room");
@@ -561,9 +525,9 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany()
+                        .WithMany("Members")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GOCAP.Database.UserEntity", "User")
@@ -602,7 +566,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.RoomSettingEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("RoomSettings")
+                        .WithMany("Settings")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -613,7 +577,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.RoomTagEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("RoomTags")
+                        .WithMany("Tags")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -624,7 +588,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserActivityEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("UserActivities")
+                        .WithMany("Activities")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -635,7 +599,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserBlockEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "BlockedByUser")
-                        .WithMany("UserBlocks")
+                        .WithMany("Blocks")
                         .HasForeignKey("BlockedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -654,7 +618,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserFollowEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "Follower")
-                        .WithMany("UserFollows")
+                        .WithMany("Follows")
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -673,7 +637,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserNotificationEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("UserNotifications")
+                        .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -684,7 +648,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserPostEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("UserPosts")
+                        .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -695,7 +659,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserRewardEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("UserRewards")
+                        .WithMany("Rewards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -706,7 +670,7 @@ namespace GOCAP.Database.Migrations
             modelBuilder.Entity("GOCAP.Database.UserStoryEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("UserStories")
+                        .WithMany("Stories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -729,21 +693,6 @@ namespace GOCAP.Database.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RoomEntityUserEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.UserEntity", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GOCAP.Database.RoomEntity", null)
-                        .WithMany()
-                        .HasForeignKey("RoomsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("UserEntityUserRoleEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserRoleEntity", null)
@@ -761,15 +710,13 @@ namespace GOCAP.Database.Migrations
 
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
                 {
-                    b.Navigation("RoomEvents");
+                    b.Navigation("Events");
 
-                    b.Navigation("RoomInvitations");
+                    b.Navigation("Members");
 
-                    b.Navigation("RoomLikes");
+                    b.Navigation("Settings");
 
-                    b.Navigation("RoomSettings");
-
-                    b.Navigation("RoomTags");
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
@@ -779,19 +726,21 @@ namespace GOCAP.Database.Migrations
 
             modelBuilder.Entity("GOCAP.Database.UserEntity", b =>
                 {
-                    b.Navigation("UserActivities");
+                    b.Navigation("Activities");
 
-                    b.Navigation("UserBlocks");
+                    b.Navigation("Blocks");
 
-                    b.Navigation("UserFollows");
+                    b.Navigation("Follows");
 
-                    b.Navigation("UserNotifications");
+                    b.Navigation("Notifications");
 
-                    b.Navigation("UserPosts");
+                    b.Navigation("Posts");
 
-                    b.Navigation("UserRewards");
+                    b.Navigation("Rewards");
 
-                    b.Navigation("UserStories");
+                    b.Navigation("RoomFavourites");
+
+                    b.Navigation("Stories");
                 });
 #pragma warning restore 612, 618
         }

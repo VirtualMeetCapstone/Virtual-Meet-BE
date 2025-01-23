@@ -17,6 +17,7 @@ public class User : CreatedObjectBase
     public string? Birthday { get; set; }
     public string? Hometown { get; set; }
     public string? Location { get; set; }
+    public UserStatusType? Status { get; set; }
 
     // Relationships
     public ICollection<Post> Posts { get; set; } = [];

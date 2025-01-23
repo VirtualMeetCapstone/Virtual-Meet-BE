@@ -46,7 +46,8 @@ internal abstract class ServiceBase<T>(
     public virtual async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(T).Name);
-        return new OperationResult(await _repository.DeleteByIdAsync(id) > 0);
+        var result = await _repository.DeleteByIdAsync(id);
+        return new OperationResult(result > 0);
     }
 
     public virtual async Task<OperationResult> CheckExistAsync(Guid id, string name)

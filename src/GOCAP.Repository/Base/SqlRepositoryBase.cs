@@ -42,10 +42,7 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
     {
         var query = _context.Set<TEntity>().AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(queryInfo.Search))
-        {
-            query = query.Where(e => EF.Functions.Like(EF.Property<string>(e, "Name"), $"%{queryInfo.Search}%"));
-        }
+        GenerateWhereString(query, queryInfo);
 
         if (!string.IsNullOrWhiteSpace(queryInfo.OrderBy))
         {
@@ -84,8 +81,8 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
     public virtual async Task<int> DeleteByIdAsync(Guid id)
     {
-        var entity = await _context.Set<TDomain>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
-        _context.Set<TDomain>().Remove(entity);
+        var entity = await _context.Set<TEntity>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+        _context.Set<TEntity>().Remove(entity);
         return await _context.SaveChangesAsync();
     }
 
@@ -105,4 +102,6 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
         );
         return exists;
     }
+
+    protected virtual IQueryable<TEntity> GenerateWhereString(IQueryable<TEntity> query, QueryInfo queryInfo) => query;
 }

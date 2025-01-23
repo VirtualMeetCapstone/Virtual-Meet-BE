@@ -2,7 +2,7 @@
 
 namespace GOCAP.Repository;
 
-public class RedisRepository (IConnectionMultiplexer _redisConnection) : IRedisRepository
+internal abstract class RedisRepository (IConnectionMultiplexer _redisConnection) : IRedisRepository
 {
     // Set a string value in Redis with a specified key
     public async Task SetAsync(string key, string value)

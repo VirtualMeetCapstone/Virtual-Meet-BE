@@ -8,5 +8,5 @@ public class UserRoleEntity : EntitySqlBase
     public string? Name { get; set; }
 
     // Relationships
-    public IEnumerable<UserEntity> Users { get; set; } = [];
+    public ICollection<UserEntity> Users { get; set; } = [];
 }

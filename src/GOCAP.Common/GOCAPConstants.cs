@@ -9,4 +9,8 @@ public static class GOCAPConstants
     public const int DefaultPage = 1;
     public const string ĐefaultOrderBy = "CreateTime";
     public const string DefaultOrderType = "DESC";
+    public const string SqlServerConnection = "SqlServerConnection";
+    public const string MongoDbConnection = "MongoDbConnection";
+    public const string RedisConnection = "RedisConnection";
+    public const string AzureBlobStorage = "AzureBlobStorage";
 }

@@ -8,14 +8,13 @@ public class AppSqlDbContext : DbContext
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<RoomEntity> Rooms { get; set; }
     public DbSet<RoomEventEntity> RoomEvents { get; set; }
-    public DbSet<RoomInvitationEntity> RoomInvitations { get; set; }
-    public DbSet<RoomLikeEntity> RoomLikes { get; set; }
+    public DbSet<RoomFavouriteEntity> RoomFavourites { get; set; }
     public DbSet<RoomMemberEntity> RoomMembers { get; set; }
     public DbSet<RoomMemberRoleEntity> RoomMemberRoles { get; set; }
     public DbSet<RoomNotificationEntity> RoomNotifications { get; set; }
     public DbSet<RoomSettingEntity> RoomSettings { get; set; }
     public DbSet<RoomTagEntity> RoomTags { get; set; }
-    public DbSet<UserActivityEntity> UserActitities { get; set; }
+    public DbSet<UserActivityEntity> UserActivities { get; set; }
     public DbSet<UserBlockEntity> UserBlocks { get; set; }
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<UserFollowEntity> UserFollows { get; set; }
@@ -34,7 +33,7 @@ public class AppSqlDbContext : DbContext
     {
         modelBuilder.Entity<UserBlockEntity>()
         .HasOne(ub => ub.BlockedByUser) 
-        .WithMany(u => u.UserBlocks)   
+        .WithMany(u => u.Blocks)   
         .HasForeignKey(ub => ub.BlockedByUserId)
         .OnDelete(DeleteBehavior.Restrict); 
 
@@ -46,7 +45,7 @@ public class AppSqlDbContext : DbContext
 
         modelBuilder.Entity<UserFollowEntity>()
             .HasOne(uf => uf.Follower) 
-            .WithMany(u => u.UserFollows) 
+            .WithMany(u => u.Follows) 
             .HasForeignKey(uf => uf.FollowerId)
             .OnDelete(DeleteBehavior.Restrict); 
 
@@ -56,6 +55,17 @@ public class AppSqlDbContext : DbContext
             .HasForeignKey(uf => uf.FollowingId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<RoomFavouriteEntity>()
+                    .HasOne(rf => rf.User)
+                    .WithMany(u => u.RoomFavourites)
+                    .HasForeignKey(rf => rf.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoomMemberEntity>()
+                    .HasOne(rf => rf.Room)
+                    .WithMany(u => u.Members)
+                    .HasForeignKey(rf => rf.RoomId)
+                    .OnDelete(DeleteBehavior.Restrict);
         base.OnModelCreating(modelBuilder); 
     }
 }

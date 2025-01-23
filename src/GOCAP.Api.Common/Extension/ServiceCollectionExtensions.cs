@@ -1,6 +1,8 @@
 ﻿using Azure.Storage.Blobs;
 using GOCAP.Common;
 using GOCAP.Database;
+using GOCAP.Repository;
+using GOCAP.Repository.Intention;
 using GOCAP.Services.BlobStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,24 +17,27 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Add for using azure blob storage
-        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString("AzureBlobStorage")));
+        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         // Add for using sql server
         services.AddDbContext<AppSqlDbContext>(options =>
-                 options.UseSqlServer(configuration.GetConnectionString("SqlServerConnection")));
+                 options.UseSqlServer(configuration.GetConnectionString(GOCAPConstants.SqlServerConnection)));
         
         // Add for using MongoDB
         services.AddSingleton(sp =>
         {
             var databaseName = GOCAPConstants.DatabaseName;
-            var connectionString = configuration.GetConnectionString("MongoDbConnection") ?? "";
+            var connectionString = configuration.GetConnectionString(GOCAPConstants.MongoDbConnection) ?? string.Empty;
             return new AppMongoDbContext(databaseName, connectionString);
         });
 
+        // Add for using unit of work pattern
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         // Add for using Redis
         services.AddDistributedMemoryCache();
-        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection") ?? ""));
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
 
         GOCAPConfiguration.Initialize(configuration); // Setting for all project
 

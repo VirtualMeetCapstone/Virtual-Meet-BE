@@ -10,10 +10,12 @@ public static class CorsServiceCollectionExtensions
         {
             opt.AddDefaultPolicy(builder =>
             {
-                builder.AllowAnyMethod()
+                builder
+                       .AllowAnyMethod()
                        .SetPreflightMaxAge(TimeSpan.FromDays(1))
                        .SetIsOriginAllowed(origin => true)
-                       .AllowAnyHeader();
+                       .AllowAnyHeader()
+                        ;
             });
         });
         return services;

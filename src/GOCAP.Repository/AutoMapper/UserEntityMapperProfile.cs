@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository.AutoMapper;
 
 public class UserEntityMapperProfile : EntityMapperProfileBase
 {

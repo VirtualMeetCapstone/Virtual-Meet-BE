@@ -4,5 +4,5 @@
 public class GroupEntity : EntitySqlBase
 {
     public string? GroupName { get; set; }
-    public IEnumerable<UserEntity> Members { get; set; } = [];
+    public ICollection<UserEntity> Members { get; set; } = [];
 }

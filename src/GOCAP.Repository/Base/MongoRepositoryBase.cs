@@ -76,9 +76,9 @@ internal abstract class MongoRepositoryBase<TDomain, TEntity>
     public virtual async Task<QueryResult<TDomain>> GetByPageAsync(QueryInfo queryInfo)
     {
         var filter = Builders<TEntity>.Filter.Empty;
-        if (!string.IsNullOrWhiteSpace(queryInfo.Search))
+        if (!string.IsNullOrWhiteSpace(queryInfo.SearchText))
         {
-            filter = Builders<TEntity>.Filter.Regex("Name", new BsonRegularExpression(queryInfo.Search, "i")); // Find no distinct lowercase or uppercase
+            filter = Builders<TEntity>.Filter.Regex("Name", new BsonRegularExpression(queryInfo.SearchText, "i")); // Find no distinct lowercase or uppercase
         }
 
         var query = _collection.Find(filter);
