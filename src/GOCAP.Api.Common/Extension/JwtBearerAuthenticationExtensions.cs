@@ -20,9 +20,7 @@ public static class JwtBearerAuthenticationExtensions
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddCookie()
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -38,7 +36,6 @@ public static class JwtBearerAuthenticationExtensions
             {
                 options.ClientId = _configuration["Authentication:Google:ClientId"] ?? "";
                 options.ClientSecret = _configuration["Authentication:Google:ClientSecret"] ?? "";
-                options.CallbackPath = "/signin/google-response";
             })
             .AddFacebook(options =>
             {

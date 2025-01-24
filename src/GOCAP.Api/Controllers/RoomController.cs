@@ -21,9 +21,10 @@ public class RoomController(IRoomService _service, IMapper _mapper) : ApiControl
     }
 
     [HttpPatch]
-    public async Task<OperationResult> Update(Guid id, [FromBody] RoomCreationModel model)
+    public async Task<OperationResult> Update(Guid id, [FromForm] RoomCreationModel model)
     {
         var domain = _mapper.Map<Room>(model);
+        domain.Id = id;
         return await _service.UpdateAsync(id, domain);
     }
 

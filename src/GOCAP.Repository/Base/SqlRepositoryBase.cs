@@ -70,12 +70,10 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
     public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id);
-        if (entity == null)
-        {
-            return false;
-        }
+        var entity = await _context.Set<TEntity>().FindAsync(id) 
+            ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
         _mapper.Map(domain, entity);
+        _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }
 
