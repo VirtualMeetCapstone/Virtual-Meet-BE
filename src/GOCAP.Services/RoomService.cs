@@ -19,17 +19,20 @@ internal class RoomService(
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
         try
         {
+            // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
             await _roomMemberRepository.DeleteByRoomIdAsync(id);
             var result = await _repository.DeleteByIdAsync(id);
 
+            // Commit if success
             await _unitOfWork.CommitTransactionAsync();
             return new OperationResult(result > 0);
         }
         catch (Exception ex) 
         {
             _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(Room).Name);
+            // Rollback if fail
             await _unitOfWork.RollbackTransactionAsync();
             return new OperationResult(false);
         }
