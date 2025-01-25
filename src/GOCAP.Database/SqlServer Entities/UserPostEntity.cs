@@ -3,9 +3,11 @@
 [Table("UserPosts")]
 public class UserPostEntity : EntitySqlBase
 {
+    [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Content { get; set; }
     public Guid UserId { get; set; }
     public long CreateTime { get; set; }
     public UserEntity? User { get; set; }
+    public ICollection<UserPostLikeEntity> Likes { get; set; } = [];
 }
 

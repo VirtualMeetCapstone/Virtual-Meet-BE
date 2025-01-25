@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Services.Intention;
 
-public interface IPostService : IServiceBase<Post>
+public interface IPostService : IServiceBase<UserPost>
 {
-    Task<Post> UploadPost(Post post);
+    Task<UserPost> UploadPost(UserPost post);
 }

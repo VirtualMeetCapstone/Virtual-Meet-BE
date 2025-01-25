@@ -8,8 +8,7 @@ public class UserModel
     public string? Password { get; set; }
     public string? Picture { get; set; }
     public string? Bio { get; set; }
-    public ICollection<Post>? Posts { get; set; }
-    public ICollection<Comment>? Comments { get; set; }
+    public ICollection<UserPost>? Posts { get; set; }
     public ICollection<Follow>? Followers { get; set; }
     public ICollection<Follow>? Followings { get; set; }
     public ICollection<Notification>? Notifications { get; set; }

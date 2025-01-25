@@ -1,11 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GOCAP.Database;
+using Microsoft.EntityFrameworkCore;
 
-namespace GOCAP.Database;
+namespace GOCAP.Migrations;
 
-public class AppSqlDbContext
-    (DbContextOptions<AppSqlDbContext> options,
-    IGOCAPConfiguration _configuration) : DbContext(options)
+/// <summary>
+/// This db context is only used for generating the migrations and data.
+/// </summary>
+public class AppDbContext : DbContext
 {
+    public AppDbContext() { }
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
+
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }
     public DbSet<RoomEntity> Rooms { get; set; }
@@ -30,32 +38,37 @@ public class AppSqlDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(_configuration.GetSqlServerConnectionString());
+        //Connection string pattern: Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true
+        
+        // Input the correct connection string 
+        optionsBuilder.UseSqlServer("");
+
+        // Open the cmd and run this: dotnet ef database update
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserBlockEntity>()
-                    .HasOne(ub => ub.BlockedByUser) 
-                    .WithMany(u => u.Blocks)   
+                    .HasOne(ub => ub.BlockedByUser)
+                    .WithMany(u => u.Blocks)
                     .HasForeignKey(ub => ub.BlockedByUserId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserBlockEntity>()
-                    .HasOne(ub => ub.BlockedUser)  
-                    .WithMany()                  
+                    .HasOne(ub => ub.BlockedUser)
+                    .WithMany()
                     .HasForeignKey(ub => ub.BlockedUserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFollowEntity>()
-                    .HasOne(uf => uf.Follower) 
-                    .WithMany(u => u.Follows) 
+                    .HasOne(uf => uf.Follower)
+                    .WithMany(u => u.Follows)
                     .HasForeignKey(uf => uf.FollowerId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFollowEntity>()
-                    .HasOne(uf => uf.Following) 
-                    .WithMany() 
+                    .HasOne(uf => uf.Following)
+                    .WithMany()
                     .HasForeignKey(uf => uf.FollowingId)
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -83,6 +96,7 @@ public class AppSqlDbContext
                     .HasForeignKey(rf => rf.PostId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-        base.OnModelCreating(modelBuilder); 
+        base.OnModelCreating(modelBuilder);
     }
 }
+

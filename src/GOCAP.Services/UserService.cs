@@ -6,11 +6,9 @@ internal class UserService(
     ILogger<UserService> _logger
     ) : ServiceBase<User>(_repository, _logger), IUserService
 {
-    public override async Task<User> AddAsync(User user)
+    public override async Task<User> GetByIdAsync(Guid id)
     {
-        _logger.LogInformation("Start to a new user");
-        user.InitCreation();    
-        return await _repository.AddAsync(user);
+        return await _repository.GetByIdAsync(id);
     }
 
     public override async Task<OperationResult> UpdateAsync(Guid id, User user)

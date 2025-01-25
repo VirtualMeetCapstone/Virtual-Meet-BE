@@ -3,7 +3,9 @@
 [Table("Rooms")]
 public class RoomEntity : EntitySqlBase
 {
+    [MaxLength(GOCAPConstants.MaxLengthTopic)]
     public string Topic { get; set; } = string.Empty;
+    [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
     public string? Medias { get; set; } // Save in json format

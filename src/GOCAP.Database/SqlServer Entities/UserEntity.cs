@@ -4,12 +4,14 @@
 public class UserEntity : EntitySqlBase
 {
     [Required]
-    [StringLength(100)]
+    [MaxLength(GOCAPConstants.MaxLengthName)]
     public string Name { get; set; } = string.Empty;
     [Required]
-    [EmailAddress]
+    [MaxLength(GOCAPConstants.MaxLengthEmail)]
     public string Email { get; set; } = string.Empty;
+    [MaxLength(GOCAPConstants.MaxLengthUrl)]
     public string? Picture { get; set; }
+    [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Bio { get; set; }
     public bool? VerifiedEmail { get; set; }
     public string? Gender { get; set; }
@@ -23,6 +25,8 @@ public class UserEntity : EntitySqlBase
 
     // Relationships
     public ICollection<RoomFavouriteEntity> RoomFavourites { get; set; } = [];
+    public ICollection<RoomMemberEntity> RoomMembers { get; set; } = [];
+    public ICollection<GroupMemberEntity> GroupMembers { get; set; } = [];
     public ICollection<GroupEntity> Groups { get; set; } = [];
     public ICollection<UserRoleEntity> UserRoles { get; set; } = [];
     public ICollection<UserActivityEntity> Activities { get; set; } = [];

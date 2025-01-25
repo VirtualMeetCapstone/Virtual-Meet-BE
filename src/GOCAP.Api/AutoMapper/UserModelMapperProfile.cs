@@ -4,10 +4,9 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 {
     public UserModelMapperProfile()
     {
-        CreateMap<User, UserModel>();
-        CreateMap<UserModel, User>();
-        CreateMap<User, UserCreationModel>();
-        CreateMap<UserCreationModel, User>();
+        CreateMap<User, UserModel>().ReverseMap();
+        CreateMap<User, UserProfileModel>().ReverseMap();
+        CreateMap<User, UserCreationModel>().ReverseMap();
 
         CreateMap<GoogleUser, User>();
         CreateMap<User, GoogleUser>();
