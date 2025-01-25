@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Post : DomainBase
+public class UserPost : DomainBase
 {
     public string? Content { get; set; }
     public Guid UserId { get; set; }

@@ -2,40 +2,21 @@
 
 namespace GOCAP.Common;
 
-public class GOCAPConfiguration
+public class GOCAPConfiguration (IConfiguration _configuration) : IGOCAPConfiguration
 {
-    private static GOCAPConfiguration? _instance;
-    private static readonly object _lock = new();
-    private static IConfiguration? _configuration;
 
-    private GOCAPConfiguration(IConfiguration configuration)
+    /// <summary>
+    /// Get sql server connection string 
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public string? GetSqlServerConnectionString()
     {
-        _configuration = configuration;
-    }
-
-    public static GOCAPConfiguration GetInstance(IConfiguration configuration)
-    {
-        lock (_lock)
+        if (_configuration is null)
         {
-            _instance ??= new GOCAPConfiguration(configuration);
+            throw new InternalException("Configuration has not been initialized.");
         }
 
-        return _instance;
-    }
-
-    public static void Initialize(IConfiguration configuration)
-    {
-        _configuration ??= configuration;
-    }
-
-    // Get sql server connection string
-    public static string GetSqlServerConnectionString()
-    {
-        if (_configuration == null)
-        {
-            throw new InvalidOperationException("Configuration has not been initialized.");
-        }
-
-        return _configuration.GetConnectionString("SqlServerConnection") ?? string.Empty;
+        return _configuration.GetConnectionString(GOCAPConstants.SqlServerConnection);
     }   
 }

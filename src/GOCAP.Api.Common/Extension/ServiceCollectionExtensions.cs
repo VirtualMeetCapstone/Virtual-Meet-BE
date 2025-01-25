@@ -21,8 +21,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         // Add for using sql server
-        services.AddDbContext<AppSqlDbContext>(options =>
-                 options.UseSqlServer(configuration.GetConnectionString(GOCAPConstants.SqlServerConnection)));
+        services
+            .AddSingleton<IGOCAPConfiguration, GOCAPConfiguration>()
+            .AddDbContext<AppSqlDbContext>((serviceProvider, options) =>
+            {
+                var configuration = serviceProvider.GetRequiredService<IGOCAPConfiguration>();
+                var connectionString = configuration.GetSqlServerConnectionString();
+                options.UseSqlServer(connectionString);
+            });
         
         // Add for using MongoDB
         services.AddSingleton(sp =>
@@ -38,8 +44,6 @@ public static class ServiceCollectionExtensions
         // Add for using Redis
         services.AddDistributedMemoryCache();
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
-
-        GOCAPConfiguration.Initialize(configuration); // Setting for all project
 
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),

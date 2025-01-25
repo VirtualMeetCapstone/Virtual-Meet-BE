@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace GOCAP.Database.Migrations
+namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
     public partial class GOCAPDB : Migration
@@ -12,27 +12,15 @@ namespace GOCAP.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Groups",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Groups", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,10 +28,10 @@ namespace GOCAP.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Picture = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
+                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     VerifiedEmail = table.Column<bool>(type: "bit", nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Birthday = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -58,24 +46,19 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GroupEntityUserEntity",
+                name: "Groups",
                 columns: table => new
                 {
-                    GroupsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MembersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GroupName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupEntityUserEntity", x => new { x.GroupsId, x.MembersId });
+                    table.PrimaryKey("PK_Groups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupEntityUserEntity_Groups_GroupsId",
-                        column: x => x.GroupsId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GroupEntityUserEntity_Users_MembersId",
-                        column: x => x.MembersId,
+                        name: "FK_Groups_Users_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -86,8 +69,8 @@ namespace GOCAP.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Topic = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Topic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     MaximumMembers = table.Column<int>(type: "int", nullable: false),
                     Medias = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
@@ -152,30 +135,6 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserEntityUserRoleEntity",
-                columns: table => new
-                {
-                    UserRolesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserEntityUserRoleEntity", x => new { x.UserRolesId, x.UsersId });
-                    table.ForeignKey(
-                        name: "FK_UserEntityUserRoleEntity_UserRoles_UserRolesId",
-                        column: x => x.UserRolesId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserEntityUserRoleEntity_Users_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserFollows",
                 columns: table => new
                 {
@@ -207,7 +166,7 @@ namespace GOCAP.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NotificationContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -227,7 +186,7 @@ namespace GOCAP.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -263,11 +222,37 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserRoles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserStories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoryContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -283,12 +268,38 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GroupMembers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    JoinedAt = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupMembers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GroupMembers_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GroupMembers_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoomEvents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EventName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EventName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     EventDate = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -360,7 +371,7 @@ namespace GOCAP.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NotificationContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsGlobal = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -400,7 +411,7 @@ namespace GOCAP.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TagName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TagName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -415,12 +426,38 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserPostLikes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserPostLikes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserPostLikes_UserPosts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "UserPosts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserPostLikes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoomMemberRoles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomMemberId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    RoleName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -434,9 +471,19 @@ namespace GOCAP.Database.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupEntityUserEntity_MembersId",
-                table: "GroupEntityUserEntity",
-                column: "MembersId");
+                name: "IX_GroupMembers_GroupId",
+                table: "GroupMembers",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupMembers_UserId",
+                table: "GroupMembers",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Groups_OwnerId",
+                table: "Groups",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomEvents_RoomId",
@@ -504,11 +551,6 @@ namespace GOCAP.Database.Migrations
                 column: "BlockedUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserEntityUserRoleEntity_UsersId",
-                table: "UserEntityUserRoleEntity",
-                column: "UsersId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserFollows_FollowerId",
                 table: "UserFollows",
                 column: "FollowerId");
@@ -524,6 +566,16 @@ namespace GOCAP.Database.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserPostLikes_PostId",
+                table: "UserPostLikes",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserPostLikes_UserId",
+                table: "UserPostLikes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserPosts_UserId",
                 table: "UserPosts",
                 column: "UserId");
@@ -531,6 +583,16 @@ namespace GOCAP.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserRewards_UserId",
                 table: "UserRewards",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_RoleId",
+                table: "UserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_UserId",
+                table: "UserRoles",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -543,7 +605,7 @@ namespace GOCAP.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GroupEntityUserEntity");
+                name: "GroupMembers");
 
             migrationBuilder.DropTable(
                 name: "RoomEvents");
@@ -570,19 +632,19 @@ namespace GOCAP.Database.Migrations
                 name: "UserBlocks");
 
             migrationBuilder.DropTable(
-                name: "UserEntityUserRoleEntity");
-
-            migrationBuilder.DropTable(
                 name: "UserFollows");
 
             migrationBuilder.DropTable(
                 name: "UserNotifications");
 
             migrationBuilder.DropTable(
-                name: "UserPosts");
+                name: "UserPostLikes");
 
             migrationBuilder.DropTable(
                 name: "UserRewards");
+
+            migrationBuilder.DropTable(
+                name: "UserRoles");
 
             migrationBuilder.DropTable(
                 name: "UserStories");
@@ -594,7 +656,10 @@ namespace GOCAP.Database.Migrations
                 name: "RoomMembers");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "UserPosts");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Rooms");

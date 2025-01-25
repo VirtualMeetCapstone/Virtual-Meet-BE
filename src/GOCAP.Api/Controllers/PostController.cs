@@ -6,19 +6,6 @@ public class PostController(IPostService _postService,
     IBlobStorageService _blobStorageService,
     IMapper _mapper) : ApiControllerBase
 {
-    [HttpGet]
-    public async Task<IEnumerable<PostModel>> GetAll()
-    {
-        var result = await _postService.GetAllAsync();
-        return _mapper.Map<List<PostModel>>(result);
-    }
-
-    [HttpGet("page")]
-    public async Task<QueryResult<PostModel>> GetByPage([FromQuery] QueryInfo queryInfo)
-    {
-        var result = await _postService.GetByPageAsync(queryInfo);
-        return _mapper.Map<QueryResult<PostModel>>(result);
-    }
 
     [HttpGet("{id}")]
     public async Task<PostModel?> GetById([FromRoute] Guid id)
@@ -51,7 +38,7 @@ public class PostController(IPostService _postService,
                         })))
                 ];
             }
-            var domain = _mapper.Map<Post>(model);
+            var domain = _mapper.Map<UserPost>(model);
             domain.Medias = medias;
             var post = await _postService.UploadPost(domain);
             var result = _mapper.Map<PostModel>(post);

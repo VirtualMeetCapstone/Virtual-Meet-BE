@@ -13,4 +13,14 @@ public static class GOCAPConstants
     public const string MongoDbConnection = "MongoDbConnection";
     public const string RedisConnection = "RedisConnection";
     public const string AzureBlobStorage = "AzureBlobStorage";
+    public const int DefaultMinLength = 1;
+
+    // Default max length 
+    public const int MaxLengthTopic = 100;
+    public const int MaxLengthName = 30;
+    public const int MaxLengthEmail = 320;
+    public const int MaxLengthDescription = 1000;
+    public const int MaxLengthHastTag = 50;
+    public const int MaxLengthUrl = 2000;
+
 }

@@ -7,15 +7,15 @@ public class PostModelMapperProfile : ModelMapperProfileBase
         CreateMap<Media, MediaModel>();
         CreateMap<MediaModel, Media>();
 
-        CreateMap<QueryResult<Post>, QueryResult<PostModel>>();
-        CreateMap<QueryResult<PostModel>, QueryResult<Post>>();
+        CreateMap<QueryResult<UserPost>, QueryResult<PostModel>>();
+        CreateMap<QueryResult<PostModel>, QueryResult<UserPost>>();
 
-        CreateMap<Post, PostModel>();
-        CreateMap<PostModel, Post>();
+        CreateMap<UserPost, PostModel>();
+        CreateMap<PostModel, UserPost>();
 
-        CreateMap<Post, PostCreationModel>();
+        CreateMap<UserPost, PostCreationModel>();
 
-        CreateMap<PostCreationModel, Post>()
+        CreateMap<PostCreationModel, UserPost>()
             .ForMember(dest => dest.Medias, opt => opt.Ignore());
     }
 }
