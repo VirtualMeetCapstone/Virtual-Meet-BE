@@ -20,6 +20,5 @@ public class User : CreatedObjectBase
     public ICollection<UserPost> Posts { get; set; } = [];
     public ICollection<Follow> Followers { get; set; } = [];
     public ICollection<Follow> Followings { get; set; } = [];
-    public ICollection<Notification> Notifications { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
 }

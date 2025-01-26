@@ -4,7 +4,7 @@ public class UserEntityMapperProfile : EntityMapperProfileBase
 {
     public UserEntityMapperProfile()
     {
-        CreateMap<User, UserEntity>();
-        CreateMap<UserEntity, User>();
+        CreateMap<User, UserEntity>().ReverseMap();
+        CreateMap<UserNotification, UserNotificationEntity>().ReverseMap();
     }
 }

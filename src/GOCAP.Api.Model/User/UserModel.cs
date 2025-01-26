@@ -9,9 +9,8 @@ public class UserModel
     public string? Picture { get; set; }
     public string? Bio { get; set; }
     public ICollection<UserPost>? Posts { get; set; }
-    public ICollection<Follow>? Followers { get; set; }
-    public ICollection<Follow>? Followings { get; set; }
-    public ICollection<Notification>? Notifications { get; set; }
+    public int FollowersCount { get; set; }
+    public int FollowingsCount { get; set; }
     public ICollection<UserRole>? UserRoles { get; set; }
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }

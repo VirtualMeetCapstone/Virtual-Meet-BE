@@ -11,6 +11,7 @@ internal class RoomService(
     public override async Task<Room> AddAsync(Room room)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Room).Name);
+        room.Id = Guid.NewGuid();
         room.CreateTime = DateTime.Now.Ticks;
         return await _repository.AddAsync(room);
     }
