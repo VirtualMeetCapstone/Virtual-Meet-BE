@@ -6,6 +6,10 @@ public class AppSqlDbContext
     (DbContextOptions<AppSqlDbContext> options,
     IGOCAPConfiguration _configuration) : DbContext(options)
 {
+    /// <summary>
+    /// Please always updating the number of db sets and the db sets name by order.
+    /// There are 21 db sets.
+    /// </summary>
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }
     public DbSet<RoomEntity> Rooms { get; set; }
@@ -36,26 +40,26 @@ public class AppSqlDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserBlockEntity>()
-                    .HasOne(ub => ub.BlockedByUser) 
-                    .WithMany(u => u.Blocks)   
+                    .HasOne(ub => ub.BlockedByUser)
+                    .WithMany(u => u.Blocks)
                     .HasForeignKey(ub => ub.BlockedByUserId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserBlockEntity>()
-                    .HasOne(ub => ub.BlockedUser)  
-                    .WithMany()                  
+                    .HasOne(ub => ub.BlockedUser)
+                    .WithMany()
                     .HasForeignKey(ub => ub.BlockedUserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFollowEntity>()
-                    .HasOne(uf => uf.Follower) 
-                    .WithMany(u => u.Follows) 
+                    .HasOne(uf => uf.Follower)
+                    .WithMany(u => u.Follows)
                     .HasForeignKey(uf => uf.FollowerId)
-                    .OnDelete(DeleteBehavior.Restrict); 
+                    .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFollowEntity>()
-                    .HasOne(uf => uf.Following) 
-                    .WithMany() 
+                    .HasOne(uf => uf.Following)
+                    .WithMany()
                     .HasForeignKey(uf => uf.FollowingId)
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -83,6 +87,6 @@ public class AppSqlDbContext
                     .HasForeignKey(rf => rf.PostId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-        base.OnModelCreating(modelBuilder); 
+        base.OnModelCreating(modelBuilder);
     }
 }

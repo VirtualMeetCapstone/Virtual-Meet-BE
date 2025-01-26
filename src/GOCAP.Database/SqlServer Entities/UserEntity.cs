@@ -22,6 +22,8 @@ public class UserEntity : EntitySqlBase
     public long CreateTime { get; set; }
     [Required]
     public long LastModifyTime { get; set; }
+    [Required]
+    public bool IsDeleted { get; set; }
 
     // Relationships
     public ICollection<RoomFavouriteEntity> RoomFavourites { get; set; } = [];

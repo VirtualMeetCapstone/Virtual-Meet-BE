@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GOCAP.Migrations;
 
 /// <summary>
-/// This db context is only used for generating the migrations and data.
+/// This db context is only used for generating the migrations and data.          
+/// Please make sure the consistency between two db context in 2 different projects GOCAP.Database and GOCAP.Migrations.
 /// </summary>
 public class AppDbContext : DbContext
 {
@@ -41,9 +42,9 @@ public class AppDbContext : DbContext
         //Connection string pattern: Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true
         
         // Input the correct connection string 
-        optionsBuilder.UseSqlServer("");
+        optionsBuilder.UseSqlServer("Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true");
 
-        // Open the cmd and run this: dotnet ef database update
+        // Open the cmd and run this command: dotnet ef database update
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

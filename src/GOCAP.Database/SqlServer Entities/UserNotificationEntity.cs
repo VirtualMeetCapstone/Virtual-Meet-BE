@@ -5,8 +5,13 @@ public class UserNotificationEntity : EntitySqlBase
 {
     public Guid UserId { get; set; }
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
-    public string NotificationContent { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
+    public NotificationType Type { get; set; }
+    public Guid ReferenceId {  get; set; }
     public bool IsRead { get; set; }
-    public long CreatedAt { get; set; }
+    [Required]
+    public long CreateTime { get; set; }
+    [Required]
+    public long LastModifyTime { get; set; }
     public UserEntity? User { get; set; }
 }

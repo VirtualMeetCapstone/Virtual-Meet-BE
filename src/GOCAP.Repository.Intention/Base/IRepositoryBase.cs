@@ -13,7 +13,7 @@ public interface IRepositoryBase<T>
     /// </summary>
     /// <param name="domains">domain model</param>
     /// <returns>True:succeed, False:failed.</returns>
-    Task<Boolean> AddRangeAsync(IEnumerable<T> domains);
+    Task<bool> AddRangeAsync(IEnumerable<T> domains);
 
     /// <summary>
     /// Get all records in database, take care of the data size
@@ -51,14 +51,14 @@ public interface IRepositoryBase<T>
     /// </summary>
     /// <param name="domain">domain model</param>
     /// <returns>True:succeed, False:failed.</returns>
-    Task<Boolean> UpdateAsync(Guid id, T domain);
+    Task<bool> UpdateAsync(Guid id, T domain);
 
     /// <summary>
     /// Delete a record from the database.
     /// </summary>
     /// <param name="id">domain model id</param>
     /// <returns>True:succeed, False:failed.</returns>
-    Task<Int32> DeleteByIdAsync(Guid id);
+    Task<int> DeleteByIdAsync(Guid id);
 
     /// <summary>
     /// Check the record exist or not by id and name
@@ -66,12 +66,12 @@ public interface IRepositoryBase<T>
     /// <param name="id">domain model id</param>
     /// <param name="name">domain model name</param>
     /// <returns>True: if there is no record equals by name but id not, otherwise False</returns>
-    Task<Boolean> CheckExistAsync(Guid id, string name);
+    Task<bool> CheckExistAsync(Guid id, string name);
 
     /// <summary>
     /// Check the record exist or not by id 
     /// </summary>
     /// <param name="id">domain model id</param>
     /// <returns>True: if there is no record equals by name but id not, otherwise False</returns>
-    Task<Boolean> CheckExistAsync(Guid id);
+    Task<bool> CheckExistAsync(Guid id);
 }

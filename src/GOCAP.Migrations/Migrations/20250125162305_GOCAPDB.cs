@@ -38,7 +38,8 @@ namespace GOCAP.Migrations.Migrations
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,9 +167,12 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    ReferenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {

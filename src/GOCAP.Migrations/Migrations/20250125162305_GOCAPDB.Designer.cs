@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250125104755_GOCAPDB")]
+    [Migration("20250125162305_GOCAPDB")]
     partial class GOCAPDB
     {
         /// <inheritdoc />
@@ -351,6 +351,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<string>("Gender")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
@@ -407,16 +410,25 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("CreatedAt")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<string>("NotificationContent")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("ReferenceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
