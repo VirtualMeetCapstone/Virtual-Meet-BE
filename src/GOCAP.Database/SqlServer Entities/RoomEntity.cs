@@ -4,7 +4,7 @@
 public class RoomEntity : EntitySqlBase
 {
     [MaxLength(GOCAPConstants.MaxLengthTopic)]
-    public string Topic { get; set; } = string.Empty;
+    public required string Topic { get; set; }
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }

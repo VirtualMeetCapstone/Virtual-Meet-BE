@@ -10,12 +10,12 @@ public class PostModelMapperProfile : ModelMapperProfileBase
         CreateMap<QueryResult<UserPost>, QueryResult<PostModel>>();
         CreateMap<QueryResult<PostModel>, QueryResult<UserPost>>();
 
-        CreateMap<UserPost, PostModel>();
-        CreateMap<PostModel, UserPost>();
-
+        CreateMap<UserPost, PostModel>().ReverseMap();
         CreateMap<UserPost, PostCreationModel>();
-
         CreateMap<PostCreationModel, UserPost>()
             .ForMember(dest => dest.Medias, opt => opt.Ignore());
+
+        CreateMap<PostLike, PostLikeCreationModel>().ReverseMap();
+        CreateMap<PostLike, PostLikeModel>().ReverseMap();
     }
 }

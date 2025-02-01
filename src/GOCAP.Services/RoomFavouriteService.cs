@@ -17,6 +17,7 @@ internal class RoomFavouriteService(
         var isExists = await _repository.CheckExistAsync(roomFavourite.RoomId, roomFavourite.UserId);
         if (isExists)
         {
+            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(RoomFavourite).Name);
             var resultDelete = await _repository.DeleteAsync(roomFavourite.RoomId, roomFavourite.UserId);
             result = new OperationResult(resultDelete > 0);
         }

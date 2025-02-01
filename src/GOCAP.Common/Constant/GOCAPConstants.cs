@@ -3,7 +3,7 @@
 public static class GOCAPConstants
 {
     public static readonly string DatabaseName = "GOCAP";
-    public static readonly string REDIRECT_URI = "https://localhost:7035";
+    public static readonly string DefaultUri = "https://localhost:7035";
     public const int DefaultPageSize = 10;
     public const int MaxPageSize = 100;
     public const int DefaultPage = 1;

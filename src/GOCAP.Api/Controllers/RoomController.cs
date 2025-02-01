@@ -2,8 +2,15 @@
 
 [Route("rooms")]
 [ApiController]
-public class RoomController(IRoomService _service, IMapper _mapper) : ApiControllerBase
+public class RoomController(IRoomService _service,
+    IRoomFavouriteService _roomFavouriteService,
+    IMapper _mapper) : ApiControllerBase
 {
+    /// <summary>
+    /// Get rooms with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
     [HttpGet("page")]
     public async Task<QueryResult<RoomModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
@@ -12,6 +19,11 @@ public class RoomController(IRoomService _service, IMapper _mapper) : ApiControl
         return result;
     }
 
+    /// <summary>
+    /// Create a new room.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<RoomModel> Create([FromForm] RoomCreationModel model)
     {
@@ -20,6 +32,12 @@ public class RoomController(IRoomService _service, IMapper _mapper) : ApiControl
         return _mapper.Map<RoomModel>(result);
     }
 
+    /// <summary>
+    /// Update a room by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPatch]
     public async Task<OperationResult> Update(Guid id, [FromForm] RoomCreationModel model)
     {
@@ -28,9 +46,27 @@ public class RoomController(IRoomService _service, IMapper _mapper) : ApiControl
         return await _service.UpdateAsync(id, domain);
     }
 
+    /// <summary>
+    /// Delete a room by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
         return await _service.DeleteByIdAsync(id);
+    }
+
+    /// <summary>
+    /// Create or delete a room favourite.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("favourite")]
+    public async Task<OperationResult> CreateOrDeleteRoomFavourite([FromBody] RoomFavouriteCreationModel model)
+    {
+        var room = _mapper.Map<RoomFavourite>(model);
+        var result = await _roomFavouriteService.CreateOrDeleteAsync(room);
+        return result;
     }
 }

@@ -34,7 +34,7 @@ internal class RoomRepository(
             Id = r.Id,
             Owner = new User
             {
-                Name = r.Owner?.Name,
+                Name = r.Owner?.Name ?? string.Empty,
                 Bio = r.Owner?.Picture,
             },
             Topic = r.Topic,
@@ -45,7 +45,7 @@ internal class RoomRepository(
             CreateTime = r.CreateTime,
             Members = r.Members.Select(rm => new User
             {
-                Name = rm.User?.Name,
+                Name = rm.User?.Name ?? string.Empty,
                 Email = rm.User?.Email,
                 Picture = rm.User?.Picture
             })

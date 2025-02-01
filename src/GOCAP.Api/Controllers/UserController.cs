@@ -2,9 +2,15 @@
 
 [Route("users")]
 [ApiController]
-public class UserController(IUserService _userService, IMapper _mapper) : ApiControllerBase
+public class UserController(IUserService _userService,
+    IFollowService _followService,
+    IMapper _mapper) : ApiControllerBase
 {
-
+    /// <summary>
+    /// Get user profile by user id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<UserProfileModel> GetUserProfile([FromRoute] Guid id)
     {
@@ -12,10 +18,41 @@ public class UserController(IUserService _userService, IMapper _mapper) : ApiCon
         return _mapper.Map<UserProfileModel>(user);
     }
 
+    /// <summary>
+    /// Update user profile by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPatch]
     public async Task<OperationResult> UpdateUserProfile(Guid id, [FromForm] UserCreationModel model)
     {
         var user = _mapper.Map<User>(model);
         return await _userService.UpdateAsync(id, user);
+    }
+
+    /// <summary>
+    /// Get notifications by user id.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet("notifications/{userId}")]
+    public async Task<List<UserNotificationModel>> GetNotificationsByUserId([FromRoute] Guid userId)
+    {
+        var userNotifications = await _userService.GetNotificationsByUserIdAsync(userId);
+        return _mapper.Map<List<UserNotificationModel>>(userNotifications);
+    }
+
+    /// <summary>
+    /// Follow or unfollow another user.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("follow")]
+    public async Task<OperationResult> FollowOrUnfollow([FromBody] FollowCreationModel model)
+    {
+        var follow = _mapper.Map<Follow>(model);
+        var result = await _followService.FollowAsync(follow);
+        return result;
     }
 }
