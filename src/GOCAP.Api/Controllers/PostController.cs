@@ -2,7 +2,8 @@
 
 [Route("posts")]
 [ApiController]
-public class PostController(IPostService _postService,
+public class PostController(
+    IPostService _service,
     IBlobStorageService _blobStorageService,
     IMapper _mapper) : ApiControllerBase
 {
@@ -10,7 +11,7 @@ public class PostController(IPostService _postService,
     [HttpGet("{id}")]
     public async Task<PostModel?> GetById([FromRoute] Guid id)
     {
-        var result = await _postService.GetByIdAsync(id) ?? throw new ResourceNotFoundException("The post does not exist");
+        var result = await _service.GetByIdAsync(id) ?? throw new ResourceNotFoundException("The post does not exist");
         return _mapper.Map<PostModel>(result);
     }
 
@@ -40,7 +41,7 @@ public class PostController(IPostService _postService,
             }
             var domain = _mapper.Map<UserPost>(model);
             domain.Medias = medias;
-            var post = await _postService.UploadPost(domain);
+            var post = await _service.UploadPost(domain);
             var result = _mapper.Map<PostModel>(post);
 
             transaction.Complete();
@@ -59,6 +60,14 @@ public class PostController(IPostService _postService,
     [HttpDelete("{id}")]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
-        return await _postService.DeleteByIdAsync(id);
+        return await _service.DeleteByIdAsync(id);
+    }
+
+    [HttpPost("like")]
+    public async Task<OperationResult> LikeOrUnlike([FromBody] PostLikeCreationModel model)
+    {
+        var domain = _mapper.Map<PostLike>(model);
+        var result = await _service.LikeOrUnlikeAsync(domain);
+        return result;
     }
 }

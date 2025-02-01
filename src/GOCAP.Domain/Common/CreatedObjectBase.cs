@@ -1,20 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public abstract class CreatedObjectBase : DomainBase
+public abstract class CreatedObjectBase : DateObjectBase
 {
-    public string? Name { get; set; }
-    public long CreateTime { get; set; }
-    public long LastModifyTime { get; set; }
-
-    public void InitCreation()
-    {
-        Id = Guid.NewGuid();
-        CreateTime = DateTime.UtcNow.Ticks;
-        LastModifyTime = DateTime.UtcNow.Ticks;
-    }
-
-    public void UpdateModify()
-    {
-        LastModifyTime = DateTime.UtcNow.Ticks;
-    }
+    public required string Name { get; set; }
 }

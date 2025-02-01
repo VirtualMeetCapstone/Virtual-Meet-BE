@@ -7,6 +7,8 @@ public class UserModelMapperProfile : ModelMapperProfileBase
         CreateMap<User, UserModel>().ReverseMap();
         CreateMap<User, UserProfileModel>().ReverseMap();
         CreateMap<User, UserCreationModel>().ReverseMap();
+        CreateMap<User, ReferenceNotificationModel>().ReverseMap();
+        CreateMap<UserNotification, UserNotificationModel>().ReverseMap();
 
         CreateMap<GoogleUser, User>();
         CreateMap<User, GoogleUser>();

@@ -30,7 +30,7 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
-                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     VerifiedEmail = table.Column<bool>(type: "bit", nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -52,7 +52,8 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
+                    GroupName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -190,7 +191,7 @@ namespace GOCAP.Migrations.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -375,7 +376,7 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsGlobal = table.Column<bool>(type: "bit", nullable: false)
                 },

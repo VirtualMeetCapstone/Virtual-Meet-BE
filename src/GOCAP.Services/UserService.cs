@@ -1,8 +1,10 @@
-﻿namespace GOCAP.Services;
+﻿
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IUserService))]
 internal class UserService(
     IUserRepository _repository,
+    IUserNotificationRepository _userNotificationRepository,
     ILogger<UserService> _logger
     ) : ServiceBase<User>(_repository, _logger), IUserService
 {
@@ -26,5 +28,10 @@ internal class UserService(
     public Task<User?> GetByEmail(string email)
     {
         return _repository.GetByEmailAsync(email);
+    }
+
+    public async Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId)
+    {
+        return await _userNotificationRepository.GetNotificationsByUserIdAsync(userId);
     }
 }

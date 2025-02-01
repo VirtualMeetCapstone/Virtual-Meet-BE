@@ -4,7 +4,7 @@
 public class UserPostEntity : EntitySqlBase
 {
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
-    public string? Content { get; set; }
+    public required string Content { get; set; }
     public Guid UserId { get; set; }
     public long CreateTime { get; set; }
     public UserEntity? User { get; set; }

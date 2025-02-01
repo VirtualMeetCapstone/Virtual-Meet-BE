@@ -8,6 +8,11 @@ internal class RoomService(
     ILogger<RoomService> _logger
     ) : ServiceBase<Room>(_repository, _logger), IRoomService
 {
+    /// <summary>
+    /// Create a new room.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <returns></returns>
     public override async Task<Room> AddAsync(Room room)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Room).Name);
@@ -15,6 +20,12 @@ internal class RoomService(
         room.CreateTime = DateTime.Now.Ticks;
         return await _repository.AddAsync(room);
     }
+
+    /// <summary>
+    /// Delete a room by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);

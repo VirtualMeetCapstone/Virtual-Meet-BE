@@ -4,7 +4,7 @@ public class RoomModelMapperProfile : ModelMapperProfileBase
 {
     public RoomModelMapperProfile()
     {
-        CreateMap<User, MemberModel>().ReverseMap();
+        CreateMap<User, RoomMemberModel>().ReverseMap();
         CreateMap<Room, RoomModel>().ReverseMap();
         CreateMap<Room, RoomCreationModel>().ReverseMap();
         CreateMap<QueryResult<Room>, QueryResult<RoomModel>>().ReverseMap();

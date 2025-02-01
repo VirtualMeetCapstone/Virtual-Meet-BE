@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Api.Validation;
+﻿using GOCAP.Common;
+
+namespace GOCAP.Api.Validation;
 
 public class RoomValidator : ValidatorBase<RoomCreationModel>
 {
@@ -10,13 +12,11 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
             .NotNull()
             .WithMessage("Topic must not be null.")
             .MaximumLength(256)
-            .WithMessage("Name must not exceed 256 characters.")
-            .MinimumLength(3)
-            .WithMessage("Name must be at least 3 characters long.");
+            .WithMessage("Name must not exceed 256 characters.");
 
         RuleFor(x => x.Description)
-            .MaximumLength(1000)
-            .WithMessage("Name must not exceed 256 characters.");
+            .MaximumLength(GOCAPConstants.MaxLengthDescription)
+            .WithMessage("Name must not exceed 1000 characters.");
 
         RuleFor(x => x.MaximumMembers);
     }
