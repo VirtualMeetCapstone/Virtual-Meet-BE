@@ -28,8 +28,8 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
     public virtual async Task<TDomain> GetByIdAsync(Guid id)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
-        return _mapper.Map<TDomain>(entity); ;
+        var entity = await GetEntityByIdAsync(id);
+        return _mapper.Map<TDomain>(entity);
     }
 
     public virtual async Task<IEnumerable<TDomain>> GetByIdsAsync(List<Guid> ids, string fieldsName)
@@ -70,8 +70,7 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
     public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id) 
-            ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+        var entity = await GetEntityByIdAsync(id);
         _mapper.Map(domain, entity);
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
@@ -79,7 +78,7 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
     public virtual async Task<int> DeleteByIdAsync(Guid id)
     {
-        var entity = await _context.Set<TEntity>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+        var entity = await GetEntityByIdAsync(id);
         _context.Set<TEntity>().Remove(entity);
         return await _context.SaveChangesAsync();
     }
@@ -99,6 +98,11 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
             e => EF.Property<Guid>(e, "Id") != id
         );
         return exists;
+    }
+
+    protected virtual async Task<TEntity> GetEntityByIdAsync(Guid id)
+    {
+        return await _context.Set<TEntity>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
     }
 
     protected virtual IQueryable<TEntity> GenerateWhereString(IQueryable<TEntity> query, QueryInfo queryInfo) => query;

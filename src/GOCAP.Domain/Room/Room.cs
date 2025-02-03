@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Room : DomainBase
+public class Room : DateObjectBase
 {
     public Guid? OwnerId { get; set; }
     public User? Owner { get; set; }
@@ -9,6 +9,5 @@ public class Room : DomainBase
     public int MaximumMembers { get; set; }
     public string? Medias { get; set; } 
     public RoomStatusType? Status { get; set; }
-    public long CreateTime { get; set; }
     public IEnumerable<User> Members { get; set; } = [];
 }

@@ -2,4 +2,5 @@
 
 public interface IGroupMemberRepository : ISqlRepositoryBase<GroupMember>
 {
+    Task<int> DeleteByGroupIdAsync(Guid groupId);
 }

@@ -2,5 +2,5 @@
 
 public interface IGroupService : IServiceBase<Group>
 {
-    Task<List<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
+    Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
 }

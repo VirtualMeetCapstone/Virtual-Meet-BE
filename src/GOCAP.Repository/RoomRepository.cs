@@ -10,21 +10,10 @@ internal class RoomRepository(
     {
         var roomQuery = _context.Rooms.AsQueryable();
 
-        if (queryInfo.OrderBy is not null)
-        {
-            if (queryInfo.OrderType == OrderType.Ascending)
-            {
-                roomQuery = roomQuery.OrderBy(x => EF.Property<object>(x, queryInfo.OrderBy));
-            }
-            else if (queryInfo.OrderType == OrderType.Descending)
-            {
-                roomQuery = roomQuery.OrderByDescending(x => EF.Property<object>(x, queryInfo.OrderBy));
-            }
-        }
-
         var rooms = await roomQuery.Include(r => r.Owner)
                                    .Include(r => r.Members)
                                    .ThenInclude(rm => rm.User)
+                                   .OrderByDescending(r => r.CreateTime)
                                    .Skip(queryInfo.Skip)
                                    .Take(queryInfo.Top)
                                    .ToListAsync();

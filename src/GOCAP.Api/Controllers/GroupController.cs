@@ -9,13 +9,15 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("page")]
-    public async Task<QueryResult<List<GroupModel>>> GetByUserIdWithPaging([FromQuery] QueryInfo queryInfo, [FromRoute] Guid userId)
+    [HttpGet("{userId}/page")]
+    public async Task<QueryResult<GroupModel>> GetByUserIdWithPaging([FromQuery] QueryInfo queryInfo, [FromRoute] Guid userId)
     {
         var domain = await _service.GetByUserIdWithPagingAsync(queryInfo, userId);
-        var result = _mapper.Map<QueryResult<List<GroupModel>>>(domain);
+        var result = _mapper.Map<QueryResult<GroupModel>>(domain);
         return result;
     }
+
+    /// Get group detail by group id.
 
     /// <summary>
     /// Create a new group.
@@ -36,10 +38,11 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     /// <param name="id"></param>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPatch]
-    public async Task<OperationResult> Update(Guid id, [FromBody] GroupCreationModel model)
+    [HttpPatch("{id}")]
+    public async Task<OperationResult> Update([FromRoute] Guid id, [FromBody] GroupUpdationModel model)
     {
         var domain = _mapper.Map<Group>(model);
+        domain.Id = id; 
         return await _service.UpdateAsync(id, domain);
     }
 
@@ -54,5 +57,5 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
         return await _service.DeleteByIdAsync(id);
     }
 
-    // Join group, leave group
+    // Join group, leave group, remove member, add member, transfer group..
 }

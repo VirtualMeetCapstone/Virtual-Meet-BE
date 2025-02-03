@@ -17,10 +17,6 @@ public class UserEntity : EntitySqlBase
     public string? Location { get; set; }
     public UserStatusType? Status { get; set; }
     [Required]
-    public long CreateTime { get; set; }
-    [Required]
-    public long LastModifyTime { get; set; }
-    [Required]
     public bool IsDeleted { get; set; }
 
     // Relationships

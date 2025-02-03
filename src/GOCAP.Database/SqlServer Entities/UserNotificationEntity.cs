@@ -9,9 +9,5 @@ public class UserNotificationEntity : EntitySqlBase
     public NotificationType Type { get; set; }
     public Guid ReferenceId {  get; set; }
     public bool IsRead { get; set; }
-    [Required]
-    public long CreateTime { get; set; }
-    [Required]
-    public long LastModifyTime { get; set; }
     public UserEntity? User { get; set; }
 }

@@ -1,8 +1,7 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class GroupCreationModel
+public class GroupUpdationModel
 {
     public required string Name { get; set; }
-    public Guid OwnerId { get; set; }
     public string? Picture { get; set; }
 }

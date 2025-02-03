@@ -8,6 +8,5 @@ public class UserFollowEntity : EntitySqlBase
 
     public Guid FollowingId { get; set; }
     public UserEntity? Following { get; set; }
-    public long CreateTime { get; set; }
 }
     

@@ -28,7 +28,13 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("GroupName")
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
@@ -53,10 +59,13 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("JoinedAt")
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("UserId")
@@ -76,6 +85,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -133,12 +148,18 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("EventDate")
                         .HasColumnType("bigint");
 
                     b.Property<string>("EventName")
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
@@ -157,6 +178,9 @@ namespace GOCAP.Migrations.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
@@ -180,7 +204,10 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("JoinedAt")
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
@@ -203,6 +230,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("RoleName")
                         .HasMaxLength(30)
@@ -229,11 +262,14 @@ namespace GOCAP.Migrations.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsGlobal")
                         .HasColumnType("bit");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
@@ -250,6 +286,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
@@ -272,6 +314,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
@@ -299,6 +347,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<string>("ActivityType")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -320,6 +374,12 @@ namespace GOCAP.Migrations.Migrations
 
                     b.Property<Guid>("BlockedUserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -399,6 +459,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("FollowingId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FollowerId");
@@ -458,6 +521,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -475,6 +541,9 @@ namespace GOCAP.Migrations.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("PostId")
@@ -497,6 +566,12 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("RewardDate")
                         .HasColumnType("datetime2");
@@ -521,6 +596,9 @@ namespace GOCAP.Migrations.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("RoleId")
@@ -549,6 +627,9 @@ namespace GOCAP.Migrations.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("UserId")
