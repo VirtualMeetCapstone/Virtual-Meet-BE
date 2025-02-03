@@ -28,9 +28,9 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
     public override async Task<bool> UpdateAsync(Guid id, Group domain)
     {
         var entity = await GetEntityByIdAsync(id);
-        domain.UpdateModify();
         entity.Name = domain.Name;
         entity.Picture = domain.Picture;
+        entity.LastModifyTime = DateTime.UtcNow.Ticks;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }
