@@ -17,8 +17,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Add for using azure blob storage
-        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
-        services.AddSingleton<IBlobStorageService, BlobStorageService>();
+        //services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
+        //services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         // Add for using sql server
         services
@@ -42,8 +42,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Add for using Redis
-        services.AddDistributedMemoryCache();
-        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
+        //services.AddDistributedMemoryCache();
+        //services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
 
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),

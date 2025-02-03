@@ -42,7 +42,6 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     public async Task<OperationResult> Update([FromRoute] Guid id, [FromBody] GroupUpdationModel model)
     {
         var domain = _mapper.Map<Group>(model);
-        domain.Id = id; 
         return await _service.UpdateAsync(id, domain);
     }
 

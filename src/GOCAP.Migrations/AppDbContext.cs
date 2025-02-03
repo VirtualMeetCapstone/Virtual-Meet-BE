@@ -42,7 +42,7 @@ public class AppDbContext : DbContext
         //Connection string pattern: Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true
         
         // Input the correct connection string 
-        optionsBuilder.UseSqlServer("Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true");
+        optionsBuilder.UseSqlServer("Server=db9981.public.databaseasp.net; Database=db9981; User Id=db9981; Password=manhtuong1; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
 
         // Open the cmd and run this command: dotnet ef database update
     }
