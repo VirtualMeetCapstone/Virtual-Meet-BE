@@ -24,7 +24,7 @@ internal abstract class ServiceBase<T>(
 
     public virtual async Task<T> GetByIdAsync(Guid id)
     {
-        return await _repository.GetByIdAsync(id);
+        return await _repository.GetByIdAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
     }
 
     public virtual async Task<IEnumerable<T>> GetByIdsAsync(List<Guid> ids, string fieldsName)
@@ -39,7 +39,7 @@ internal abstract class ServiceBase<T>(
     
     public virtual async Task<OperationResult> UpdateAsync(Guid id, T domain)
     {
-        _logger.LogInformation("Startupdating entity of type {EntityType}.", typeof(T).Name);
+        _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(T).Name);
         return new OperationResult(await _repository.UpdateAsync(id, domain));
     }
     

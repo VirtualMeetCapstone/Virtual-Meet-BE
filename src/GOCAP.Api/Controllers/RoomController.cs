@@ -38,8 +38,8 @@ public class RoomController(IRoomService _service,
     /// <param name="id"></param>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPatch]
-    public async Task<OperationResult> Update(Guid id, [FromForm] RoomCreationModel model)
+    [HttpPatch("{id}")]
+    public async Task<OperationResult> Update([FromRoute] Guid id, [FromForm] RoomCreationModel model)
     {
         var domain = _mapper.Map<Room>(model);
         domain.Id = id;

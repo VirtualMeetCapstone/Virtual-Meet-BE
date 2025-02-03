@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAPDB : Migration
+    public partial class GOCAP : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,9 @@ namespace GOCAP.Migrations.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,9 +39,9 @@ namespace GOCAP.Migrations.Migrations
                     Birthday = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,8 +54,10 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,7 +102,9 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ActivityType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ActivityTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ActivityTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,7 +123,9 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BlockedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BlockedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    BlockedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,7 +151,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FollowerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FollowingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,7 +202,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -213,7 +223,9 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RewardType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RewardDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    RewardDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -233,7 +245,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -259,7 +272,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -279,7 +293,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    JoinedAt = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -305,7 +320,9 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EventName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    EventDate = table.Column<long>(type: "bigint", nullable: false)
+                    EventDate = table.Column<long>(type: "bigint", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -325,7 +342,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -351,7 +369,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    JoinedAt = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -377,8 +396,9 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsGlobal = table.Column<bool>(type: "bit", nullable: false)
+                    IsGlobal = table.Column<bool>(type: "bit", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -398,7 +418,9 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SettingName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SettingValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    SettingValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -417,7 +439,9 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TagName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -437,7 +461,8 @@ namespace GOCAP.Migrations.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false)
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -462,7 +487,9 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoomMemberId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
+                    RoleName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {

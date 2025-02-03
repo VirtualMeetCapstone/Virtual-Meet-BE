@@ -50,5 +50,6 @@ public class UnitOfWork (AppSqlDbContext context) : IUnitOfWork
     {
         _transaction?.Dispose();
         _context.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

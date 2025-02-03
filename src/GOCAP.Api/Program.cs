@@ -23,7 +23,6 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCustomExceptionHandler();
-app.UseResponseCompression();
 app.UseCors();
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -37,6 +36,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else if (app.Environment.IsProduction())
+{
+    app.UseResponseCompression();
+}
+
 app.MapControllers();
 
 app.Run();

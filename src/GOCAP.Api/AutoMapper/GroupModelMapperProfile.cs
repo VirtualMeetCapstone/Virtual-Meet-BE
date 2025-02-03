@@ -6,6 +6,7 @@ public class GroupModelMapperProfile : ModelMapperProfileBase
     {
         CreateMap<Group, GroupModel>().ReverseMap();
         CreateMap<Group, GroupCreationModel>().ReverseMap();
+        CreateMap<Group, GroupUpdationModel>().ReverseMap();
         CreateMap<QueryResult<Group>, QueryResult<GroupModel>>().ReverseMap();
 
         CreateMap<GroupMember, GroupMemberModel>().ReverseMap();
