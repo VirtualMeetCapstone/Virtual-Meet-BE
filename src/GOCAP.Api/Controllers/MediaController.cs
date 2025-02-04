@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("medias")]
-[ApiController]
 public class MediaController(IMediaService _service, IMapper _mapper) : ApiControllerBase
 {
     [HttpGet]
@@ -27,6 +26,7 @@ public class MediaController(IMediaService _service, IMapper _mapper) : ApiContr
     }
 
     [HttpPost]
+    [ValidateModel]
     public async Task<MediaModel> Create([FromBody] MediaCreationModel model)
     {
         var media = _mapper.Map<Media>(model);

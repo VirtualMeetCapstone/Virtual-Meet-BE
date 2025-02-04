@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("rooms")]
-[ApiController]
 public class RoomController(IRoomService _service,
     IRoomFavouriteService _roomFavouriteService,
     IMapper _mapper) : ApiControllerBase

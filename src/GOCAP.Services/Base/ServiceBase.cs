@@ -24,7 +24,7 @@ internal abstract class ServiceBase<T>(
 
     public virtual async Task<T> GetByIdAsync(Guid id)
     {
-        return await _repository.GetByIdAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+        return await _repository.GetByIdAsync(id);
     }
 
     public virtual async Task<IEnumerable<T>> GetByIdsAsync(List<Guid> ids, string fieldsName)

@@ -1,4 +1,5 @@
-﻿using GOCAP.Api.Model;
+﻿using FluentValidation;
+using GOCAP.Api.Model;
 using GOCAP.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -31,6 +33,13 @@ public static class ExceptionHandlerExtensions
                     ErrorMessage = "Unexpected error has occurred.",
                     ErrorCode = (int)ErrorCode.InternalError,
                 };
+                if (exception is not null && exception is ValidationException validationException)
+                {
+                    var error = validationException.Errors.FirstOrDefault();
+                    errorModel.ErrorMessage = error?.ErrorMessage ?? "";
+                    errorModel.ErrorCode = int.Parse(error?.ErrorCode ?? "10000");
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
                 if (exception is not null && exception is ApiExceptionBase apiException)
                 {
                     errorModel.ErrorMessage = apiException.Message;

@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("groups")]
-[ApiController]
 public class GroupController(IGroupService _service, IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -17,7 +16,17 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
         return result;
     }
 
+    /// <summary>
     /// Get group detail by group id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    public async Task<GroupDetailModel> GetById([FromRoute] Guid id)
+    {
+        var group = await _service.GetByIdAsync(id);
+        return _mapper.Map<GroupDetailModel>(group);
+    }
 
     /// <summary>
     /// Create a new group.
@@ -25,6 +34,7 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
+    [ValidateModel]
     public async Task<GroupModel> Create([FromBody] GroupCreationModel model)
     {
         var domain = _mapper.Map<Group>(model);
