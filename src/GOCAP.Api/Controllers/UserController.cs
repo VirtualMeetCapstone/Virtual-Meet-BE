@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("users")]
-[ApiController]
 public class UserController(IUserService _userService,
     IFollowService _followService,
     IMapper _mapper) : ApiControllerBase

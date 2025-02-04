@@ -1,8 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Role : DomainBase
+public class Role : CreatedObjectBase
 {
-    public string? Name { get; set; }
-
     public ICollection<UserRole>? UserRoles { get; set; }
 }
