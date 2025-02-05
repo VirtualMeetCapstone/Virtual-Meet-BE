@@ -3,4 +3,5 @@
 public interface IGroupRepository : ISqlRepositoryBase<Group>
 {
     Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
+    Task<GroupDetail> GetDetailByIdAsync(Guid id);
 }

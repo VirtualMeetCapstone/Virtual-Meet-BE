@@ -43,4 +43,27 @@ internal class GroupService(
             return new OperationResult(false);
         }
     }
+
+    public async Task<OperationResult> TransferGroupAsync(TransferGroup domain)
+    {
+        // Get group by group id if null then throw exception not found.
+        var group = await _repository.GetByIdAsync(domain.GroupId);
+
+        // Check whether the person doing is the group owner.
+        if (group.OwnerId != domain.CurrentOwnerId)
+        {
+            throw new AuthenticationFailedException("Unauthorized access: You do not own this group.");
+        }
+
+        // Check whether the new owner is the group member.
+        _ = await _groupMemberRepository.GetByGroupMemberAsync(domain.GroupId, domain.NewOwnerId) ?? throw new ResourceNotFoundException($"User {domain.CurrentOwnerId} is not" +
+                   $" a member of group {domain.GroupId}");
+
+        group.OwnerId = domain.NewOwnerId;
+        var result = await _repository.UpdateAsync(group.Id, group);
+        return new OperationResult(result);
+    }
+
+    public async Task<GroupDetail> GetDetailByIdAsync(Guid id)
+    => await _repository.GetDetailByIdAsync(id);
 }

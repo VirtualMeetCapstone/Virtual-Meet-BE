@@ -8,6 +8,8 @@ public class GroupModelMapperProfile : ModelMapperProfileBase
         CreateMap<Group, GroupCreationModel>().ReverseMap();
         CreateMap<Group, GroupUpdationModel>().ReverseMap();
         CreateMap<Group, GroupDetailModel>().ReverseMap();
+        CreateMap<GroupDetail, GroupDetailModel>().ReverseMap();
+        CreateMap<TransferGroup, TransferGroupModel>().ReverseMap();
         CreateMap<QueryResult<Group>, QueryResult<GroupModel>>().ReverseMap();
 
         CreateMap<GroupMember, GroupMemberModel>().ReverseMap();

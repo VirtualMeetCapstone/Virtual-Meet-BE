@@ -26,7 +26,7 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
         };
     }
 
-    public override async Task<Group> GetByIdAsync(Guid id)
+    public async Task<GroupDetail> GetDetailByIdAsync(Guid id)
     {
         var groupQuery = _context.Groups.AsQueryable();
         var groupEntity = await groupQuery.Include(g => g.Owner)
@@ -34,7 +34,7 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
                                           .ThenInclude(gm => gm.User)
                                           .FirstOrDefaultAsync(g => g.Id == id)
                                           ?? throw new ResourceNotFoundException($"Group with {id} was not                                                          found.");
-        var group = new Group
+        var group = new GroupDetail
         {
             Id = groupEntity.Id,
             Name = groupEntity.Name,
@@ -53,6 +53,7 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
         var entity = await GetEntityByIdAsync(id);
         entity.Name = domain.Name;
         entity.Picture = domain.Picture;
+        entity.OwnerId = domain.OwnerId;
         entity.LastModifyTime = DateTime.UtcNow.Ticks;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
