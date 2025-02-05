@@ -26,7 +26,7 @@ public class GroupController(IGroupService _service,
     [HttpGet("{id}")]
     public async Task<GroupDetailModel> GetById([FromRoute] Guid id)
     {
-        var group = await _service.GetByIdAsync(id);
+        var group = await _service.GetDetailByIdAsync(id);
         return _mapper.Map<GroupDetailModel>(group);
     }
 
@@ -37,7 +37,7 @@ public class GroupController(IGroupService _service,
     /// <returns></returns>
     [HttpPost]
     [ValidateModel]
-    public async Task<GroupModel> Create([FromBody] GroupCreationModel model)
+    public async Task<GroupModel> Create([FromForm] GroupCreationModel model)
     {
         var domain = _mapper.Map<Group>(model);
         var result = await _service.AddAsync(domain);
@@ -74,6 +74,7 @@ public class GroupController(IGroupService _service,
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost("member")]
+    [ValidateModel]
     public async Task<OperationResult> AddOrRemoveMember(GroupMemberCreationModel model)
     {
         var domain = _mapper.Map<GroupMember>(model);
@@ -81,10 +82,14 @@ public class GroupController(IGroupService _service,
         return result;
     }
 
-    //public async Task<OperationResult> TransferGroup(Guid ownerId)
-    //{
-
-    //}
+    [HttpPatch("transfer")]
+    [ValidateModel]
+    public async Task<OperationResult> TransferGroup(TransferGroupModel model)
+    {
+        var domain = _mapper.Map<TransferGroup>(model);
+        var result = await _service.TransferGroupAsync(domain);
+        return result;
+    }
 
     // Join group, leave group, remove member, add member, transfer group..
 }

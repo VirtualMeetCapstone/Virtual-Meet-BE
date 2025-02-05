@@ -13,10 +13,5 @@ public class GroupValidator : ValidatorBase<GroupCreationModel>
             .MaximumLength(GOCAPConstants.MaxLengthName)
             .WithMessage($"Name must not be exceed {GOCAPConstants.MaxLengthName}.")
             .WithErrorCode("1001");
-
-        RuleFor(x => x.Picture)
-            .MaximumLength(GOCAPConstants.MaxLengthUrl)
-            .WithMessage($"Picture must not be exceed {GOCAPConstants.MaxLengthUrl}.")
-            .WithErrorCode("1001");
     }
 }
