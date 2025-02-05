@@ -2,6 +2,6 @@
 
 public interface IRoomFavouriteService : IServiceBase<RoomFavourite>
 {
-    Task<OperationResult> CreateOrDeleteAsync(RoomFavourite roomFavourite);
+    Task<OperationResult> CreateOrDeleteAsync(RoomFavourite domain);
 }
 

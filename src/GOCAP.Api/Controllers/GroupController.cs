@@ -1,7 +1,9 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("groups")]
-public class GroupController(IGroupService _service, IMapper _mapper) : ApiControllerBase
+public class GroupController(IGroupService _service,
+    IGroupMemberService _groupMemberService,
+    IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
     /// Get groups by user id with paging.
@@ -65,6 +67,24 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     {
         return await _service.DeleteByIdAsync(id);
     }
+
+    /// <summary>
+    /// Add or remove a new member to group.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("member")]
+    public async Task<OperationResult> AddOrRemoveMember(GroupMemberCreationModel model)
+    {
+        var domain = _mapper.Map<GroupMember>(model);
+        var result = await _groupMemberService.AddOrRemoveMemberAsync(domain);
+        return result;
+    }
+
+    //public async Task<OperationResult> TransferGroup(Guid ownerId)
+    //{
+
+    //}
 
     // Join group, leave group, remove member, add member, transfer group..
 }

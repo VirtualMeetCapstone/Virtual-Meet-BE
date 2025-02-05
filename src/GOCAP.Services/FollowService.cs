@@ -12,26 +12,26 @@ internal class FollowService(
     /// <summary>
     /// Follow or unfollow one user.
     /// </summary>
-    /// <param name="follow"></param>
+    /// <param name="domain"></param>
     /// <returns>The operation result</returns>
     /// <exception cref="ParameterInvalidException"></exception>
     /// <exception cref="InternalException"></exception>
-    public async Task<OperationResult> FollowAsync(Follow follow)
+    public async Task<OperationResult> FollowAsync(Follow domain)
     {
-        if (follow.FollowerId == follow.FollowingId)
+        if (domain.FollowerId == domain.FollowingId)
         {
             throw new ParameterInvalidException();
         }
 
         var result = new OperationResult(true);
 
-        // Check whether the follow is exists or not
-        var isExists = await _repository.CheckExistAsync(follow.FollowerId, follow.FollowingId);
+        var follow = await _repository.GetByFollowerAndFollowingAsync(domain.FollowerId, domain.FollowingId);
 
         // If existing then remove the follow ( unfollow )
-        if (isExists)
+        if (follow != null)
         {
-            var resultDelete = await _repository.DeleteAsync(follow.FollowerId, follow.FollowingId);
+            _logger.LogInformation("Start deleting an entity of type {EntityType}.", typeof(Follow).Name);
+            var resultDelete = await _repository.DeleteByIdAsync(follow.Id);
             result = new OperationResult(resultDelete > 0);
         }
         // If not existing then add the follow ( follow )
@@ -44,19 +44,18 @@ internal class FollowService(
                 await _unitOfWork.BeginTransactionAsync();
 
                 // Insert the follow into db.
-                follow.Id = Guid.NewGuid();
-                follow.CreateTime = DateTime.UtcNow.Ticks;
-                await _repository.AddAsync(follow);
+                domain.InitCreation();
+                await _repository.AddAsync(domain);
 
                 // Insert the notification into db.
-                var sender = await _userRepository.GetByIdAsync(follow.FollowerId);
+                var sender = await _userRepository.GetByIdAsync(domain.FollowerId);
                 var notification = new UserNotification
                 {
-                    UserId = follow.FollowingId,
+                    UserId = domain.FollowingId,
                     Sender = sender,
                     Content = string.Format(NotificationMessage.Follow, sender.Name),
                     Type = NotificationType.Follow,
-                    ReferenceId = follow.FollowerId,
+                    ReferenceId = domain.FollowerId,
                 };
                 notification.InitCreation();
                 await _userNotificationRepository.AddAsync(notification);

@@ -2,6 +2,5 @@
 
 public interface IRoomFavouriteRepository : ISqlRepositoryBase<RoomFavourite>
 {
-    Task<bool> CheckExistAsync(Guid roomId, Guid userId);
-    Task<int> DeleteAsync(Guid roomId, Guid userId);
+    Task<RoomFavourite?> GetByRoomAndUserAsync(Guid roomId, Guid userId);
 }
