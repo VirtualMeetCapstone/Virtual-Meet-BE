@@ -11,5 +11,6 @@ public class RoomModel
     public string? Medias { get; set; }
     public RoomStatusType? Status { get; set; }
     public long CreateTime { get; set; }
+    public long LastModifyTime { get; set; }
     public IEnumerable<RoomMemberModel> Members { get; set; } = [];
 }

@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("signin")]
-[ApiController]
 public class AuthenticateController(
         IConfiguration _configuration,
         IUserService _userService,

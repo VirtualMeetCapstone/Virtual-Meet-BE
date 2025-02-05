@@ -6,18 +6,12 @@ internal class FollowRepository
     : SqlRepositoryBase<Follow, UserFollowEntity>(context, mapper), IFollowRepository
 {
     private readonly AppSqlDbContext _context = context;
-    public async Task<bool> CheckExistAsync(Guid followerId, Guid followingId)
+    private readonly IMapper _mapper = mapper;
+    public async Task<Follow?> GetByFollowerAndFollowingAsync(Guid followerId, Guid followingId)
     {
-        return await _context.UserFollows.AnyAsync(f => f.FollowerId == followerId
-                                                        && f.FollowingId == followingId);
-    }
-
-    public async Task<int> DeleteAsync(Guid followerId, Guid followingId)
-    {
-        var follow = await _context.UserFollows
-            .FirstOrDefaultAsync(f => f.FollowerId == followerId && f.FollowingId == followingId)
-            ?? throw new ResourceNotFoundException("This follow does not exists.");
-        _context.UserFollows.Remove(follow);
-        return await _context.SaveChangesAsync();
+        var entity = await _context.UserFollows.FirstOrDefaultAsync
+                                                (f => f.FollowerId == followerId
+                                                 && f.FollowingId == followingId);
+        return _mapper.Map<Follow?>(entity);
     }
 }

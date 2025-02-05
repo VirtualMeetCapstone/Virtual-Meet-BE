@@ -11,6 +11,7 @@ internal class GroupRepository(AppSqlDbContext context
     public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId)
     {
         var groupEntities = await _context.Groups.Where(g => g.OwnerId == userId)
+                                                 .OrderByDescending(g => g.CreateTime)
                                                  .Skip(queryInfo.Skip)
                                                  .Take(queryInfo.Top)
                                                  .ToListAsync();
@@ -37,6 +38,26 @@ internal class GroupRepository(AppSqlDbContext context
                })
                .FirstOrDefaultAsync();
         return await counts ?? new GroupCount();
+    public override async Task<Group> GetByIdAsync(Guid id)
+    {
+        var groupQuery = _context.Groups.AsQueryable();
+        var groupEntity = await groupQuery.Include(g => g.Owner)
+                                          .Include(g => g.Members)
+                                          .ThenInclude(gm => gm.User)
+                                          .FirstOrDefaultAsync(g => g.Id == id)
+                                          ?? throw new ResourceNotFoundException($"Group with {id} was not                                                          found.");
+        var group = new Group
+        {
+            Id = groupEntity.Id,
+            Name = groupEntity.Name,
+            OwnerId = groupEntity.OwnerId,
+            Owner = _mapper.Map<User>(groupEntity.Owner) ,
+            Picture = groupEntity.Picture,
+            Members = _mapper.Map<List<User>>(groupEntity.Members.Select(gm => gm.User)),
+            CreateTime = groupEntity.CreateTime,
+            LastModifyTime = groupEntity.LastModifyTime,
+        };
+        return group;
     }
 
     public override async Task<bool> UpdateAsync(Guid id, Group domain)

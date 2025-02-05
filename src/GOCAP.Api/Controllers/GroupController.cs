@@ -1,8 +1,9 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("groups")]
-[ApiController]
-public class GroupController(IGroupService _service, IMapper _mapper) : ApiControllerBase
+public class GroupController(IGroupService _service,
+    IGroupMemberService _groupMemberService,
+    IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
     /// Get groups by user id with paging.
@@ -17,7 +18,17 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
         return result;
     }
 
+    /// <summary>
     /// Get group detail by group id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    public async Task<GroupDetailModel> GetById([FromRoute] Guid id)
+    {
+        var group = await _service.GetByIdAsync(id);
+        return _mapper.Map<GroupDetailModel>(group);
+    }
 
     /// <summary>
     /// Create a new group.
@@ -25,6 +36,7 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
+    [ValidateModel]
     public async Task<GroupModel> Create([FromBody] GroupCreationModel model)
     {
         var domain = _mapper.Map<Group>(model);
@@ -55,6 +67,24 @@ public class GroupController(IGroupService _service, IMapper _mapper) : ApiContr
     {
         return await _service.DeleteByIdAsync(id);
     }
+
+    /// <summary>
+    /// Add or remove a new member to group.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("member")]
+    public async Task<OperationResult> AddOrRemoveMember(GroupMemberCreationModel model)
+    {
+        var domain = _mapper.Map<GroupMember>(model);
+        var result = await _groupMemberService.AddOrRemoveMemberAsync(domain);
+        return result;
+    }
+
+    //public async Task<OperationResult> TransferGroup(Guid ownerId)
+    //{
+
+    //}
 
     // Join group, leave group, remove member, add member, transfer group..
 }

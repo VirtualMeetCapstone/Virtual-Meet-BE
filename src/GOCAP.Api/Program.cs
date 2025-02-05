@@ -6,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.WebHost.ConfigureHttps(); // Configure https
 builder.Logging.ConfigureLogging(builder.Configuration);
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // Add services to the container.
 builder.Services.AddCorsPolicy()
@@ -14,7 +18,8 @@ builder.Services.AddCorsPolicy()
                 .AddResponseCompression(options => options.EnableForHttps = true)
                 .AddAutoMapper(typeof(ModelMapperProfileBase),
                                typeof(EntityMapperProfileBase))
-                .AddFluentValidation(Assembly.Load("gocap.api.validation"));
+                .AddFluentValidation(Assembly.Load("gocap.api.validation"))
+                ;
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

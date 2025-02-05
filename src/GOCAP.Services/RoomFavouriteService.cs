@@ -9,24 +9,23 @@ internal class RoomFavouriteService(
     /// <summary>
     /// Create or delete the room favourite.
     /// </summary>
-    /// <param name="roomFavourite"></param>
+    /// <param name="domain"></param>
     /// <returns></returns>
-    public async Task<OperationResult> CreateOrDeleteAsync(RoomFavourite roomFavourite)
+    public async Task<OperationResult> CreateOrDeleteAsync(RoomFavourite domain)
     {
         var result = new OperationResult(true);
-        var isExists = await _repository.CheckExistAsync(roomFavourite.RoomId, roomFavourite.UserId);
-        if (isExists)
+        var roomFavourite = await _repository.GetByRoomAndUserAsync(domain.RoomId, domain.UserId);
+        if (roomFavourite != null)
         {
             _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(RoomFavourite).Name);
-            var resultDelete = await _repository.DeleteAsync(roomFavourite.RoomId, roomFavourite.UserId);
+            var resultDelete = await _repository.DeleteByIdAsync(roomFavourite.Id);
             result = new OperationResult(resultDelete > 0);
         }
         else
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(RoomFavourite).Name);
-            roomFavourite.Id = Guid.NewGuid();
-            roomFavourite.CreateTime = DateTime.UtcNow.Ticks;
-            await _repository.AddAsync(roomFavourite);
+            domain.InitCreation();
+            await _repository.AddAsync(domain);
         }
         return result;
     }

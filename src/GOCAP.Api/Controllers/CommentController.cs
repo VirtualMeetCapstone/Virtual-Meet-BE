@@ -1,7 +1,6 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("comments")]
-[ApiController]
 public class CommentController(ICommentService _commentService, IMapper _mapper) : ApiControllerBase
 {
     [HttpGet]

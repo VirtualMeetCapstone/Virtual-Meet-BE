@@ -17,7 +17,7 @@ public class ErrorModel
     /// <summary>
     /// The error code of current exception
     /// </summary>
-    public Int32 ErrorCode { get; set; }
+    public int ErrorCode { get; set; }
 
     /// <summary>
     /// The error message of current exception
