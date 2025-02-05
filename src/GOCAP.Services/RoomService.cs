@@ -40,7 +40,7 @@ internal class RoomService(
             await _unitOfWork.CommitTransactionAsync();
             return new OperationResult(result > 0);
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(Room).Name);
             // Rollback if fail
@@ -49,4 +49,8 @@ internal class RoomService(
         }
     }
 
+    public async Task<RoomCount> GetRoomCountsAsync()
+    {
+        return await _repository.GetRoomCountsAsync();
+    }
 }

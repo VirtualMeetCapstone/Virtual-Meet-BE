@@ -2,5 +2,6 @@
 
 public interface IGroupRepository : ISqlRepositoryBase<Group>
 {
+    Task<GroupCount> GetGroupCountsAsync();
     Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
 }

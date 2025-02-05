@@ -1,0 +1,9 @@
+﻿global using GOCAP.Domain;
+global using GOCAP.Api.Model;
+global using Microsoft.AspNetCore.Mvc;
+global using GOCAP.Services.Intention;
+global using GOCAP.Admin.Api.AutoMapper;
+global using GOCAP.Api.Common;
+global using System.Reflection;
+global using GOCAP.Repository.AutoMapper;
+global using AutoMapper;

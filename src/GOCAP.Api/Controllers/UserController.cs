@@ -6,6 +6,20 @@ public class UserController(IUserService _userService,
     IFollowService _followService,
     IMapper _mapper) : ApiControllerBase
 {
+
+    /// <summary>
+    /// Get users by with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
+    [HttpGet("page")]
+    public async Task<QueryResult<UserModel>> GetByPage([FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _userService.GetByPageAsync(queryInfo);
+        var result = _mapper.Map<QueryResult<UserModel>>(domain);
+        return result;
+    }
+
     /// <summary>
     /// Get user profile by user id.
     /// </summary>

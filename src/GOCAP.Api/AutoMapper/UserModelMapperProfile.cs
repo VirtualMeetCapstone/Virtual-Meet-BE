@@ -7,6 +7,7 @@ public class UserModelMapperProfile : ModelMapperProfileBase
         CreateMap<User, UserModel>().ReverseMap();
         CreateMap<User, UserProfileModel>().ReverseMap();
         CreateMap<User, UserCreationModel>().ReverseMap();
+        CreateMap<QueryResult<User>, QueryResult<UserModel>>().ReverseMap();
         CreateMap<User, ReferenceNotificationModel>().ReverseMap();
         CreateMap<UserNotification, UserNotificationModel>().ReverseMap();
 

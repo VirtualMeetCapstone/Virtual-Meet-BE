@@ -2,4 +2,5 @@
 
 public interface IRoomRepository : ISqlRepositoryBase<Room>
 {
+    Task<RoomCount> GetRoomCountsAsync();
 }

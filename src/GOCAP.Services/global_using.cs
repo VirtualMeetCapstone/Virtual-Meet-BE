@@ -6,3 +6,4 @@ global using GOCAP.Repository;
 global using Azure.Storage.Blobs;
 global using Azure.Storage.Blobs.Models;
 global using Microsoft.Extensions.Logging;
+global using System.Linq.Expressions;

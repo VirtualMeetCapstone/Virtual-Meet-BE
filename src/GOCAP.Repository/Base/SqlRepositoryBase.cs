@@ -26,6 +26,19 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
         return _mapper.Map<IEnumerable<TDomain>>(entities);
     }
 
+    public async Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition)
+    {
+        if (condition == null)
+        {
+            return await _context.Set<TEntity>().CountAsync();
+        }
+
+        var entities = await _context.Set<TEntity>().ToListAsync();
+        var mappedEntities = _mapper.Map<IEnumerable<TDomain>>(entities);
+
+        return mappedEntities.Count(condition.Compile());
+    }
+
     public virtual async Task<TDomain> GetByIdAsync(Guid id)
     {
         var entity = await GetEntityByIdAsync(id);

@@ -1,8 +1,10 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IGroupRepository))]
-internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<Group, GroupEntity>(context, mapper), IGroupRepository
+internal class GroupRepository(AppSqlDbContext context
+    , IMapper mapper)
+    : SqlRepositoryBase<Group, GroupEntity>(context, mapper)
+    , IGroupRepository
 {
     private readonly AppSqlDbContext _context = context;
     private readonly IMapper _mapper = mapper;
@@ -23,6 +25,18 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
             Data = _mapper.Map<List<Group>>(groupEntities),
             TotalCount = totalItems
         };
+    }
+
+    public async Task<GroupCount> GetGroupCountsAsync()
+    {
+        var counts = _context.Groups
+               .GroupBy(g => 1)
+               .Select(s => new GroupCount
+               {
+                   Total = s.Count()
+               })
+               .FirstOrDefaultAsync();
+        return await counts ?? new GroupCount();
     }
 
     public override async Task<bool> UpdateAsync(Guid id, Group domain)

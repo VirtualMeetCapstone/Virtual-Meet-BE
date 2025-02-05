@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IUserService))]
 internal class UserService(
@@ -33,5 +32,10 @@ internal class UserService(
     public async Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId)
     {
         return await _userNotificationRepository.GetNotificationsByUserIdAsync(userId);
+    }
+
+    public async Task<UserCount> GetUserCountsAsync()
+    {
+        return await _repository.GetUserCountsAsync()?? new UserCount();
     }
 }

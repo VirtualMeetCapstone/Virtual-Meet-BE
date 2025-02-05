@@ -22,6 +22,12 @@ internal abstract class ServiceBase<T>(
         return await _repository.GetAllAsync();
     }
 
+    public virtual async Task<int> GetCountAsync(Expression<Func<T, bool>>? condition = null)
+    {
+        condition ??= x => true;
+        return await _repository.GetCountAsync(condition);
+    }
+
     public virtual async Task<T> GetByIdAsync(Guid id)
     {
         return await _repository.GetByIdAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");

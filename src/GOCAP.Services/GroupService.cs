@@ -43,4 +43,9 @@ internal class GroupService(
             return new OperationResult(false);
         }
     }
+
+    public async Task<GroupCount> GetGroupCountsAsync()
+    {
+        return await _repository.GetGroupCountsAsync();
+    }
 }

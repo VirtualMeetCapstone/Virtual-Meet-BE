@@ -53,4 +53,21 @@ internal class RoomRepository(
         };
 
     }
+
+    public async Task<RoomCount> GetRoomCountsAsync()
+    {
+        var counts = await _context.Rooms
+            .GroupBy(r => 1)
+            .Select(g => new RoomCount
+            {
+                Total = g.Count(),
+                Available = g.Count(r => r.Status == RoomStatusType.Available),
+                Occupied = g.Count(r => r.Status == RoomStatusType.Occupied),
+                Reserved = g.Count(r => r.Status == RoomStatusType.Reserved),
+                OutOfService = g.Count(r => r.Status == RoomStatusType.OutOfService)
+            })
+            .FirstOrDefaultAsync();
+
+        return counts ?? new RoomCount();
+    }
 }
