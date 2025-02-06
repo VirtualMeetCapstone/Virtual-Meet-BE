@@ -2,6 +2,7 @@
 
 public enum UserStatusType
 {
-    Active = 0,
-    InActive = 1,
+    InActive = 0,
+    Active = 1,
+    Deleted = 2
 }

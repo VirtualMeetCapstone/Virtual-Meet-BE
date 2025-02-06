@@ -1,8 +1,10 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IGroupRepository))]
-internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<Group, GroupEntity>(context, mapper), IGroupRepository
+internal class GroupRepository(AppSqlDbContext context
+    , IMapper mapper)
+    : SqlRepositoryBase<Group, GroupEntity>(context, mapper)
+    , IGroupRepository
 {
     private readonly AppSqlDbContext _context = context;
     private readonly IMapper _mapper = mapper;
@@ -26,6 +28,17 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
         };
     }
 
+    public async Task<GroupCount> GetGroupCountsAsync()
+    {
+        var counts = _context.Groups
+               .GroupBy(g => 1)
+               .Select(s => new GroupCount
+               {
+                   Total = s.Count()
+               })
+               .FirstOrDefaultAsync();
+        return await counts ?? new GroupCount();
+    }
     public async Task<GroupDetail> GetDetailByIdAsync(Guid id)
     {
         var groupQuery = _context.Groups.AsQueryable();
@@ -39,7 +52,7 @@ internal class GroupRepository(AppSqlDbContext context, IMapper mapper) : SqlRep
             Id = groupEntity.Id,
             Name = groupEntity.Name,
             OwnerId = groupEntity.OwnerId,
-            Owner = _mapper.Map<User>(groupEntity.Owner) ,
+            Owner = _mapper.Map<User>(groupEntity.Owner),
             Picture = groupEntity.Picture,
             Members = _mapper.Map<List<User>>(groupEntity.Members.Select(gm => gm.User)),
             CreateTime = groupEntity.CreateTime,

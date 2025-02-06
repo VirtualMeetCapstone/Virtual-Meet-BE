@@ -64,6 +64,11 @@ internal class GroupService(
         return new OperationResult(result);
     }
 
+    public async Task<GroupCount> GetGroupCountsAsync()
+    {
+        return await _repository.GetGroupCountsAsync();
+    }
+
     public async Task<GroupDetail> GetDetailByIdAsync(Guid id)
     => await _repository.GetDetailByIdAsync(id);
 }

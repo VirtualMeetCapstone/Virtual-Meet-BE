@@ -22,6 +22,12 @@ public interface IRepositoryBase<T>
     Task<IEnumerable<T>> GetAllAsync();
 
     /// <summary>
+    /// Retrieves the total count of records in the database with condition.
+    /// </summary>
+    /// <returns>number count</returns>
+    Task<int> GetCountAsync(Expression<Func<T, bool>>? condition);
+        
+    /// <summary>
     /// Get first record which matches the id
     /// </summary>
     /// <param name="id">domain model id</param>

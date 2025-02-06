@@ -2,4 +2,5 @@
 
 public interface IRoomService : IServiceBase<Room>
 {
+    Task<RoomCount> GetRoomCountsAsync();
 }
