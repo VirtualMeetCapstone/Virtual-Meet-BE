@@ -4,27 +4,22 @@ Welcome to GOCAP Social Media, where we connect and grow our community through e
 
 ## Technologies
 - Backend: ASP.NET CORE API 8, C#, Entity Framework Core, LINQ, DI, AutoMapper, Fluent Validation.
-- Database: SQL SERVER
-- Frontend: Reactjs, Hook, HTML5, CSS, JS, Bootstrap.
-- Tool: GITHUB
+- Database: SQL SERVER, MongoDB.
+- Cache: Redis.
+- Frontend: Angular, Typescript, HTML5, CSS, JS, Bootstrap.
+- Tool: Git, Github, Postman.
 
 ## IDE
-Visual Studio 2022, Sql Server 2019, Visual Studio Code.
+Visual Studio 2022, Sql Server 2019, Visual Studio Code, MongoDBCompass.
 
 ## How does this source work
-- GOCAP.Api -> GOCAP.Common, GOCAP.Database, GOCAP.Repository, GOCAP.Repository.Intention, GOCAP.Service, GOCAP.Service.Intetion
-- GOCAP.Database -> GOCAP.Common
-- GOCAP.Repository -> GOCAP.Repository.Intention, GOCAP.Database, GOCAP.Common
-- GOCAP.Repository.Intention -> GOCAP.Database, GOCAP.Common
-- GOCAP.Service -> GOCAP.Repository, GOCAP.Repository.Intention, GOCAP.Service.Intention,  GOCAP.Database, GOCAP.Common
-- GOCAP.Service.Intention -> GOCAP.Database, GOCAP.Common
+- GOCAP.Api -> GOCAP.Services -> GOCAP.Repository -> GOCAP.Database.
 
 ## How to run source
 - Clone src from github
 - Go to appsettings in webapp and modify information to be suitable for your database.
-- In GOCAP.Database Layer, run some code lines to map code to db (Entity Framework).
+- In GOCAP.Migrations Layer, run some code lines to map code to db (Entity Framework).
   ```sh
-   dotnet ef migrations  add "Initial"
    dotnet ef database update
 - Run src
 
@@ -38,13 +33,13 @@ To install this project, follow these steps:
 
 2. When clone done, create a branch base on master:
    ```sh
-   git checkout -b NameBranch
+   git checkout -b dev-gau
    
 2. Implement Coding, Push to created branch (Just push necessary files, not push unnecessary files):
    ```sh
    git add .
    git commit -m"Push Code"
-   git push origin NameBranch
+   git push origin dev-gau
 
 2. Create merge request on github:
    - Go to github

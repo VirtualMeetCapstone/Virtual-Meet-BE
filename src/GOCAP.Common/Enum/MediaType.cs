@@ -2,12 +2,13 @@
 
 public enum MediaType
 {
-    Image = 0,
-    Video = 1,
-    File = 2,
-    Document = 3, 
-    Audio = 4,
-    Archive = 5,
-    Spreadsheet = 6,
-    Presentation = 7
+    Text = 0,
+    Image = 1,
+    Video = 2,
+    File = 3,
+    Document = 4, 
+    Audio = 5,
+    Gif = 6, 
+    Sticker = 7, 
+    Emoji = 8,
 }

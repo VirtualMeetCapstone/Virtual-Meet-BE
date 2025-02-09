@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("medias")]
-public class MediaController(IMediaService _service, IMapper _mapper) : ApiControllerBase
+public class MediasController(IMediaService _service, IMapper _mapper) : ApiControllerBase
 {
     [HttpGet]
     public async Task<IEnumerable<MediaModel>> GetAll()

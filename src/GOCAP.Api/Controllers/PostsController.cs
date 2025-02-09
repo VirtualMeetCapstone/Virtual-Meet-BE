@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("posts")]
-public class PostController(
+public class PostsController(
     IPostService _service,
     IBlobStorageService _blobStorageService,
     IMapper _mapper) : ApiControllerBase

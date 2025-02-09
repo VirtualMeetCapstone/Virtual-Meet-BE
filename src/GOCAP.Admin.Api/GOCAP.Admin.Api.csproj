@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GOCAP.Api.Common\GOCAP.Api.Common.csproj" />
-    <ProjectReference Include="..\GOCAP.Api\GOCAP.Api.csproj" />
   </ItemGroup>
 
 </Project>

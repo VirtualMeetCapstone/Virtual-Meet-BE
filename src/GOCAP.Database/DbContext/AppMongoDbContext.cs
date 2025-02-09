@@ -4,16 +4,22 @@ public class AppMongoDbContext
 {
     private readonly IMongoDatabase _database;
     public IMongoCollection<MediaEntity> Medias { get; set; }
+    public IMongoCollection<CommentEntity> Comments { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
         var _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
 
         Medias = GetCollection<MediaEntity>();
+        Comments = GetCollection<CommentEntity>();
     }
 
 
-    // Get collection base on BsonCollection attribute
+    /// <summary>
+    /// Get collection base on BsonCollection attribute.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public IMongoCollection<T> GetCollection<T>() where T : class
     {
         var collectionName = typeof(T)

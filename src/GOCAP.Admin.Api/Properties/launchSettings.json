@@ -1,12 +1,14 @@
 {
   "profiles": {
-    "GOCAP.Admin.Api": {
+    "https": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7036",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "https://localhost:54200;http://localhost:54201"
+      }
     }
   }
 }

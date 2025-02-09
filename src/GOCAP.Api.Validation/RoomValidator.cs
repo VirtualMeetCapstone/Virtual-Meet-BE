@@ -1,6 +1,4 @@
-﻿using GOCAP.Common;
-
-namespace GOCAP.Api.Validation;
+﻿namespace GOCAP.Api.Validation;
 
 public class RoomValidator : ValidatorBase<RoomCreationModel>
 {
