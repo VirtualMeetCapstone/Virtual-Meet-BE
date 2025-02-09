@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("users")]
-public class UserController(IUserService _userService,
+public class UsersController(IUserService _userService,
     IFollowService _followService,
     IMapper _mapper) : ApiControllerBase
 {
@@ -37,8 +37,8 @@ public class UserController(IUserService _userService,
     /// <param name="id"></param>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPatch]
-    public async Task<OperationResult> UpdateUserProfile(Guid id, [FromForm] UserCreationModel model)
+    [HttpPatch("{id}")]
+    public async Task<OperationResult> UpdateUserProfile([FromRoute] Guid id, [FromForm] UserCreationModel model)
     {
         var user = _mapper.Map<User>(model);
         return await _userService.UpdateAsync(id, user);

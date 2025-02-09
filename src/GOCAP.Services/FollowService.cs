@@ -40,6 +40,8 @@ internal class FollowService(
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Follow).Name);
             try
             {
+                var sender = await _userRepository.GetByIdAsync(domain.FollowerId);
+                
                 // Begin the transaction. 
                 await _unitOfWork.BeginTransactionAsync();
 
@@ -48,7 +50,6 @@ internal class FollowService(
                 await _repository.AddAsync(domain);
 
                 // Insert the notification into db.
-                var sender = await _userRepository.GetByIdAsync(domain.FollowerId);
                 var notification = new UserNotification
                 {
                     UserId = domain.FollowingId,

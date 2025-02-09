@@ -8,9 +8,9 @@ internal class GroupService(
     ILogger<GroupService> _logger
     ) : ServiceBase<Group>(_repository, _logger), IGroupService
 {
-    public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId)
+    public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
-        return await _repository.GetByUserIdWithPagingAsync(queryInfo, userId);
+        return await _repository.GetByUserIdWithPagingAsync(userId, queryInfo);
     }
 
     public override async Task<Group> AddAsync(Group group)

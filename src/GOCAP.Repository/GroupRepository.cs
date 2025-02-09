@@ -8,7 +8,7 @@ internal class GroupRepository(AppSqlDbContext context
 {
     private readonly AppSqlDbContext _context = context;
     private readonly IMapper _mapper = mapper;
-    public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId)
+    public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
         var groupEntities = await _context.Groups.Where(g => g.OwnerId == userId)
                                                  .OrderByDescending(g => g.CreateTime)
@@ -39,6 +39,7 @@ internal class GroupRepository(AppSqlDbContext context
                .FirstOrDefaultAsync();
         return await counts ?? new GroupCount();
     }
+
     public async Task<GroupDetail> GetDetailByIdAsync(Guid id)
     {
         var groupQuery = _context.Groups.AsQueryable();
@@ -66,7 +67,10 @@ internal class GroupRepository(AppSqlDbContext context
         var entity = await GetEntityByIdAsync(id);
         entity.Name = domain.Name;
         entity.Picture = domain.Picture;
-        entity.OwnerId = domain.OwnerId;
+        if (domain.OwnerId != Guid.Empty)
+        {
+            entity.OwnerId = domain.OwnerId;
+        }
         entity.LastModifyTime = DateTime.UtcNow.Ticks;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;

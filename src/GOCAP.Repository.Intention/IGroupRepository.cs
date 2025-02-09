@@ -3,6 +3,6 @@
 public interface IGroupRepository : ISqlRepositoryBase<Group>
 {
     Task<GroupCount> GetGroupCountsAsync();
-    Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
+    Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo);
     Task<GroupDetail> GetDetailByIdAsync(Guid id);
 }

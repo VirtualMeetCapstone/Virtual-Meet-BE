@@ -3,7 +3,7 @@
 public interface IGroupService : IServiceBase<Group>
 {
     Task<GroupCount> GetGroupCountsAsync();
-    Task<QueryResult<Group>> GetByUserIdWithPagingAsync(QueryInfo queryInfo, Guid userId);
+    Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo);
     Task<OperationResult> TransferGroupAsync(TransferGroup domain);
     Task<GroupDetail> GetDetailByIdAsync(Guid id);
 }

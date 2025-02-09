@@ -99,7 +99,7 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
     public virtual async Task<bool> CheckExistAsync(Guid id, string name)
     {
         var exists = await _context.Set<TEntity>().AnyAsync(
-            e => EF.Property<Guid>(e, "Id") != id
+            e => EF.Property<Guid>(e, "Id") == id
             && EF.Property<string>(e, "Name") == name
         );
         return exists;
@@ -108,7 +108,7 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
     public virtual async Task<bool> CheckExistAsync(Guid id)
     {
         var exists = await _context.Set<TEntity>().AnyAsync(
-            e => EF.Property<Guid>(e, "Id") != id
+            e => EF.Property<Guid>(e, "Id") == id
         );
         return exists;
     }

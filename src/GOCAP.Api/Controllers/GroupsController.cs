@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("groups")]
-public class GroupController(IGroupService _service,
+public class GroupsController(IGroupService _service,
     IGroupMemberService _groupMemberService,
     IMapper _mapper) : ApiControllerBase
 {
@@ -11,9 +11,9 @@ public class GroupController(IGroupService _service,
     /// <param name="queryInfo"></param>
     /// <returns></returns>
     [HttpGet("{userId}/page")]
-    public async Task<QueryResult<GroupModel>> GetByUserIdWithPaging([FromQuery] QueryInfo queryInfo, [FromRoute] Guid userId)
+    public async Task<QueryResult<GroupModel>> GetByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
-        var domain = await _service.GetByUserIdWithPagingAsync(queryInfo, userId);
+        var domain = await _service.GetByUserIdWithPagingAsync(userId, queryInfo);
         var result = _mapper.Map<QueryResult<GroupModel>>(domain);
         return result;
     }

@@ -8,6 +8,10 @@ internal abstract class ServiceBase<T>(
     public virtual async Task<T> AddAsync(T domain)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(T).Name);
+        if (domain is DateObjectBase objectBase)
+        {
+            objectBase.InitCreation();
+        }
         return await _repository.AddAsync(domain);
     }
 
