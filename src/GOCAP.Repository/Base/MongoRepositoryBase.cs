@@ -109,14 +109,9 @@ internal abstract class MongoRepositoryBase<TDomain, TEntity>
         };
     }
 
-    public async Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition)
+    public Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition)
     {
-        //var filter = condition != null
-        //    ? Builders<TEntity>.Filter.Where(_mapper.Map<Expression<Func<TEntity, bool>>>(condition))
-        //    : Builders<TEntity>.Filter.Empty;
-
-        //var count = await _collection.CountDocumentsAsync(filter);
-        return 0;
+        throw new InvalidOperationException();  
     }
 
     public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)

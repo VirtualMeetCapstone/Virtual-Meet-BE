@@ -25,4 +25,7 @@ public static class GOCAPConstants
     public const int MaxLengthHastTag = 50;
     public const int MaxLengthUrl = 2000;
 
+    // Default media file size
+    public const long MaxBlobSize = 1024 * 1024 * 50;
+    public const string BlobContainer = "gocap";
 }

@@ -11,7 +11,7 @@ public class UsersController(IUserService _userService,
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("page")]
+    [HttpGet]
     public async Task<QueryResult<UserModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
         var domain = await _userService.GetByPageAsync(queryInfo);
