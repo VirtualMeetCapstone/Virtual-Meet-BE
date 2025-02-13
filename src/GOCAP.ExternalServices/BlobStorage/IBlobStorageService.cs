@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Services.BlobStorage;
+﻿namespace GOCAP.ExternalServices;
 
 public interface IBlobStorageService
 {

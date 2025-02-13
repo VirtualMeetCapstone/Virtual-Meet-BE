@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace GOCAP.Services.BlobStorage;
+namespace GOCAP.ExternalServices;
 
 public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobStorageService
 {
