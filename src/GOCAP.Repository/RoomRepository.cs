@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Repository;
+﻿using System.Text.Json;
+
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
@@ -6,6 +8,7 @@ internal class RoomRepository(
      IMapper mapper) : SqlRepositoryBase<Room, RoomEntity>(context, mapper), IRoomRepository
 {
     private readonly AppSqlDbContext _context = context;
+
     public override async Task<QueryResult<Room>> GetByPageAsync(QueryInfo queryInfo)
     {
         var roomQuery = _context.Rooms.AsQueryable();
@@ -29,7 +32,7 @@ internal class RoomRepository(
             Topic = r.Topic,
             Description = r.Description,
             MaximumMembers = r.MaximumMembers,
-            Medias = r.Medias,
+            Medias = JsonSerializer.Deserialize<List<Media>>(r.Medias ?? string.Empty) ?? [],
             Status = r.Status,
             CreateTime = r.CreateTime,
             Members = r.Members.Select(rm => new User

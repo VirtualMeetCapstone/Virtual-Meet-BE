@@ -17,10 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GOCAP.Api.Validation\GOCAP.Api.Validation.csproj" />
-    <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
-    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
-    <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
-    <ProjectReference Include="..\GOCAP.Services.Intention\GOCAP.Services.Intention.csproj" />
     <ProjectReference Include="..\GOCAP.Services\GOCAP.Services.csproj" />
   </ItemGroup>
 

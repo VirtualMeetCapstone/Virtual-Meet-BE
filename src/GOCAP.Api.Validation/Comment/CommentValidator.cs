@@ -12,6 +12,6 @@ public class CommentValidator : ValidatorBase<CommentCreationModel>
         //    .Must(x => x.Count > 0 && x.Count < 3)
         //    .WithMessage("Content must not exceed 3 items.");
 
-        RuleForEach(x => x.Contents).SetValidator(new CommentContentValidator());
+        //RuleForEach(x => x.Contents).SetValidator(new CommentContentValidator());
     }
 }

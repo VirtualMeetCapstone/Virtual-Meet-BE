@@ -10,7 +10,7 @@ public class RoomsController(IRoomService _service,
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("page")]
+    [HttpGet]
     public async Task<QueryResult<RoomModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
         var domain = await _service.GetByPageAsync(queryInfo);
@@ -61,10 +61,11 @@ public class RoomsController(IRoomService _service,
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPost("favourite")]
-    public async Task<OperationResult> CreateOrDeleteRoomFavourite([FromBody] RoomFavouriteCreationModel model)
+    [HttpPost("{roomId}/favourite")]
+    public async Task<OperationResult> CreateOrDeleteRoomFavourite([FromRoute] Guid roomId, [FromBody] RoomFavouriteCreationModel model)
     {
         var room = _mapper.Map<RoomFavourite>(model);
+        room.RoomId = roomId;
         var result = await _roomFavouriteService.CreateOrDeleteAsync(room);
         return result;
     }

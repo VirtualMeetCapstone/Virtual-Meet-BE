@@ -4,9 +4,6 @@ public class PostModelMapperProfile : ModelMapperProfileBase
 {
     public PostModelMapperProfile()
     {
-        CreateMap<Media, MediaModel>();
-        CreateMap<MediaModel, Media>();
-
         CreateMap<QueryResult<UserPost>, QueryResult<PostModel>>();
         CreateMap<QueryResult<PostModel>, QueryResult<UserPost>>();
 

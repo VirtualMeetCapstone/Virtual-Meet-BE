@@ -8,7 +8,7 @@ public class RoomModel
     public string Topic { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
-    public string? Medias { get; set; }
+    public List<Media>? Medias { get; set; }
     public RoomStatusType? Status { get; set; }
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }

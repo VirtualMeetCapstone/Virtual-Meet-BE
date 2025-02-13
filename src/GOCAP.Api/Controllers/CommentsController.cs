@@ -3,7 +3,7 @@
 [Route("posts/{postId}/comments")]
 public class CommentsController(ICommentService _service, IMapper _mapper) : ApiControllerBase
 {
-    [HttpGet("page")]
+    [HttpGet]
     public async Task<QueryResult<CommentModel>> GetByPostIdWithPaging([FromRoute] Guid postId,
         [FromQuery] QueryInfo queryInfo)
     {

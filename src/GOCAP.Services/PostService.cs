@@ -25,8 +25,7 @@ internal class PostService(
         else
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(PostLike).Name);
-            postLike.Id = Guid.NewGuid();
-            postLike.CreateTime = DateTime.UtcNow.Ticks;
+            postLike.InitCreation();
             await _postLikeRepository.AddAsync(postLike);
         }
         return result;

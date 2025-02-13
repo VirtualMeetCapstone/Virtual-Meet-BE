@@ -7,9 +7,6 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
-    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
-    <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
     <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
     <ProjectReference Include="..\GOCAP.Repository\GOCAP.Repository.csproj" />
     <ProjectReference Include="..\GOCAP.Services.Intention\GOCAP.Services.Intention.csproj" />

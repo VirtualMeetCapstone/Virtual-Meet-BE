@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GOCAP.Migrations", "GOCAP.M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Admin.Api", "GOCAP.Admin.Api\GOCAP.Admin.Api.csproj", "{39D7FD22-C276-4C00-B559-918F3A8337B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.ExternalServices", "GOCAP.ExternalServices\GOCAP.ExternalServices.csproj", "{4DD87135-D808-48FE-BB49-D984251F24AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{39D7FD22-C276-4C00-B559-918F3A8337B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39D7FD22-C276-4C00-B559-918F3A8337B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39D7FD22-C276-4C00-B559-918F3A8337B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DD87135-D808-48FE-BB49-D984251F24AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DD87135-D808-48FE-BB49-D984251F24AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DD87135-D808-48FE-BB49-D984251F24AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DD87135-D808-48FE-BB49-D984251F24AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

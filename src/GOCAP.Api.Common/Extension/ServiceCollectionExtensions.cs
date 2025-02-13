@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure.Storage;
+using Azure.Storage.Blobs;
 using GOCAP.Common;
 using GOCAP.Database;
 using GOCAP.Repository;
@@ -16,9 +17,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Add for using azure blob storage
-        //services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
-        //services.AddSingleton<IBlobStorageService, BlobStorageService>();
+        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
+        services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         // Add for using sql server
         services
