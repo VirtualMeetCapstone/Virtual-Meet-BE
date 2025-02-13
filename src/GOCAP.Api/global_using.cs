@@ -12,7 +12,7 @@ global using System.Text;
 global using GOCAP.Api.AutoMapper;
 global using GOCAP.Api.Common;
 global using System.Reflection;
-global using GOCAP.Services.BlobStorage;
+global using GOCAP.ExternalServices;
 global using System.Transactions;
 global using GOCAP.Repository.AutoMapper;
 global using GOCAP.Api.Model;

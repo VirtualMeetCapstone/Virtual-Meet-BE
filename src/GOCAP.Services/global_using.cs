@@ -5,5 +5,5 @@ global using GOCAP.Domain;
 global using GOCAP.Repository;
 global using Microsoft.Extensions.Logging;
 global using System.Linq.Expressions;
-global using GOCAP.Services.BlobStorage;
+global using GOCAP.ExternalServices;
 global using System.Text.Json;

@@ -4,7 +4,7 @@ using GOCAP.Common;
 using GOCAP.Database;
 using GOCAP.Repository;
 using GOCAP.Repository.Intention;
-using GOCAP.Services.BlobStorage;
+using GOCAP.ExternalServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
