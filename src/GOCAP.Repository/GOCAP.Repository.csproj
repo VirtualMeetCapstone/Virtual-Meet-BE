@@ -13,4 +13,8 @@
     <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Admin\DashBoard\" />
+  </ItemGroup>
+
 </Project>
