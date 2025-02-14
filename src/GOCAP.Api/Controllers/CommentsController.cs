@@ -14,7 +14,7 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
 
     [HttpPost]
     [ValidateModel]
-    public async Task<CommentModel> Create([FromRoute] Guid postId, [FromForm] CommentCreationModel model)
+    public async Task<CommentModel> Create([FromRoute] Guid postId, [FromBody] CommentCreationModel model)
     {
         var domain = _mapper.Map<Comment>(model);
         domain.PostId = postId;

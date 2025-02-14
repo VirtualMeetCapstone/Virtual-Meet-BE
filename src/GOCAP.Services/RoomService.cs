@@ -25,13 +25,22 @@ internal class RoomService(
         }
 
         // Upload file to azure.
-        var medias = await _blobStorageService.UploadFileAsync(room.MediaUploads);
-        if (medias.Count == 0 || medias is null)
+        if (room.MediaUploads?.Count > 0)
         {
-            throw new ParameterInvalidException("Media files is invalid.");
+            var medias = await _blobStorageService.UploadFileAsync(room.MediaUploads);
+            room.Medias = medias;
         }
+
         room.InitCreation();
-        return await _repository.AddAsync(room);
+        try
+        {
+            return await _repository.AddAsync(room);
+        }
+        catch (Exception ex)
+        {
+            await DeleteMediaFileIfError(room);
+            throw new InternalException(ex.Message);
+        }
     }
 
     /// <summary>
@@ -61,6 +70,51 @@ internal class RoomService(
             await _unitOfWork.RollbackTransactionAsync();
             return new OperationResult(false);
         }
+    }
+
+    public override async Task<OperationResult> UpdateAsync(Guid id, Room domain)
+    {
+        _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
+        if (domain.MediaUploads?.Count > 0)
+        {
+            var medias = await _blobStorageService.UploadFileAsync(domain.MediaUploads);
+            domain.Medias = medias;
+        }
+        domain.UpdateModify();
+        try
+        {
+            return new OperationResult(await _repository.UpdateAsync(id, domain));
+        }
+        catch (Exception ex)
+        {
+            await DeleteMediaFileIfError(domain);
+            throw new InternalException(ex.Message);
+        }
+    }
+
+    private async Task DeleteMediaFileIfError(Room domain)
+    {
+        var mediaDeletes = new List<MediaDelete>();
+        var mediaDeleteDict = new Dictionary<string, MediaDelete>();
+
+        if (domain.MediaUploads is not null)
+        {
+            foreach (var mediaUpload in domain.MediaUploads)
+            {
+                if (!mediaDeleteDict.TryGetValue(mediaUpload.ContainerName, out var mediaDelete))
+                {
+                    mediaDelete = new MediaDelete
+                    {
+                        ContainerName = mediaUpload.ContainerName,
+                        FileNames = []
+                    };
+                    mediaDeleteDict[mediaUpload.ContainerName] = mediaDelete;
+                    mediaDeletes.Add(mediaDelete);
+                }
+                mediaDelete.FileNames.Add(mediaUpload.FileName);
+            }
+        }
+        await _blobStorageService.DeleteFilesAsync(mediaDeletes);
     }
 
     public async Task<RoomCount> GetRoomCountsAsync()

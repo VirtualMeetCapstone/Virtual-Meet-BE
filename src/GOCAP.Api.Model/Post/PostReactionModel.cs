@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class PostLikeModel
+public class PostReactionModel
 {
     public Guid Id { get; set; }
     public Guid PostId { get; set; }

@@ -12,7 +12,7 @@ public class PostModelMapperProfile : ModelMapperProfileBase
         CreateMap<PostCreationModel, UserPost>()
             .ForMember(dest => dest.Medias, opt => opt.Ignore());
 
-        CreateMap<PostLike, PostLikeCreationModel>().ReverseMap();
-        CreateMap<PostLike, PostLikeModel>().ReverseMap();
+        CreateMap<PostReaction, PostReactionCreationModel>().ReverseMap();
+        CreateMap<PostReaction, PostReactionModel>().ReverseMap();
     }
 }

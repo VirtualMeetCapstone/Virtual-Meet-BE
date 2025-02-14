@@ -27,7 +27,7 @@ public interface IBlobStorageService
     /// <param name="containerName">The name of the container.</param>
     /// <param name="fileName">The name of the file.</param>
     /// <returns>True if deletion was successful, otherwise false.</returns>
-    Task<bool> DeleteFileAsync(string containerName, string fileName);
+    Task<bool> DeleteFilesAsync(List<MediaDelete> mediaDeletes);
 
     /// <summary>
     /// Checks if a file exists in Azure Blob Storage.
@@ -52,4 +52,5 @@ public interface IBlobStorageService
     /// <param name="expiryTime">The expiration time for the URL.</param>
     /// <returns>A publicly accessible URL valid for the specified duration.</returns>
     Task<string> GenerateFileUrlAsync(string containerName, string fileName, TimeSpan expiryTime);
+    Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls);
 }

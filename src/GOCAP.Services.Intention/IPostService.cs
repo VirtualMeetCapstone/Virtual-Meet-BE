@@ -2,6 +2,5 @@
 
 public interface IPostService : IServiceBase<UserPost>
 {
-    Task<UserPost> UploadPost(UserPost post);
-    Task<OperationResult> LikeOrUnlikeAsync(PostLike postLike);
+    Task<OperationResult> LikeOrUnlikeAsync(PostReaction postLike);
 }

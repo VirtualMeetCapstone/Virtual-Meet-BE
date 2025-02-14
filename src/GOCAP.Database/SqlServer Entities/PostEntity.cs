@@ -1,12 +1,14 @@
 ﻿namespace GOCAP.Database;
 
-[Table("UserPosts")]
-public class UserPostEntity : EntitySqlBase
+[Table("Posts")]
+public class PostEntity : EntitySqlBase
 {
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public required string Content { get; set; }
+    public string? Medias { get; set; }
+    public PrivacyType Privacy { get; set; }
     public Guid UserId { get; set; }
     public UserEntity? User { get; set; }
-    public ICollection<UserPostLikeEntity> Likes { get; set; } = [];
+    public ICollection<PostReactionEntity> Reactions { get; set; } = [];
 }
 

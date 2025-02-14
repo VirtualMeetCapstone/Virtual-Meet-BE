@@ -8,7 +8,7 @@ public class RoomEntity : EntitySqlBase
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
-    public string? Medias { get; set; } // Save in json format
+    public string? Medias { get; set; } 
     public RoomStatusType? Status { get; set; }
     public Guid OwnerId { get; set; }
     public UserEntity? Owner { get; set; }

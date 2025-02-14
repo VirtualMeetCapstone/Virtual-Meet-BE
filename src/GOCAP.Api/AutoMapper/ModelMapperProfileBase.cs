@@ -2,7 +2,7 @@
 
 public abstract class ModelMapperProfileBase : Profile
 {
-    protected static List<IFormFile>? ConvertMediaToFormFiles(List<MediaUpload> medias)
+    protected static List<IFormFile>? ConvertMediaToFormFiles(List<MediaUpload>? medias)
     {
         if (medias == null || medias.Count == 0)
             return null;

@@ -30,21 +30,18 @@ public class AppDbContext : DbContext
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<UserFollowEntity> UserFollows { get; set; }
     public DbSet<UserNotificationEntity> UserNotifications { get; set; }
-    public DbSet<UserPostEntity> UserPosts { get; set; }
+    public DbSet<PostEntity> Posts { get; set; }
     public DbSet<UserRewardEntity> UserRewards { get; set; }
     public DbSet<UserRoleEntity> UserRoles { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
-    public DbSet<UserStoryEntity> UserStories { get; set; }
-    public DbSet<UserPostLikeEntity> UserPostLikes { get; set; }
+    public DbSet<StoryEntity> Stories { get; set; }
+    public DbSet<StoryViewEntity> StoryViews { get; set; }
+    public DbSet<StoryReactionEntity> StoryReactions { get; set; }
+    public DbSet<PostReactionEntity> PostReactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        //Connection string pattern: Data Source=BIGBOSS;Database=GOCAP;User Id=sa;Password=123456789;TrustServerCertificate=true;Trusted_Connection=SSPI;Encrypt=true
-        
-        // Input the correct connection string 
         optionsBuilder.UseSqlServer("Server=db9981.public.databaseasp.net; Database=db9981; User Id=db9981; Password=manhtuong1; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
-
-        // Open the cmd and run this command: dotnet ef database update
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -91,10 +88,22 @@ public class AppDbContext : DbContext
                     .HasForeignKey(rf => rf.GroupId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<UserPostLikeEntity>()
+        modelBuilder.Entity<PostReactionEntity>()
                     .HasOne(rf => rf.Post)
-                    .WithMany(u => u.Likes)
+                    .WithMany(u => u.Reactions)
                     .HasForeignKey(rf => rf.PostId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StoryViewEntity>()
+                    .HasOne(rf => rf.Story)
+                    .WithMany(u => u.Views)
+                    .HasForeignKey(rf => rf.StoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StoryReactionEntity>()
+                    .HasOne(rf => rf.Story)
+                    .WithMany(u => u.Reactions)
+                    .HasForeignKey(rf => rf.StoryId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         base.OnModelCreating(modelBuilder);

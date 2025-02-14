@@ -1,6 +1,6 @@
-﻿namespace GOCAP.Domain;
+﻿namespace GOCAP.Api.Model;
 
-public class PostLike : DateObjectBase
+public class PostReactionCreationModel
 {
     public Guid PostId { get; set; }
     public Guid UserId { get; set; }

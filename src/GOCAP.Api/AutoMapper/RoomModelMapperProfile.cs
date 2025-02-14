@@ -12,6 +12,12 @@ public class RoomModelMapperProfile : ModelMapperProfileBase
         CreateMap<RoomCreationModel, Room>()
             .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedia(src.MediaUploads)));
 
+        CreateMap<Room, RoomUpdationModel>()
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertMediaToFormFiles(src.MediaUploads)));
+
+        CreateMap<RoomUpdationModel, Room>()
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedia(src.MediaUploads)));
+
         CreateMap<QueryResult<Room>, QueryResult<RoomModel>>().ReverseMap();
 
         // Mapper for room favourite

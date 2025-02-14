@@ -1,8 +1,7 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class RoomCreationModel
+public class RoomUpdationModel
 {
-    public Guid OwnerId { get; set; }
     public string Topic { get; set; } = "";
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
