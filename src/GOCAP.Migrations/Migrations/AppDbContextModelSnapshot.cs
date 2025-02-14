@@ -80,6 +80,66 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("GroupMembers");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Medias")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Privacy")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.PostReactionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostLikes");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -335,6 +395,98 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("RoomTags");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.StoryEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Media")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MusicUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TextContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Stories");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryReactionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("StoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StoryReactions");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryViewEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("StoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ViewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoryId");
+
+                    b.HasIndex("ViewerId");
+
+                    b.ToTable("StoryViews");
+                });
+
             modelBuilder.Entity("GOCAP.Database.UserActivityEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -507,60 +659,6 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("UserNotifications");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserPostEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserPosts");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.UserPostLikeEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserPostLikes");
-                });
-
             modelBuilder.Entity("GOCAP.Database.UserRewardEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -616,32 +714,6 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserStoryEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserStories");
-                });
-
             modelBuilder.Entity("GOCAP.Database.GroupEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "Owner")
@@ -668,6 +740,36 @@ namespace GOCAP.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.PostReactionEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.PostEntity", "Post")
+                        .WithMany("Reactions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
@@ -776,6 +878,55 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.StoryEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
+                        .WithMany("Stories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryReactionEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.StoryEntity", "Story")
+                        .WithMany("Reactions")
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Story");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryViewEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.StoryEntity", "Story")
+                        .WithMany("Views")
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.UserEntity", "Viewer")
+                        .WithMany()
+                        .HasForeignKey("ViewerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Story");
+
+                    b.Navigation("Viewer");
+                });
+
             modelBuilder.Entity("GOCAP.Database.UserActivityEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
@@ -836,36 +987,6 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserPostEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("Posts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.UserPostLikeEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.UserPostEntity", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GOCAP.Database.UserRewardEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
@@ -896,20 +1017,14 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserStoryEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("Stories")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GOCAP.Database.GroupEntity", b =>
                 {
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
+                {
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
@@ -931,6 +1046,13 @@ namespace GOCAP.Migrations.Migrations
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
                 {
                     b.Navigation("RoomMemberRoles");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryEntity", b =>
+                {
+                    b.Navigation("Reactions");
+
+                    b.Navigation("Views");
                 });
 
             modelBuilder.Entity("GOCAP.Database.UserEntity", b =>
@@ -958,11 +1080,6 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Stories");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.UserPostEntity", b =>
-                {
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

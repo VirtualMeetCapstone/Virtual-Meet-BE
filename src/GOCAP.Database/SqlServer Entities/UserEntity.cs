@@ -27,9 +27,9 @@ public class UserEntity : EntitySqlBase
     public ICollection<UserRoleEntity> UserRoles { get; set; } = [];
     public ICollection<UserActivityEntity> Activities { get; set; } = [];
     public ICollection<UserFollowEntity> Follows { get; set; } = [];
-    public ICollection<UserPostEntity> Posts { get; set; } = [];
+    public ICollection<PostEntity> Posts { get; set; } = [];
     public ICollection<UserNotificationEntity> Notifications { get; set; } = [];
     public ICollection<UserRewardEntity> Rewards { get; set; } = [];
     public ICollection<UserBlockEntity> Blocks { get; set; } = [];
-    public ICollection<UserStoryEntity> Stories { get; set; } = [];
+    public ICollection<StoryEntity> Stories { get; set; } = [];
 }

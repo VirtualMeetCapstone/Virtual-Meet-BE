@@ -26,9 +26,9 @@ public class PostsController(
     }
 
     [HttpPost("like")]
-    public async Task<OperationResult> LikeOrUnlike([FromBody] PostLikeCreationModel model)
+    public async Task<OperationResult> LikeOrUnlike([FromBody] PostReactionCreationModel model)
     {
-        var domain = _mapper.Map<PostLike>(model);
+        var domain = _mapper.Map<PostReaction>(model);
         var result = await _service.LikeOrUnlikeAsync(domain);
         return result;
     }

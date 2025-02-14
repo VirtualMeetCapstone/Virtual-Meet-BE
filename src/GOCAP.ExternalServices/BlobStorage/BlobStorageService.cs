@@ -1,6 +1,8 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using GOCAP.Common;
 
 namespace GOCAP.ExternalServices;
 
@@ -29,10 +31,12 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
 
             ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
 
-            string fileNameWithPath = $"{mediaUpload.ContainerName}/{mediaUpload.FileName}";
+            string timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmssfff");
+            var uniqueFileName = $"{Guid.NewGuid()}_{mediaUpload.Type.ToString().ToLower()}{timestamp}_{mediaUpload.FileName}";
+            string fileNameWithPath = $"{mediaUpload.ContainerName}/{uniqueFileName}";
             var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
 
-            await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: true);
+            await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
             result.Add(new Media
             {
                 Url = blobClient.Uri.ToString(),
@@ -55,13 +59,66 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return download.Content;
     }
 
-    public async Task<bool> DeleteFileAsync(string containerName, string fileName)
+    public async Task<bool> DeleteFilesAsync(List<MediaDelete> mediaDeletes)
     {
-        ValidateInput(containerName, fileName);
-        var blobContainerClient = await GetContainerClientAsync(containerName);
-        var blobClient = blobContainerClient.GetBlobClient(fileName);
-        return await blobClient.DeleteIfExistsAsync();
+        if (mediaDeletes is null || mediaDeletes.Count == 0)
+        {
+            throw new ParameterInvalidException("Media file to delete can not be null or empty.");
+        }
+
+        var deleteTasks = new List<Task<Response<bool>>>();
+
+        foreach (var mediaDelete in mediaDeletes)
+        {
+            var blobContainerClient = await GetContainerClientAsync(mediaDelete.ContainerName);
+            foreach (var fileName in mediaDelete.FileNames)
+            {
+                string fileNameWithPath = $"{mediaDelete.ContainerName}/{fileName}";
+                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+                deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+            }
+        }
+
+        var results = await Task.WhenAll(deleteTasks);
+
+        return results.All(r => r);
     }
+
+    public async Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls)
+    {
+        if (fileUrls == null || fileUrls.Count == 0)
+        {
+            throw new ParameterInvalidException("File URLs cannot be null or empty.");
+        }
+
+        var deleteTasks = new List<Task<Response<bool>>>();
+        foreach (var fileUrl in fileUrls)
+        {
+            if (fileUrl is null)
+            {
+                continue;
+            }
+            var uri = new Uri(fileUrl);
+            string[] segments = uri.AbsolutePath.Trim('/').Split('/');
+
+            if (segments.Length < 2)
+            {
+                throw new ParameterInvalidException($"Invalid Azure Blob Storage URL format: {fileUrl}");
+            }
+
+            string containerName = segments[0];
+            string blobName = string.Join("/", segments.Skip(1));
+
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+        }
+
+        var results = await Task.WhenAll(deleteTasks);
+        return results.All(result => result.Value);
+    }
+
 
     public async Task<bool> FileExistsAsync(string containerName, string fileName)
     {

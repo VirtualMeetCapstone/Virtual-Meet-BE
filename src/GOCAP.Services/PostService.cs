@@ -12,27 +12,22 @@ internal class PostService(
     /// </summary>
     /// <param name="postLike"></param>
     /// <returns></returns>
-    public async Task<OperationResult> LikeOrUnlikeAsync(PostLike postLike)
+    public async Task<OperationResult> LikeOrUnlikeAsync(PostReaction postLike)
     {
         var result = new OperationResult(true);
         var isExists = await _postLikeRepository.CheckExistAsync(postLike.PostId, postLike.UserId);
         if (isExists)
         {
-            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(PostLike).Name);
+            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(PostReaction).Name);
             var resultDelete = await _postLikeRepository.DeleteAsync(postLike.PostId, postLike.UserId);
             result = new OperationResult(resultDelete > 0);
         }
         else
         {
-            _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(PostLike).Name);
+            _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(PostReaction).Name);
             postLike.InitCreation();
             await _postLikeRepository.AddAsync(postLike);
         }
         return result;
-    }
-
-    public async Task<UserPost> UploadPost(UserPost post)
-    {
-        return await _repository.AddAsync(post);
     }
 }

@@ -5,7 +5,8 @@ public class CommentEntity : EntityMongoBase
 {
     public Guid PostId { get; set; }
     public required CommentAuthorEntity Author { get; set; }
-    public required List<CommentContentEntity> Content { get; set; }
+    public required string Content { get; set; }
+    public List<CommentContentEntity>? Contents { get; set; }
     public Guid? ParentId { get; set; }
     public List<Guid> ReplyIds { get; set; } = [];
 }

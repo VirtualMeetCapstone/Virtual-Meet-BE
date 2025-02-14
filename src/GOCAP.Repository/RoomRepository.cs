@@ -1,11 +1,14 @@
-﻿using System.Text.Json;
+﻿using GOCAP.ExternalServices;
+using System.Text.Json;
 
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
     AppSqlDbContext context,
-     IMapper mapper) : SqlRepositoryBase<Room, RoomEntity>(context, mapper), IRoomRepository
+     IMapper mapper,
+     IBlobStorageService _blobStorageService
+     ) : SqlRepositoryBase<Room, RoomEntity>(context, mapper), IRoomRepository
 {
     private readonly AppSqlDbContext _context = context;
 
@@ -24,6 +27,7 @@ internal class RoomRepository(
         var roomsDetail = rooms.Select(r => new Room
         {
             Id = r.Id,
+            OwnerId = r.OwnerId,
             Owner = new User
             {
                 Name = r.Owner?.Name ?? string.Empty,
@@ -32,7 +36,9 @@ internal class RoomRepository(
             Topic = r.Topic,
             Description = r.Description,
             MaximumMembers = r.MaximumMembers,
-            Medias = JsonSerializer.Deserialize<List<Media>>(r.Medias ?? string.Empty) ?? [],
+            Medias = !string.IsNullOrEmpty(r.Medias)
+                        ? JsonSerializer.Deserialize<List<Media>>(r.Medias)
+                        : null,
             Status = r.Status,
             CreateTime = r.CreateTime,
             Members = r.Members.Select(rm => new User
@@ -55,6 +61,26 @@ internal class RoomRepository(
             TotalCount = totalItems
         };
 
+    }
+
+    public override async Task<bool> UpdateAsync(Guid id, Room domain)
+    {
+        var entity = await GetEntityByIdAsync(id);
+        if (entity.Medias is not null)
+        {
+            var medias = JsonSerializer.Deserialize<List<Media>>(entity.Medias);
+            await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
+        }
+        entity.Topic = domain.Topic;
+        entity.Description = domain.Description;
+        entity.MaximumMembers = domain.MaximumMembers;
+        if (domain.Medias is not null || domain.Medias?.Count > 0)
+        {
+            entity.Medias = JsonSerializer.Serialize(domain.Medias);
+        }
+        entity.LastModifyTime = domain.LastModifyTime;
+        _context.Entry(entity).State = EntityState.Modified;
+        return await _context.SaveChangesAsync() > 0;
     }
 
     public async Task<RoomCount> GetRoomCountsAsync()

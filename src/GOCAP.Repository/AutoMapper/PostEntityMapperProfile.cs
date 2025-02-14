@@ -4,6 +4,6 @@ public class PostEntityMapperProfile : EntityMapperProfileBase
 {
     public PostEntityMapperProfile()
     {
-        CreateMap<PostLike, UserPostLikeEntity>().ReverseMap();
+        CreateMap<PostReaction, PostReactionEntity>().ReverseMap();
     }
 }
