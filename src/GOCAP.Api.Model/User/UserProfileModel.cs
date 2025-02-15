@@ -7,5 +7,5 @@ public class UserProfileModel
     public string? Bio { get; set; }
     public int FollowersCount { get; set; }
     public int FollowingsCount{ get; set; }
-    public ICollection<UserPost> Posts { get; set; } = [];
+    public int FriendsCount { get; set; }
 }

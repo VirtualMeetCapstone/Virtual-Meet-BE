@@ -1,5 +1,5 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IPostRepository : ISqlRepositoryBase<UserPost>
+public interface IPostRepository : ISqlRepositoryBase<Post>
 {
 }

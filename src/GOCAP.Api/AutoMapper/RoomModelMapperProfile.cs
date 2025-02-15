@@ -7,16 +7,16 @@ public class RoomModelMapperProfile : ModelMapperProfileBase
         CreateMap<User, RoomMemberModel>().ReverseMap();
         CreateMap<Room, RoomModel>().ReverseMap();
         CreateMap<Room, RoomCreationModel>()
-            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertMediaToFormFiles(src.MediaUploads)));
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertMediasToFormFiles(src.MediaUploads)));
 
         CreateMap<RoomCreationModel, Room>()
-            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedia(src.MediaUploads)));
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedias(src.MediaUploads)));
 
         CreateMap<Room, RoomUpdationModel>()
-            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertMediaToFormFiles(src.MediaUploads)));
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertMediasToFormFiles(src.MediaUploads)));
 
         CreateMap<RoomUpdationModel, Room>()
-            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedia(src.MediaUploads)));
+            .ForMember(dest => dest.MediaUploads, opt => opt.MapFrom(src => ConvertFormFilesToMedias(src.MediaUploads)));
 
         CreateMap<QueryResult<Room>, QueryResult<RoomModel>>().ReverseMap();
 

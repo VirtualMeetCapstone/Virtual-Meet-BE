@@ -16,8 +16,9 @@ public class User : CreatedObjectBase
     public string? Location { get; set; }
     public UserStatusType? Status { get; set; }
     public int FollowersCount { get; set; } 
-    public int FollowingsCount { get; set; } 
-    public ICollection<UserPost> Posts { get; set; } = [];
+    public int FollowingsCount { get; set; }
+    public int FriendsCount { get; set; }
+    public ICollection<Post> Posts { get; set; } = [];
     public ICollection<Follow> Followers { get; set; } = [];
     public ICollection<Follow> Followings { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];

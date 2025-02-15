@@ -3,15 +3,18 @@
 public interface IBlobStorageService
 {
     /// <summary>
-    /// Uploads a file to Azure Blob Storage.
+    /// Upload a file to Azure Blob Storage.
     /// </summary>
-    /// <param name="fileStream">The file data stream.</param>
-    /// <param name="fileName">The name of the file.</param>
-    /// <param name="containerName">The name of the container.</param>
-    /// <param name="contentType">The content type of the file (optional).</param>
-    /// <param name="maxBlobSize">The max blob size of the file (optional).</param>
-    /// <returns>The URL of the uploaded file.</returns>
-    Task<List<Media>> UploadFileAsync(List<MediaUpload> mediaUploads);
+    /// <param name="mediaUpload"></param>
+    /// <returns>Media</returns>
+    Task<Media> UploadFileAsync(MediaUpload mediaUpload);
+
+    /// <summary>
+    /// Upload many files to Azure Blob Storage.
+    /// </summary>
+    /// <param name="mediaUploads">List<MediaUpload></param>
+    /// <returns>The list media</returns>
+    Task<List<Media>> UploadFilesAsync(List<MediaUpload> mediaUploads);
 
     /// <summary>
     /// Downloads a file from Azure Blob Storage.
@@ -35,7 +38,7 @@ public interface IBlobStorageService
     /// <param name="containerName">The name of the container.</param>
     /// <param name="fileName">The name of the file.</param>
     /// <returns>True if the file exists, otherwise false.</returns>
-    Task<bool> FileExistsAsync(string containerName, string fileName);
+    Task<bool> CheckFileExistsAsync(string containerName, string fileName);
 
     /// <summary>
     /// Retrieves a list of all files in a container.
@@ -53,4 +56,5 @@ public interface IBlobStorageService
     /// <returns>A publicly accessible URL valid for the specified duration.</returns>
     Task<string> GenerateFileUrlAsync(string containerName, string fileName, TimeSpan expiryTime);
     Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls);
+    Task<bool> UpdateFilesAsync(List<MediaUpload> mediaUploads);
 }
