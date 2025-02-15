@@ -50,6 +50,10 @@ internal abstract class ServiceBase<T>(
     public virtual async Task<OperationResult> UpdateAsync(Guid id, T domain)
     {
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(T).Name);
+        if (domain is DateObjectBase objectBase)
+        {
+            objectBase.UpdateModify();
+        }
         return new OperationResult(await _repository.UpdateAsync(id, domain));
     }
     

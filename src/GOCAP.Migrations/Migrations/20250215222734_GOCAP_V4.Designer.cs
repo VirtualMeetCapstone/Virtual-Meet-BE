@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250214082020_GOCAP_V3")]
-    partial class GOCAP_V3
+    [Migration("20250215222734_GOCAP_V4")]
+    partial class GOCAP_V4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -409,6 +409,9 @@ namespace GOCAP.Migrations.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ExpireTime")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")

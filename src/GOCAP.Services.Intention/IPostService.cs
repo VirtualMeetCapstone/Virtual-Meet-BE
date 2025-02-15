@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Services.Intention;
 
-public interface IPostService : IServiceBase<UserPost>
+public interface IPostService : IServiceBase<Post>
 {
     Task<OperationResult> LikeOrUnlikeAsync(PostReaction postLike);
 }

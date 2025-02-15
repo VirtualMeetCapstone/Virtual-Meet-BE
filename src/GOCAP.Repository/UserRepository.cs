@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Repository;
+﻿using GOCAP.Domain;
+
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
 internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<User, UserEntity>(context, mapper), IUserRepository
@@ -31,5 +33,23 @@ internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepo
     public async Task<bool> IsEmailExistsAsync(string email)
     {
         return await _context.Users.AnyAsync(user => user.Email == email);
+    }
+
+    public override async Task<User> GetByIdAsync(Guid id)
+    {
+        var entity = await GetEntityByIdAsync(id);
+        var result = _mapper.Map<User>(entity);
+        result.FollowersCount = await _context.UserFollows
+                                            .AsNoTracking()
+                                            .CountAsync(f => f.FollowingId == id);
+        result.FollowingsCount = await _context.UserFollows
+                                            .AsNoTracking()
+                                            .CountAsync(f => f.FollowerId == id);
+        result.FriendsCount = await _context.UserFollows
+                                            .AsNoTracking() 
+                                            .Where(f => _context.UserFollows
+                                            .Any(x => x.FollowerId == f.FollowingId && x.FollowingId == f.FollowerId))
+                                            .CountAsync(f => f.FollowerId == id);
+        return result;
     }
 }

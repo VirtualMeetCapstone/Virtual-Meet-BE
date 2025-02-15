@@ -5,7 +5,7 @@ internal class PostService(
     IPostRepository _repository,
     IPostLikeRepository _postLikeRepository,
     ILogger<PostService> _logger
-    ) : ServiceBase<UserPost>(_repository, _logger), IPostService
+    ) : ServiceBase<Post>(_repository, _logger), IPostService
 {
     /// <summary>
     /// Like or unlike one post.

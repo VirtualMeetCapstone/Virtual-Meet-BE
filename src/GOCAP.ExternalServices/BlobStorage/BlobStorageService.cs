@@ -2,48 +2,84 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
-using GOCAP.Common;
 
 namespace GOCAP.ExternalServices;
 
 public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobStorageService
 {
-    public async Task<List<Media>> UploadFileAsync(List<MediaUpload> mediaUploads)
+    public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)
+    {
+        if (mediaUpload?.FileStream == null || mediaUpload.FileStream.Length == 0)
+        {
+            throw new ParameterInvalidException("File stream cannot be null or empty.");
+        }
+
+        if (mediaUpload.FileStream.Length > mediaUpload.MaxBlobSize)
+        {
+            throw new ParameterInvalidException($"File {mediaUpload.FileName} exceeds maximum size of {mediaUpload.MaxBlobSize / (1024 * 1024)} MB.");
+        }
+
+        ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
+
+        var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
+
+        string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
+        string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
+        string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
+        var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+
+        await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
+
+        return new Media
+        {
+            Url = blobClient.Uri.ToString(),
+            Type = mediaUpload.Type
+        };
+    }
+
+    public async Task<List<Media>> UploadFilesAsync(List<MediaUpload> mediaUploads)
     {
         if (mediaUploads == null || mediaUploads.Count == 0)
         {
             throw new ParameterInvalidException("File stream cannot be null or empty.");
         }
-        var result = new List<Media>();
+        var result = new List<Task<Media>>();
+
         foreach (var mediaUpload in mediaUploads)
         {
-            var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
-
-            if (mediaUpload.FileStream == null || mediaUpload.FileStream.Length == 0)
+            result.Add(Task.Run(async () =>
             {
-                throw new ParameterInvalidException($"File stream cannot be null or empty for {mediaUpload.FileName}");
-            }
+                if (mediaUpload.FileStream == null || mediaUpload.FileStream.Length == 0)
+                {
+                    throw new ParameterInvalidException($"File stream cannot be null or empty for {mediaUpload.FileName}");
+                }
 
-            if (mediaUpload.FileStream.Length > mediaUpload.MaxBlobSize)
-            {
-                throw new ParameterInvalidException($"File {mediaUpload.FileName} exceeds maximum size of {mediaUpload.MaxBlobSize / (1024 * 1024)} MB.");
-            }
+                if (mediaUpload.FileStream.Length > mediaUpload.MaxBlobSize)
+                {
+                    throw new ParameterInvalidException($"File {mediaUpload.FileName} exceeds maximum size of {mediaUpload.MaxBlobSize / (1024 * 1024)} MB.");
+                }
 
-            ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
+                ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
 
-            string timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmssfff");
-            var uniqueFileName = $"{Guid.NewGuid()}_{mediaUpload.Type.ToString().ToLower()}{timestamp}_{mediaUpload.FileName}";
-            string fileNameWithPath = $"{mediaUpload.ContainerName}/{uniqueFileName}";
-            var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+                var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
-            await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
-            result.Add(new Media
-            {
-                Url = blobClient.Uri.ToString(),
-                Type = mediaUpload.Type,
-            });
+                string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
+                string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
+                string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
+                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+
+                await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
+
+                return new Media
+                {
+                    Url = blobClient.Uri.ToString(),
+                    Type = mediaUpload.Type
+                };
+            }));
         }
-        return result;
+
+        var uploadedFiles = await Task.WhenAll(result);
+        return [.. uploadedFiles];
     }
 
     public async Task<Stream> DownloadFileAsync(string containerName, string fileName)
@@ -71,12 +107,9 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         foreach (var mediaDelete in mediaDeletes)
         {
             var blobContainerClient = await GetContainerClientAsync(mediaDelete.ContainerName);
-            foreach (var fileName in mediaDelete.FileNames)
-            {
-                string fileNameWithPath = $"{mediaDelete.ContainerName}/{fileName}";
-                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
-                deleteTasks.Add(blobClient.DeleteIfExistsAsync());
-            }
+            string fileNameWithPath = $"{mediaDelete.ContainerName}/{mediaDelete.FileName}";
+            var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+            deleteTasks.Add(blobClient.DeleteIfExistsAsync());
         }
 
         var results = await Task.WhenAll(deleteTasks);
@@ -119,8 +152,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return results.All(result => result.Value);
     }
 
-
-    public async Task<bool> FileExistsAsync(string containerName, string fileName)
+    public async Task<bool> CheckFileExistsAsync(string containerName, string fileName)
     {
         ValidateInput(containerName, fileName);
         var blobContainerClient = await GetContainerClientAsync(containerName);
@@ -168,12 +200,59 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return $"{blobClient.Uri}{sasToken}";
     }
 
+    public async Task<bool> UpdateFilesAsync(List<MediaUpload> mediaUploads)
+    {
+        if (mediaUploads == null || mediaUploads.Count == 0)
+        {
+            throw new ParameterInvalidException("File stream cannot be null or empty.");
+        }
+        var result = new List<Task>();
+
+        foreach (var mediaUpload in mediaUploads)
+        {
+            result.Add(Task.Run(async () =>
+            {
+                if (mediaUpload.FileStream == null || mediaUpload.FileStream.Length == 0)
+                {
+                    throw new ParameterInvalidException($"File stream cannot be null or empty for {mediaUpload.FileName}");
+                }
+
+                if (mediaUpload.FileStream.Length > mediaUpload.MaxBlobSize)
+                {
+                    throw new ParameterInvalidException($"File {mediaUpload.FileName} exceeds maximum size of {mediaUpload.MaxBlobSize / (1024 * 1024)} MB.");
+                }
+
+                ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
+
+                var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
+                var blobClient = blobContainerClient.GetBlobClient(mediaUpload.FileName);
+
+                if (!await blobClient.ExistsAsync())
+                {
+                    throw new ResourceNotFoundException($"File '{mediaUpload.FileName}' does not exist in container '{mediaUpload.ContainerName}'.");
+                }
+
+                await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: true);
+            }));
+        }
+        try
+        {
+            await Task.WhenAll(result);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private async Task<BlobContainerClient> GetContainerClientAsync(string containerName)
     {
         var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
         await blobContainerClient.CreateIfNotExistsAsync();
         return blobContainerClient;
     }
+
     private static void ValidateInput(string containerName, string fileName)
     {
         if (string.IsNullOrEmpty(containerName))
@@ -186,4 +265,6 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
             throw new ParameterInvalidException("File name cannot be null or empty.");
         }
     }
+
+    
 }

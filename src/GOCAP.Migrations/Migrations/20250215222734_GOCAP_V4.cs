@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAP_V3 : Migration
+    public partial class GOCAP_V4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -128,6 +128,7 @@ namespace GOCAP.Migrations.Migrations
                     Media = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TextContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MusicUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExpireTime = table.Column<long>(type: "bigint", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)

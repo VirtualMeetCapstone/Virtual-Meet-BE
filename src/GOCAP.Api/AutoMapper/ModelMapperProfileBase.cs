@@ -2,7 +2,7 @@
 
 public abstract class ModelMapperProfileBase : Profile
 {
-    protected static List<IFormFile>? ConvertMediaToFormFiles(List<MediaUpload>? medias)
+    protected static List<IFormFile>? ConvertMediasToFormFiles(List<MediaUpload>? medias)
     {
         if (medias == null || medias.Count == 0)
             return null;
@@ -24,7 +24,7 @@ public abstract class ModelMapperProfileBase : Profile
         return formFiles;
     }
 
-    protected static List<MediaUpload> ConvertFormFilesToMedia(List<IFormFile>? formFiles)
+    protected static List<MediaUpload> ConvertFormFilesToMedias(List<IFormFile>? formFiles)
     {
         if (formFiles == null || formFiles.Count == 0)
             return [];
@@ -35,6 +35,27 @@ public abstract class ModelMapperProfileBase : Profile
             FileStream = file.OpenReadStream(),
             Type = GetMediaType(file.ContentType),
         }).ToList();
+    }
+
+    protected static IFormFile? ConvertMediaToFormFile(MediaUpload? media)
+    {
+        if (media?.FileStream == null)
+            return null;
+
+        return new FormFile(media.FileStream, 0, media.FileStream.Length, "file", media.FileName ?? string.Empty);
+    }
+
+    protected static MediaUpload? ConvertFormFileToMedia(IFormFile? formFile)
+    {
+        if (formFile == null)
+            return null;
+
+        return new MediaUpload
+        {
+            FileName = formFile.FileName,
+            FileStream = formFile.OpenReadStream(),
+            Type = GetMediaType(formFile.ContentType),
+        };
     }
 
     protected static MediaType GetMediaType(string contentType)

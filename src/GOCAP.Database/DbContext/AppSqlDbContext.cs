@@ -8,7 +8,7 @@ public class AppSqlDbContext
 {
     /// <summary>
     /// Please always updating the number of db sets and the db sets name by order.
-    /// There are 21 db sets.
+    /// There are 24 db sets.
     /// </summary>
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }

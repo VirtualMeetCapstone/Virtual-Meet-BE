@@ -9,7 +9,7 @@ public class PostsController(
     [HttpGet("{id}")]
     public async Task<PostModel?> GetById([FromRoute] Guid id)
     {
-        var result = await _service.GetByIdAsync(id) ?? throw new ResourceNotFoundException("The post does not exist");
+        var result = await _service.GetByIdAsync(id);
         return _mapper.Map<PostModel>(result);
     }
 

@@ -11,7 +11,7 @@ public class StoryEntity : EntitySqlBase
     public string? TextContent { get; set; }
     public string? MusicUrl { get; set; }
     [NotMapped]
-    public DateTime ExpireTime => DateTimeOffset.FromUnixTimeSeconds(CreateTime).UtcDateTime.AddHours(24);
+    public long ExpireTime { get; set; } = DateTime.UtcNow.AddHours(24).Ticks;
     public bool IsActive { get; set; } = true;
     public ICollection<StoryViewEntity> Views { get; set; } = [];
     public ICollection<StoryReactionEntity> Reactions { get; set; } = [];
