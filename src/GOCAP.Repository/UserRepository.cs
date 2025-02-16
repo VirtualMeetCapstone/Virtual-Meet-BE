@@ -1,9 +1,10 @@
-﻿using GOCAP.Domain;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
-internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<User, UserEntity>(context, mapper), IUserRepository
+internal class UserRepository(AppSqlDbContext context,
+    IMapper mapper,
+    IBlobStorageService _blobStorageService
+    ) : SqlRepositoryBase<User, UserEntity>(context, mapper), IUserRepository
 {
     private readonly AppSqlDbContext _context = context;
     private readonly IMapper _mapper = mapper;
@@ -17,7 +18,7 @@ internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepo
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users
-        .GroupBy(u => 1) 
+        .GroupBy(u => 1)
         .Select(g => new UserCount
         {
             Total = g.Count(),
@@ -35,10 +36,11 @@ internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepo
         return await _context.Users.AnyAsync(user => user.Email == email);
     }
 
-    public override async Task<User> GetByIdAsync(Guid id)
+    public async Task<User> GetUserProfileAsync(Guid id)
     {
         var entity = await GetEntityByIdAsync(id);
         var result = _mapper.Map<User>(entity);
+        result.Picture = JsonHelper.Deserialize<Media>(entity.Picture);
         result.FollowersCount = await _context.UserFollows
                                             .AsNoTracking()
                                             .CountAsync(f => f.FollowingId == id);
@@ -46,10 +48,39 @@ internal class UserRepository(AppSqlDbContext context, IMapper mapper) : SqlRepo
                                             .AsNoTracking()
                                             .CountAsync(f => f.FollowerId == id);
         result.FriendsCount = await _context.UserFollows
-                                            .AsNoTracking() 
+                                            .AsNoTracking()
                                             .Where(f => _context.UserFollows
                                             .Any(x => x.FollowerId == f.FollowingId && x.FollowingId == f.FollowerId))
                                             .CountAsync(f => f.FollowerId == id);
         return result;
+    }
+
+    public override async Task<bool> UpdateAsync(Guid id, User domain)
+    {
+        var user = await GetEntityByIdAsync(id);
+        if (domain.PictureUpload != null)
+        {
+            var currentPicture = JsonHelper.Deserialize<Media>(user.Picture);
+            if (currentPicture != null && !string.IsNullOrEmpty(currentPicture.Name))
+            {
+                // Implement to update picture by overriding
+                domain.PictureUpload.FileName = currentPicture.Name;
+                if (!await _blobStorageService.UpdateFilesAsync([domain.PictureUpload]))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                var picture = await _blobStorageService.UploadFileAsync(domain.PictureUpload);
+                user.Picture = JsonHelper.Serialize(picture);
+            }
+        }
+        
+        user.Name = domain.Name;
+        user.Bio = domain.Bio;
+        _context.Entry(user).State = EntityState.Modified;
+
+        return await _context.SaveChangesAsync() > 0;
     }
 }

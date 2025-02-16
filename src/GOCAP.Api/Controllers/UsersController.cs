@@ -27,7 +27,7 @@ public class UsersController(IUserService _userService,
     [HttpGet("{id}")]
     public async Task<UserProfileModel> GetUserProfile([FromRoute] Guid id)
     {
-        var user = await _userService.GetByIdAsync(id);
+        var user = await _userService.GetUserProfileAsync(id);
         return _mapper.Map<UserProfileModel>(user);
     }
 
@@ -38,9 +38,10 @@ public class UsersController(IUserService _userService,
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<OperationResult> UpdateUserProfile([FromRoute] Guid id, [FromForm] UserCreationModel model)
+    public async Task<OperationResult> UpdateUserProfile([FromRoute] Guid id, [FromForm] UserUpdationModel model)
     {
         var user = _mapper.Map<User>(model);
+        user.Id = id;
         return await _userService.UpdateAsync(id, user);
     }
 
