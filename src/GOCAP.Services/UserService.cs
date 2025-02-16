@@ -3,20 +3,34 @@
 [RegisterService(typeof(IUserService))]
 internal class UserService(
     IUserRepository _repository,
+    IBlobStorageService _blobStorageService,
     IUserNotificationRepository _userNotificationRepository,
     ILogger<UserService> _logger
     ) : ServiceBase<User>(_repository, _logger), IUserService
 {
-    public override async Task<User> GetByIdAsync(Guid id)
+    public async Task<User> GetUserProfileAsync(Guid id)
     {
-        return await _repository.GetByIdAsync(id);
+        return await _repository.GetUserProfileAsync(id);
     }
 
-    public override async Task<OperationResult> UpdateAsync(Guid id, User user)
+    public override async Task<OperationResult> UpdateAsync(Guid id, User domain)
     {
-        user.UpdateModify();
-        var isSuccess = await _repository.UpdateAsync(id, user);
-        return new OperationResult(isSuccess);
+        _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(User).Name);
+        domain.UpdateModify();
+        try
+        {
+            var isSuccess = await _repository.UpdateAsync(id, domain);
+            return new OperationResult(isSuccess);
+        }
+        catch (Exception ex)
+        {
+            if (domain.PictureUpload != null)
+            {
+                await MediaHelper.DeleteMediaFilesIfError([domain.PictureUpload], _blobStorageService);
+            }
+            throw new InternalException(ex.Message);
+        }
+        
     }
 
     public async Task<bool> IsEmailExists(string email)

@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Validation;
 
-public class UserValidator : ValidatorBase<UserCreationModel>
+public class UserValidator : ValidatorBase<UserUpdationModel>
 {
     public UserValidator()
     {

@@ -33,7 +33,8 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return new Media
         {
             Url = blobClient.Uri.ToString(),
-            Type = mediaUpload.Type
+            Type = mediaUpload.Type,
+            Name = fileName
         };
     }
 
@@ -225,7 +226,8 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
                 ValidateInput(mediaUpload.ContainerName, mediaUpload.FileName);
 
                 var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
-                var blobClient = blobContainerClient.GetBlobClient(mediaUpload.FileName);
+                string fileNameWithPath = $"{mediaUpload.ContainerName}/{mediaUpload.FileName}";
+                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
 
                 if (!await blobClient.ExistsAsync())
                 {

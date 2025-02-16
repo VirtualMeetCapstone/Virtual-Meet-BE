@@ -5,9 +5,9 @@ public class StoryEntityMapperProfile : EntityMapperProfileBase
     public StoryEntityMapperProfile()
     {
         CreateMap<Story, StoryEntity>()
-             .ForMember(dest => dest.Media, opt => opt.MapFrom(src => SerializeMedia(src.Media)));
+             .ForMember(dest => dest.Media, opt => opt.MapFrom(src => JsonHelper.Serialize(src.Media)));
         CreateMap<StoryEntity, Story>()
-            .ForMember(dest => dest.Media, opt => opt.MapFrom(src => DeserializeMediaList(src.Media)));
+            .ForMember(dest => dest.Media, opt => opt.MapFrom(src => JsonHelper.Deserialize<List<Media>>(src.Media)));
 
         CreateMap<StoryReaction, StoryReactionEntity>().ReverseMap();
         CreateMap<StoryView, StoryViewEntity>().ReverseMap();

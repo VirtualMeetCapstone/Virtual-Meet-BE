@@ -1,7 +1,4 @@
-﻿using GOCAP.ExternalServices;
-using System.Text.Json;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
@@ -36,16 +33,14 @@ internal class RoomRepository(
             Topic = r.Topic,
             Description = r.Description,
             MaximumMembers = r.MaximumMembers,
-            Medias = !string.IsNullOrEmpty(r.Medias)
-                        ? JsonSerializer.Deserialize<List<Media>>(r.Medias)
-                        : null,
+            Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
             Status = r.Status,
             CreateTime = r.CreateTime,
             Members = r.Members.Select(rm => new User
             {
                 Name = rm.User?.Name ?? string.Empty,
                 Email = rm.User?.Email,
-                Picture = rm.User?.Picture
+                Picture = JsonHelper.Deserialize<Media>(rm.User?.Picture)
             })
         });
 
@@ -68,7 +63,7 @@ internal class RoomRepository(
         var entity = await GetEntityByIdAsync(id);
         if (entity.Medias is not null)
         {
-            var medias = JsonSerializer.Deserialize<List<Media>>(entity.Medias);
+            var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
             await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
         }
         entity.Topic = domain.Topic;
@@ -76,7 +71,7 @@ internal class RoomRepository(
         entity.MaximumMembers = domain.MaximumMembers;
         if (domain.Medias is not null || domain.Medias?.Count > 0)
         {
-            entity.Medias = JsonSerializer.Serialize(domain.Medias);
+            entity.Medias = JsonHelper.Serialize(domain.Medias);
         }
         entity.LastModifyTime = domain.LastModifyTime;
         _context.Entry(entity).State = EntityState.Modified;

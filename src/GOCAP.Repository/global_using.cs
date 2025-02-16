@@ -1,10 +1,10 @@
-﻿global using MongoDB.Driver;
-global using Microsoft.Extensions.Logging;
+﻿global using AutoMapper;
 global using GOCAP.Common;
-global using GOCAP.Repository.Intention;
-global using MongoDB.Bson;
 global using GOCAP.Database;
 global using GOCAP.Domain;
+global using GOCAP.ExternalServices;
+global using GOCAP.Repository.Intention;
 global using Microsoft.EntityFrameworkCore;
-global using AutoMapper;
+global using MongoDB.Bson;
+global using MongoDB.Driver;
 global using System.Linq.Expressions;

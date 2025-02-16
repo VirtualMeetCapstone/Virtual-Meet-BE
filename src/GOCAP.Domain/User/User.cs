@@ -3,7 +3,8 @@
 public class User : CreatedObjectBase
 {
     public string? Email { get; set; }
-    public string? Picture { get; set; }
+    public Media? Picture { get; set; }
+    public MediaUpload? PictureUpload { get; set; }
     public string? Locale { get; set; }
     public string? Bio { get; set; }
 
