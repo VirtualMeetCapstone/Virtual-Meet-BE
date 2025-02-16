@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAP_V4 : Migration
+    public partial class GOCAP_V6 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,6 @@ namespace GOCAP.Migrations.Migrations
                     Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
                     Picture = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    VerifiedEmail = table.Column<bool>(type: "bit", nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Birthday = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),

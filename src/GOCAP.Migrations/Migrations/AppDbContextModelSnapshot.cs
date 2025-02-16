@@ -408,6 +408,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ExpireTime")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -587,9 +590,6 @@ namespace GOCAP.Migrations.Migrations
 
                     b.Property<int?>("Status")
                         .HasColumnType("int");
-
-                    b.Property<bool?>("VerifiedEmail")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

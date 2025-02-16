@@ -66,7 +66,7 @@ public class UsersController(IUserService _userService,
     public async Task<OperationResult> FollowOrUnfollow([FromBody] FollowCreationModel model)
     {
         var follow = _mapper.Map<Follow>(model);
-        var result = await _followService.FollowAsync(follow);
+        var result = await _followService.FollowOrUnfollowAsync(follow);
         return result;
     }
 }

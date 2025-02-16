@@ -61,7 +61,7 @@ internal class RoomRepository(
     public override async Task<bool> UpdateAsync(Guid id, Room domain)
     {
         var entity = await GetEntityByIdAsync(id);
-        if (entity.Medias is not null)
+        if (!string.IsNullOrEmpty(entity.Medias))
         {
             var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
             await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());

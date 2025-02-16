@@ -16,11 +16,21 @@ internal class FollowService(
     /// <returns>The operation result</returns>
     /// <exception cref="ParameterInvalidException"></exception>
     /// <exception cref="InternalException"></exception>
-    public async Task<OperationResult> FollowAsync(Follow domain)
+    public async Task<OperationResult> FollowOrUnfollowAsync(Follow domain)
     {
         if (domain.FollowerId == domain.FollowingId)
         {
             throw new ParameterInvalidException();
+        }
+
+        if (!await _userRepository.CheckExistAsync(domain.FollowerId))
+        {
+            throw new ResourceNotFoundException($"User {domain.FollowerId} was not found.");
+        }
+
+        if (!await _userRepository.CheckExistAsync(domain.FollowingId))
+        {
+            throw new ResourceNotFoundException($"User {domain.FollowingId} was not found.");
         }
 
         var result = new OperationResult(true);

@@ -34,7 +34,6 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         {
             Url = blobClient.Uri.ToString(),
             Type = mediaUpload.Type,
-            Name = fileName
         };
     }
 

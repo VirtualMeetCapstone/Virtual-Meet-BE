@@ -57,30 +57,23 @@ internal class UserRepository(AppSqlDbContext context,
 
     public override async Task<bool> UpdateAsync(Guid id, User domain)
     {
-        var user = await GetEntityByIdAsync(id);
+        var entity = await GetEntityByIdAsync(id);
         if (domain.PictureUpload != null)
         {
-            var currentPicture = JsonHelper.Deserialize<Media>(user.Picture);
-            if (currentPicture != null && !string.IsNullOrEmpty(currentPicture.Name))
+            var picture = await _blobStorageService.UploadFileAsync(domain.PictureUpload);
+            entity.Picture = JsonHelper.Serialize(picture);
+
+            if (!string.IsNullOrEmpty(entity.Picture))
             {
-                // Implement to update picture by overriding
-                domain.PictureUpload.FileName = currentPicture.Name;
-                if (!await _blobStorageService.UpdateFilesAsync([domain.PictureUpload]))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                var picture = await _blobStorageService.UploadFileAsync(domain.PictureUpload);
-                user.Picture = JsonHelper.Serialize(picture);
+                var media = JsonHelper.Deserialize<Media>(entity.Picture);
+                await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
             }
         }
-        
-        user.Name = domain.Name;
-        user.Bio = domain.Bio;
-        _context.Entry(user).State = EntityState.Modified;
 
+        entity.Name = domain.Name;
+        entity.Bio = domain.Bio;
+        entity.LastModifyTime = domain.LastModifyTime;
+        _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }
 }
