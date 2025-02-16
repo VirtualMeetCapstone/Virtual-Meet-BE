@@ -2,5 +2,5 @@
 
 public interface IFollowService : IServiceBase<Follow>
 {
-    Task<OperationResult> FollowAsync(Follow follow);
+    Task<OperationResult> FollowOrUnfollowAsync(Follow follow);
 }

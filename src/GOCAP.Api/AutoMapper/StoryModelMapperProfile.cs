@@ -14,10 +14,16 @@ public class StoryModelMapperProfile : ModelMapperProfileBase
         CreateMap<StoryCreationModel, Story>()
             .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertFormFileToMedia(src.MediaUpload)));
 
+        CreateMap<User, StoryUserModel>().ReverseMap();
         CreateMap<QueryResult<Story>, QueryResult<StoryModel>>().ReverseMap();
+
+        CreateMap<Story, StoryDetailModel>().ReverseMap();
 
         // Story reaction
         CreateMap<StoryReaction, StoryReactionModel>().ReverseMap();
+        CreateMap<StoryReaction, StoryReactionCreationModel>().ReverseMap();
+        CreateMap<StoryReaction, StoryReactionDetailModel>().ReverseMap();
+        CreateMap<QueryResult<StoryReaction>, QueryResult<StoryReactionDetailModel>>().ReverseMap();
 
         // Story view
         CreateMap<StoryView, StoryViewModel>().ReverseMap();

@@ -8,7 +8,7 @@ public class UserEntityMapperProfile : EntityMapperProfileBase
              .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => JsonHelper.Serialize(src.Picture)));
 
         CreateMap<UserEntity, User>()
-            .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => JsonHelper.Deserialize<List<Media>>(src.Picture)));
+            .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => JsonHelper.Deserialize<Media?>(src.Picture)));
 
         CreateMap<UserNotification, UserNotificationEntity>().ReverseMap();
     }

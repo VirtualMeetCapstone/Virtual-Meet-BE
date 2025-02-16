@@ -15,10 +15,10 @@ internal class StoryRepository(AppSqlDbContext context,
                                             .ToListAsync();
 
         // Filter story list from who user followed
-        var currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var currentTime = DateTimeOffset.UtcNow.Ticks;
         var storiesQuery = _context.Stories
                                         .Where(s => followingIds.Contains(s.UserId)
-                                            && s.CreateTime >= currentTime - 86400
+                                            && s.CreateTime >= currentTime - TimeSpan.FromHours(24).Ticks
                                             && s.ExpireTime > currentTime)
                                         .OrderByDescending(s => s.CreateTime);
 
@@ -39,5 +39,14 @@ internal class StoryRepository(AppSqlDbContext context,
             Data = _mapper.Map<List<Story>>(stories),
             TotalCount = totalItems
         };
+    }
+
+    public override async Task<Story> GetByIdAsync(Guid id)
+    {
+        var entity = await _context.Stories
+                                    .AsNoTracking()
+                                    .Include(x => x.User)
+                                    .FirstOrDefaultAsync(x => x.Id == id);
+        return _mapper.Map<Story>(entity);
     }
 }

@@ -3,6 +3,8 @@
 [RegisterService(typeof(IRoomFavouriteService))]
 internal class RoomFavouriteService(
     IRoomFavouriteRepository _repository,
+    IUserRepository _userRepository,
+    IRoomRepository _roomRepository,
     ILogger<RoomFavouriteService> _logger
     ) : ServiceBase<RoomFavourite>(_repository, _logger), IRoomFavouriteService
 {
@@ -13,6 +15,16 @@ internal class RoomFavouriteService(
     /// <returns></returns>
     public async Task<OperationResult> CreateOrDeleteAsync(RoomFavourite domain)
     {
+        if (!await _userRepository.CheckExistAsync(domain.UserId))
+        {
+            throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
+        }
+
+        if (!await _roomRepository.CheckExistAsync(domain.RoomId))
+        {
+            throw new ResourceNotFoundException($"User {domain.RoomId} was not found.");
+        }
+
         var result = new OperationResult(true);
         var roomFavourite = await _repository.GetByRoomAndUserAsync(domain.RoomId, domain.UserId);
         if (roomFavourite != null)

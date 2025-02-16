@@ -10,8 +10,6 @@ public class User : CreatedObjectBase
 
     public string? FacebookId { get; set; }
     public string? GoogleId { get; set; }
-    public bool? VerifiedEmail { get; set; }
-
     public string? Gender { get; set; }
     public string? Birthday { get; set; }
     public string? Location { get; set; }

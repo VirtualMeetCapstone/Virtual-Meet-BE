@@ -11,7 +11,6 @@ public class UserEntity : EntitySqlBase
     public required string Picture { get; set; }
     [MaxLength(GOCAPConstants.MaxLengthDescription)]
     public string? Bio { get; set; }
-    public bool? VerifiedEmail { get; set; }
     public string? Gender { get; set; }
     public string? Birthday { get; set; }
     public string? Location { get; set; }

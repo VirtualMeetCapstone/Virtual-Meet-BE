@@ -10,8 +10,7 @@ public class StoryEntity : EntitySqlBase
     public string? Media { get; set; }
     public string? TextContent { get; set; }
     public string? MusicUrl { get; set; }
-    [NotMapped]
-    public long ExpireTime { get; set; } = DateTime.UtcNow.AddHours(24).Ticks;
+    public long ExpireTime { get; set; }
     public bool IsActive { get; set; } = true;
     public ICollection<StoryViewEntity> Views { get; set; } = [];
     public ICollection<StoryReactionEntity> Reactions { get; set; } = [];

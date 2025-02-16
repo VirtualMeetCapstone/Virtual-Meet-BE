@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250215222734_GOCAP_V4")]
-    partial class GOCAP_V4
+    [Migration("20250216150915_GOCAP_V6")]
+    partial class GOCAP_V6
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -593,9 +593,6 @@ namespace GOCAP.Migrations.Migrations
 
                     b.Property<int?>("Status")
                         .HasColumnType("int");
-
-                    b.Property<bool?>("VerifiedEmail")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
