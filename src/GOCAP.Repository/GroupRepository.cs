@@ -1,16 +1,14 @@
 ﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IGroupRepository))]
-internal class GroupRepository(AppSqlDbContext context
-    , IMapper mapper)
-    : SqlRepositoryBase<Group, GroupEntity>(context, mapper)
+internal class GroupRepository(AppSqlDbContext context, IMapper _mapper)
+    : SqlRepositoryBase<GroupEntity>(context)
     , IGroupRepository
 {
     private readonly AppSqlDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
-    public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
+    public async Task<QueryResult<GroupEntity>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
-        var groupEntities = await _context.Groups.Where(g => g.OwnerId == userId)
+        var groups = await _context.Groups.Where(g => g.OwnerId == userId)
                                                  .OrderByDescending(g => g.CreateTime)
                                                  .Skip(queryInfo.Skip)
                                                  .Take(queryInfo.Top)
@@ -21,9 +19,9 @@ internal class GroupRepository(AppSqlDbContext context
             totalItems = await _context.Groups.CountAsync();
         }
 
-        return new QueryResult<Group>
+        return new QueryResult<GroupEntity>
         {
-            Data = _mapper.Map<List<Group>>(groupEntities),
+            Data = groups,
             TotalCount = totalItems
         };
     }
@@ -62,14 +60,14 @@ internal class GroupRepository(AppSqlDbContext context
         return group;
     }
 
-    public override async Task<bool> UpdateAsync(Guid id, Group domain)
+    public override async Task<bool> UpdateAsync(GroupEntity groupEntity)
     {
-        var entity = await GetEntityByIdAsync(id);
-        entity.Name = domain.Name;
-        entity.Picture = domain.Picture;
-        if (domain.OwnerId != Guid.Empty)
+        var entity = await GetEntityByIdAsync(groupEntity.Id);
+        entity.Name = groupEntity.Name;
+        entity.Picture = groupEntity.Picture;
+        if (groupEntity.OwnerId != Guid.Empty)
         {
-            entity.OwnerId = domain.OwnerId;
+            entity.OwnerId = groupEntity.OwnerId;
         }
         entity.LastModifyTime = DateTime.UtcNow.Ticks;
         _context.Entry(entity).State = EntityState.Modified;

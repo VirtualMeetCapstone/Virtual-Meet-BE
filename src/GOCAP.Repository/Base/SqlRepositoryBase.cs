@@ -1,32 +1,29 @@
 ﻿namespace GOCAP.Repository;
 
-internal abstract class SqlRepositoryBase<TDomain, TEntity>
-    (AppSqlDbContext _context, IMapper _mapper) : ISqlRepositoryBase<TDomain>
-    where TDomain : DomainBase
+internal abstract class SqlRepositoryBase<TEntity>
+    (AppSqlDbContext _context) : ISqlRepositoryBase<TEntity>
     where TEntity : EntitySqlBase
 {
-    public virtual async Task<TDomain> AddAsync(TDomain domain)
+    public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
-        var entity = _mapper.Map<TEntity>(domain);
         await _context.Set<TEntity>().AddAsync(entity);
         await _context.SaveChangesAsync();
-        return domain;
+        return entity;
     }
 
-    public virtual async Task<bool> AddRangeAsync(IEnumerable<TDomain> domains)
+    public virtual async Task<bool> AddRangeAsync(IEnumerable<TEntity> entities)
     {
-        var entity = _mapper.Map<IEnumerable<TEntity>>(domains);
-        await _context.Set<TEntity>().AddRangeAsync(entity);
+        await _context.Set<TEntity>().AddRangeAsync(entities);
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public virtual async Task<IEnumerable<TDomain>> GetAllAsync()
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
     {
         var entities = await _context.Set<TEntity>().ToListAsync();
-        return _mapper.Map<IEnumerable<TDomain>>(entities);
+        return entities;
     }
 
-    public async Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition)
+    public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? condition)
     {
         if (condition == null)
         {
@@ -34,24 +31,42 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
         }
 
         var entities = await _context.Set<TEntity>().ToListAsync();
-        var mappedEntities = _mapper.Map<IEnumerable<TDomain>>(entities);
 
-        return mappedEntities.Count(condition.Compile());
+        return entities.Count(condition.Compile());
     }
 
-    public virtual async Task<TDomain> GetByIdAsync(Guid id)
+    public virtual async Task<TEntity> GetByIdAsync(Guid id)
     {
         var entity = await GetEntityByIdAsync(id);
-        return _mapper.Map<TDomain>(entity);
+        return entity;
     }
 
-    public virtual async Task<IEnumerable<TDomain>> GetByIdsAsync(List<Guid> ids, string fieldsName)
+    public virtual async Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default)
+    {
+        if (includes == null)
+        {
+            return await GetEntityByIdAsync(id);
+        }
+
+        var query = _context.Set<TEntity>().AsQueryable();
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        var entity = await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+        return entity ?? throw new ResourceNotFoundException($"Entity with {id} was not found.");
+    }
+
+    public virtual async Task<IEnumerable<TEntity>> GetByIdsAsync(List<Guid> ids, string fieldsName)
     {
         var entities = await _context.Set<TEntity>().Where(domain => ids.Contains(EF.Property<Guid>(domain, fieldsName))).ToListAsync();
-        return _mapper.Map<IEnumerable<TDomain>>(entities);
+        return entities;
     }
 
-    public virtual async Task<QueryResult<TDomain>> GetByPageAsync(QueryInfo queryInfo)
+    public virtual async Task<QueryResult<TEntity>> GetByPageAsync(QueryInfo queryInfo)
     {
         var query = _context.Set<TEntity>().AsQueryable();
 
@@ -74,17 +89,15 @@ internal abstract class SqlRepositoryBase<TDomain, TEntity>
 
         var items = await query.Skip(queryInfo.Skip).Take(queryInfo.Top).ToListAsync();
 
-        return new QueryResult<TDomain>
+        return new QueryResult<TEntity>
         {
-            Data = _mapper.Map<IEnumerable<TDomain>>(items),
+            Data = items,
             TotalCount = totalItems
         };
     }
 
-    public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
+    public virtual async Task<bool> UpdateAsync(TEntity entity)
     {
-        var entity = await GetEntityByIdAsync(id);
-        _mapper.Map(domain, entity);
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }

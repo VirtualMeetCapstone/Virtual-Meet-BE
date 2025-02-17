@@ -1,22 +1,19 @@
 ﻿namespace GOCAP.Repository;
 
-internal abstract class MongoRepositoryBase<TDomain, TEntity>
-    (AppMongoDbContext _context, IMapper _mapper) : IMongoRepositoryBase<TDomain>
-    where TDomain : DomainBase
+internal abstract class MongoRepositoryBase<TEntity>
+    (AppMongoDbContext _context) : IMongoRepositoryBase<TEntity>
     where TEntity : EntityMongoBase
 {
     private readonly IMongoCollection<TEntity> _collection = _context.GetCollection<TEntity>();
 
-    public virtual async Task<TDomain> AddAsync(TDomain domain)
+    public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
-        var entity = _mapper.Map<TEntity>(domain);
         await _collection.InsertOneAsync(entity);
-        return domain;
+        return entity;
     }
 
-    public virtual async Task<bool> AddRangeAsync(IEnumerable<TDomain> domains)
+    public virtual async Task<bool> AddRangeAsync(IEnumerable<TEntity> entities)
     {
-        var entities = _mapper.Map<IEnumerable<TEntity>>(domains);
         await _collection.InsertManyAsync(entities);
         return true;
     }
@@ -49,31 +46,30 @@ internal abstract class MongoRepositoryBase<TDomain, TEntity>
         return (int)result.DeletedCount;
     }
     
-    public virtual async Task<IEnumerable<TDomain>> GetAllAsync()
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
     {
         var entities = await _collection.Find(FilterDefinition<TEntity>.Empty).ToListAsync();
 
-        return _mapper.Map<IEnumerable<TDomain>>(entities);
+        return entities;
     }
 
-    public virtual async Task<TDomain> GetByIdAsync(Guid id)
+    public virtual async Task<TEntity> GetByIdAsync(Guid id)
     {
         var filter = Builders<TEntity>.Filter.Eq("Id", id);
         var entity = await _collection.Find(filter).FirstOrDefaultAsync()
             ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
-        return _mapper.Map<TDomain>(entity);
+        return entity;
     }
 
-    public virtual async Task<IEnumerable<TDomain>> GetByIdsAsync(List<Guid> ids, string fieldsName)
+    public virtual async Task<IEnumerable<TEntity>> GetByIdsAsync(List<Guid> ids, string fieldsName)
     {
         var filter = Builders<TEntity>.Filter.In("Id", ids);
         var projection = Builders<TEntity>.Projection.Include(fieldsName);
         var results = await _collection.Find(filter).Project<TEntity>(projection).ToListAsync();
-
-        return _mapper.Map<IEnumerable<TDomain>>(results);
+        return results;
     }
 
-    public virtual async Task<QueryResult<TDomain>> GetByPageAsync(QueryInfo queryInfo)
+    public virtual async Task<QueryResult<TEntity>> GetByPageAsync(QueryInfo queryInfo)
     {
         var filter = Builders<TEntity>.Filter.Empty;
         if (!string.IsNullOrWhiteSpace(queryInfo.SearchText))
@@ -102,22 +98,21 @@ internal abstract class MongoRepositoryBase<TDomain, TEntity>
 
         var entities = await query.Skip(queryInfo.Skip).Limit(queryInfo.Top).ToListAsync();
 
-        return new QueryResult<TDomain>
+        return new QueryResult<TEntity>
         {
-            Data = _mapper.Map<IEnumerable<TDomain>>(entities),
+            Data = entities,
             TotalCount = totalItems
         };
     }
 
-    public Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition)
+    public Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? condition)
     {
         throw new InvalidOperationException();  
     }
 
-    public virtual async Task<bool> UpdateAsync(Guid id, TDomain domain)
+    public virtual async Task<bool> UpdateAsync(TEntity entity)
     {
-        var filter = Builders<TEntity>.Filter.Eq("Id", id);
-        var entity = _mapper.Map<TEntity>(domain);
+        var filter = Builders<TEntity>.Filter.Eq("Id", entity.Id);
         var result = await _collection.ReplaceOneAsync(filter, entity);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }

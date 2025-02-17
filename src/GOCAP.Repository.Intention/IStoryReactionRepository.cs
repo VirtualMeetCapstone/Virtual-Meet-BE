@@ -2,8 +2,8 @@
 
 namespace GOCAP.Repository.Intention;
 
-public interface IStoryReactionRepository : ISqlRepositoryBase<StoryReaction>
+public interface IStoryReactionRepository : ISqlRepositoryBase<StoryReactionEntity>
 {
-    Task<StoryReaction?> GetByStoryAndUserAsync(Guid storyId, Guid userId);
-    Task<QueryResult<StoryReaction>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo);
+    Task<StoryReactionEntity?> GetByStoryAndUserAsync(Guid storyId, Guid userId);
+    Task<QueryResult<StoryReactionEntity>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo);
 }

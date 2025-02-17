@@ -5,19 +5,24 @@ internal class GroupService(
     IGroupRepository _repository,
     IGroupMemberRepository _groupMemberRepository,
     IUnitOfWork _unitOfWork,
+    IMapper _mapper,
     ILogger<GroupService> _logger
-    ) : ServiceBase<Group>(_repository, _logger), IGroupService
+    ) : ServiceBase<Group, GroupEntity>(_repository, _mapper, _logger), IGroupService
 {
+    private readonly IMapper _mapper = _mapper;
     public async Task<QueryResult<Group>> GetByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
-        return await _repository.GetByUserIdWithPagingAsync(userId, queryInfo);
+        var result = await _repository.GetByUserIdWithPagingAsync(userId, queryInfo);
+        return _mapper.Map<QueryResult<Group>>(result);
     }
 
     public override async Task<Group> AddAsync(Group group)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Group).Name);
         group.InitCreation();
-        return await _repository.AddAsync(group);
+        var entity = _mapper.Map<GroupEntity>(group);
+        var result = await _repository.AddAsync(entity);
+        return _mapper.Map<Group>(result);
     }
 
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
@@ -60,7 +65,7 @@ internal class GroupService(
                    $" a member of group {domain.GroupId}");
 
         group.OwnerId = domain.NewOwnerId;
-        var result = await _repository.UpdateAsync(group.Id, group);
+        var result = await _repository.UpdateAsync(group);
         return new OperationResult(result);
     }
 

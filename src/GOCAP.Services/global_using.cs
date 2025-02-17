@@ -7,3 +7,5 @@ global using Microsoft.Extensions.Logging;
 global using System.Linq.Expressions;
 global using GOCAP.ExternalServices;
 global using System.Text.Json;
+global using AutoMapper;
+global using GOCAP.Database;

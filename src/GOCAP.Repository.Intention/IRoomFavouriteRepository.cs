@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IRoomFavouriteRepository : ISqlRepositoryBase<RoomFavourite>
+public interface IRoomFavouriteRepository : ISqlRepositoryBase<RoomFavouriteEntity>
 {
-    Task<RoomFavourite?> GetByRoomAndUserAsync(Guid roomId, Guid userId);
+    Task<RoomFavouriteEntity?> GetByRoomAndUserAsync(Guid roomId, Guid userId);
 }

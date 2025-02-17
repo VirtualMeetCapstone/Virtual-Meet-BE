@@ -7,9 +7,11 @@ internal class RoomService(
     IUserRepository _userRepository,
     IUnitOfWork _unitOfWork,
     IBlobStorageService _blobStorageService,
+    IMapper _mapper,
     ILogger<RoomService> _logger
-    ) : ServiceBase<Room>(_repository, _logger), IRoomService
+    ) : ServiceBase<Room, RoomEntity>(_repository, _mapper, _logger), IRoomService
 {
+    private readonly IMapper _mapper = _mapper;
     /// <summary>
     /// Create a new roomMd
     /// </summary>
@@ -34,7 +36,9 @@ internal class RoomService(
         room.InitCreation();
         try
         {
-            return await _repository.AddAsync(room);
+            var entity = _mapper.Map<RoomEntity>(room);
+            var roomDomain = await _repository.AddAsync(entity);
+            return _mapper.Map<Room>(roomDomain);
         }
         catch (Exception ex)
         {
@@ -86,7 +90,8 @@ internal class RoomService(
         domain.UpdateModify();
         try
         {
-            return new OperationResult(await _repository.UpdateAsync(id, domain));
+            var entity = _mapper.Map<RoomEntity>(domain);
+            return new OperationResult(await _repository.UpdateAsync(entity));
         }
         catch (Exception ex)
         {
@@ -103,4 +108,7 @@ internal class RoomService(
     {
         return await _repository.GetRoomCountsAsync();
     }
+
+    public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
+    => await _repository.GetWithPagingAsync(queryInfo);
 }

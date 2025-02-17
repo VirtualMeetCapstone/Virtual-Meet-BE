@@ -1,6 +1,6 @@
 # Root file, indicates this is the top-level editorconfig
 root = true
 
-# Tắt cảnh báo IDE0130
+# Turn off warnings IDE0130
 [*.cs]
 dotnet_diagnostic.IDE0130.severity = none

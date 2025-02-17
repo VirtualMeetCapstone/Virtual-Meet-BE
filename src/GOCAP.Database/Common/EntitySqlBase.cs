@@ -1,9 +1,9 @@
-﻿namespace GOCAP.Database;
+﻿using GOCAP.Database.Common;
 
-public abstract class EntitySqlBase
+namespace GOCAP.Database;
+
+public abstract class EntitySqlBase : EntityDateTrackingBase<Guid>
 {
     [Key]
-    public Guid Id { get; set; }
-    public required long CreateTime { get; set; } = 0;
-    public required long LastModifyTime { get; set; } = 0;
+    public required override Guid Id { get; set; }
 }

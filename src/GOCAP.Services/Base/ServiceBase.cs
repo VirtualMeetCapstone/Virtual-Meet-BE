@@ -1,65 +1,75 @@
 ﻿namespace GOCAP.Services;
 
-internal abstract class ServiceBase<T>(
-    IRepositoryBase<T> _repository, 
-    ILogger<ServiceBase<T>> _logger
-    ) : IServiceBase<T> where T : class
+internal abstract class ServiceBase<TDomain, TEntity>(
+    IRepositoryBase<TEntity> _repository,
+    IMapper _mapper,
+    ILogger<ServiceBase<TDomain, TEntity>> _logger
+    ) : IServiceBase<TDomain> where TDomain : class
 {
-    public virtual async Task<T> AddAsync(T domain)
+    public virtual async Task<TDomain> AddAsync(TDomain domain)
     {
-        _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(T).Name);
-        if (domain is DateObjectBase objectBase)
+        _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(TDomain).Name);
+        if (domain is DateTrackingBase objectBase)
         {
             objectBase.InitCreation();
         }
-        return await _repository.AddAsync(domain);
+        var entity = _mapper.Map<TEntity>(domain);
+        var result = await _repository.AddAsync(entity);
+        return _mapper.Map<TDomain>(result);
     }
 
-    public virtual async Task<OperationResult> AddRangeAsync(IEnumerable<T> domains)
+    public virtual async Task<OperationResult> AddRangeAsync(IEnumerable<TDomain> domains)
     {
         _logger.LogInformation("Start adding many entities of type");
-        return new OperationResult(await _repository.AddRangeAsync(domains));
+        var entities = _mapper.Map<IEnumerable<TEntity>>(domains);
+        return new OperationResult(await _repository.AddRangeAsync(entities));
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<TDomain>> GetAllAsync()
     {
-        return await _repository.GetAllAsync();
+        var entities = await _repository.GetAllAsync();
+        return _mapper.Map<IEnumerable<TDomain>>(entities);
     }
 
-    public virtual async Task<int> GetCountAsync(Expression<Func<T, bool>>? condition = null)
+    public virtual async Task<int> GetCountAsync(Expression<Func<TDomain, bool>>? condition = null)
     {
         condition ??= x => true;
-        return await _repository.GetCountAsync(condition);
+        var entities = _mapper.Map<Expression<Func<TEntity, bool>>>(condition);
+        return await _repository.GetCountAsync(entities);
     }
 
-    public virtual async Task<T> GetByIdAsync(Guid id)
+    public virtual async Task<TDomain> GetByIdAsync(Guid id)
     {
-        return await _repository.GetByIdAsync(id);
+        var entity = await _repository.GetByIdAsync(id);
+        return _mapper.Map<TDomain>(entity);
     }
 
-    public virtual async Task<IEnumerable<T>> GetByIdsAsync(List<Guid> ids, string fieldsName)
+    public virtual async Task<IEnumerable<TDomain>> GetByIdsAsync(List<Guid> ids, string fieldsName)
     {
-        return await _repository.GetByIdsAsync(ids, fieldsName);
+        var entities = await _repository.GetByIdsAsync(ids, fieldsName);
+        return _mapper.Map<IEnumerable<TDomain>>(entities);
     }
 
-    public virtual async Task<QueryResult<T>> GetByPageAsync(QueryInfo queryInfo)
+    public virtual async Task<QueryResult<TDomain>> GetByPageAsync(QueryInfo queryInfo)
     {
-        return await _repository.GetByPageAsync(queryInfo);
+        var entities = await _repository.GetByPageAsync(queryInfo);
+        return _mapper.Map<QueryResult<TDomain>>(entities);
     }
-    
-    public virtual async Task<OperationResult> UpdateAsync(Guid id, T domain)
+
+    public virtual async Task<OperationResult> UpdateAsync(Guid id, TDomain domain)
     {
-        _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(T).Name);
-        if (domain is DateObjectBase objectBase)
+        _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(TDomain).Name);
+        if (domain is DateTrackingBase objectBase)
         {
             objectBase.UpdateModify();
         }
-        return new OperationResult(await _repository.UpdateAsync(id, domain));
+        var entity = _mapper.Map<TEntity>(domain);
+        return new OperationResult(await _repository.UpdateAsync(entity));
     }
-    
+
     public virtual async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
-        _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(T).Name);
+        _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(TDomain).Name);
         var result = await _repository.DeleteByIdAsync(id);
         return new OperationResult(result > 0);
     }

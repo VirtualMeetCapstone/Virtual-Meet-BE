@@ -2,7 +2,7 @@
 
 [RegisterService(typeof(IUserNotificationRepository))]
 internal class UserNotificationRepository
-    (AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<UserNotification, UserNotificationEntity>(context, mapper), IUserNotificationRepository
+    (AppSqlDbContext context) : SqlRepositoryBase<UserNotificationEntity>(context), IUserNotificationRepository
 {
     private readonly AppSqlDbContext _context = context;
     public async Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId)

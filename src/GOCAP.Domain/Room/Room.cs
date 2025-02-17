@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Room : DateObjectBase
+public class Room : DateTrackingBase
 {
     public Guid OwnerId { get; set; }
     public User? Owner { get; set; }

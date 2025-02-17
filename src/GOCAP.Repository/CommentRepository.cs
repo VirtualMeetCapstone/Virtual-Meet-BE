@@ -2,12 +2,11 @@
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(ICommentRepository))]
-internal class CommentRepository(AppMongoDbContext context, IMapper mapper)
-    : MongoRepositoryBase<Comment, CommentEntity>(context, mapper), ICommentRepository
+internal class CommentRepository(AppMongoDbContext context)
+    : MongoRepositoryBase<CommentEntity>(context), ICommentRepository
 {
     private readonly AppMongoDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
-    public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
+    public async Task<QueryResult<CommentEntity>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
     {
         var filter = Builders<CommentEntity>.Filter.Eq(c => c.PostId, postId);
 
@@ -29,9 +28,9 @@ internal class CommentRepository(AppMongoDbContext context, IMapper mapper)
                                               .Skip(queryInfo.Skip)
                                               .Limit(queryInfo.Top)
                                               .ToListAsync();
-        return new QueryResult<Comment>
+        return new QueryResult<CommentEntity>
         {
-            Data = _mapper.Map<List<Comment>>(comments),
+            Data = comments,
             TotalCount = (int)totalComments
         };
     }

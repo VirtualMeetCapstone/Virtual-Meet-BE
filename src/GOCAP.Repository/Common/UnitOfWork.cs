@@ -2,7 +2,7 @@
 
 namespace GOCAP.Repository;
 
-public class UnitOfWork (AppSqlDbContext context) : IUnitOfWork
+public class UnitOfWork(AppSqlDbContext context) : IUnitOfWork
 {
     private readonly AppSqlDbContext _context = context;
     private IDbContextTransaction? _transaction;
@@ -50,5 +50,11 @@ public class UnitOfWork (AppSqlDbContext context) : IUnitOfWork
         _transaction?.Dispose();
         _context.Dispose();
         GC.SuppressFinalize(this);
+    }
+
+    public void TrackEntity<TEntity>(TEntity entity) where TEntity : class
+    {
+        _context.Attach(entity);
+        _context.Entry(entity).State = EntityState.Modified;
     }
 }

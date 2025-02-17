@@ -5,9 +5,11 @@ internal class UserService(
     IUserRepository _repository,
     IBlobStorageService _blobStorageService,
     IUserNotificationRepository _userNotificationRepository,
+    IMapper _mapper,
     ILogger<UserService> _logger
-    ) : ServiceBase<User>(_repository, _logger), IUserService
+    ) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
 {
+    private readonly IMapper _mapper = _mapper;
     public async Task<User> GetUserProfileAsync(Guid id)
     {
         return await _repository.GetUserProfileAsync(id);
@@ -19,8 +21,14 @@ internal class UserService(
         domain.UpdateModify();
         try
         {
-            var isSuccess = await _repository.UpdateAsync(id, domain);
-            return new OperationResult(isSuccess);
+            if (domain.PictureUpload != null)
+            {
+                var picture = await _blobStorageService.UploadFileAsync(domain.PictureUpload);
+                domain.Picture = picture;
+            }
+            var userEntity = _mapper.Map<UserEntity>(domain);
+            var result = await _repository.UpdateAsync(userEntity);
+            return new OperationResult(result);
         }
         catch (Exception ex)
         {

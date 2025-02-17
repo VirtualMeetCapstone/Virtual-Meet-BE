@@ -3,21 +3,19 @@ namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryReactionRepository))]
 internal class StoryReactionRepository(
-    AppSqlDbContext context,
-     IMapper mapper
-     ) : SqlRepositoryBase<StoryReaction, StoryReactionEntity>(context, mapper), IStoryReactionRepository
+    AppSqlDbContext context
+     ) : SqlRepositoryBase<StoryReactionEntity>(context), IStoryReactionRepository
 {
     private readonly AppSqlDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
-    public async Task<StoryReaction?> GetByStoryAndUserAsync(Guid storyId, Guid userId)
+    public async Task<StoryReactionEntity?> GetByStoryAndUserAsync(Guid storyId, Guid userId)
     {
         var entity = await _context.StoryReactions.FirstOrDefaultAsync
                                                 (sr => sr.StoryId == storyId
                                                  && sr.UserId == userId);
-        return _mapper.Map<StoryReaction?>(entity);
+        return entity;
     }
 
-    public async Task<QueryResult<StoryReaction>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo)
+    public async Task<QueryResult<StoryReactionEntity>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo)
     {
         var reactions = await _context.StoryReactions
                                             .Include(sr => sr.User)
@@ -29,9 +27,9 @@ internal class StoryReactionRepository(
             totalItems = await _context.StoryReactions.CountAsync();
         }
 
-        return new QueryResult<StoryReaction>
+        return new QueryResult<StoryReactionEntity>
         {
-            Data = _mapper.Map<List<StoryReaction>>(reactions),
+            Data = reactions,
             TotalCount = totalItems
         };
 

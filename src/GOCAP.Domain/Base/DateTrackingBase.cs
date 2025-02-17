@@ -1,6 +1,8 @@
-﻿namespace GOCAP.Domain;
+﻿using GOCAP.Database.Common.Entities;
 
-public abstract class DateObjectBase : DomainBase
+namespace GOCAP.Domain;
+
+public abstract class DateTrackingBase : DomainBase, IDateTracking
 {
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }

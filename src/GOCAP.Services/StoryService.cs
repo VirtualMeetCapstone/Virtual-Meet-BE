@@ -1,14 +1,15 @@
-﻿
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IStoryService))]
 internal class StoryService(
     IStoryRepository _repository,
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
+    IMapper _mapper,
     ILogger<StoryService> _logger
-    ) : ServiceBase<Story>(_repository, _logger), IStoryService
+    ) : ServiceBase<Story, StoryEntity>(_repository, _mapper, _logger), IStoryService
 {
+    private readonly IMapper _mapper = _mapper;
     public override async Task<Story> AddAsync(Story story)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Story).Name);
@@ -30,7 +31,9 @@ internal class StoryService(
 
         try
         {
-            return await _repository.AddAsync(story);
+            var entity = _mapper.Map<StoryEntity>(story);
+            var result = await _repository.AddAsync(entity);
+            return _mapper.Map<Story>(result);
         }
         catch (Exception ex)
         {
@@ -41,6 +44,7 @@ internal class StoryService(
 
     public async Task<QueryResult<Story>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
-        return await _repository.GetFollowingStoriesWithPagingAsync(userId, queryInfo);
+        var result = await _repository.GetFollowingStoriesWithPagingAsync(userId, queryInfo);
+        return _mapper.Map<QueryResult<Story>>(result);
     }
 }

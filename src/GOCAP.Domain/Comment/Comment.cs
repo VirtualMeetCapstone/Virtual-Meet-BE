@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Comment : DateObjectBase
+public class Comment : DateTrackingBase
 {
     public Guid PostId { get; set; }
     public required CommentAuthor Author { get; set; }
