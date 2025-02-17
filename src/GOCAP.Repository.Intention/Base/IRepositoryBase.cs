@@ -1,45 +1,45 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IRepositoryBase<T>
+public interface IRepositoryBase<TEntity>
 {
     /// <summary>
     /// Add a record to the database.
     /// </summary>
     /// <param name="domain">domain model</param>
-    Task<T> AddAsync(T domain);
+    Task<TEntity> AddAsync(TEntity entity);
 
     /// <summary>
     /// Add multiple records to the database.
     /// </summary>
     /// <param name="domains">domain model</param>
     /// <returns>True:succeed, False:failed.</returns>
-    Task<bool> AddRangeAsync(IEnumerable<T> domains);
+    Task<bool> AddRangeAsync(IEnumerable<TEntity> entities);
 
     /// <summary>
     /// Get all records in database, take care of the data size
     /// </summary>
     /// <returns>domain model list</returns>
-    Task<IEnumerable<T>> GetAllAsync();
+    Task<IEnumerable<TEntity>> GetAllAsync();
 
     /// <summary>
     /// Retrieves the total count of records in the database with condition.
     /// </summary>
     /// <returns>number count</returns>
-    Task<int> GetCountAsync(Expression<Func<T, bool>>? condition);
+    Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? condition);
         
     /// <summary>
     /// Get first record which matches the id
     /// </summary>
     /// <param name="id">domain model id</param>
     /// <returns>domain model</returns>
-    Task<T> GetByIdAsync(Guid id);
+    Task<TEntity> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Get records list by Ids
     /// </summary>
     /// <param name="ids"></param>
     /// <returns></returns>
-    Task<IEnumerable<T>> GetByIdsAsync(List<Guid> ids, string fieldsName);
+    Task<IEnumerable<TEntity>> GetByIdsAsync(List<Guid> ids, string fieldsName);
 
     /// <summary>
     /// Get the summary of target domain model, only support search currently
@@ -50,14 +50,14 @@ public interface IRepositoryBase<T>
     /// <param name="top">select top number</param>
     /// <param name="skip">skip number</param>
     /// <returns></returns>
-    Task<QueryResult<T>> GetByPageAsync(QueryInfo queryInfo);
+    Task<QueryResult<TEntity>> GetByPageAsync(QueryInfo queryInfo);
 
     /// <summary>
     /// Update a record in database.
     /// </summary>
     /// <param name="domain">domain model</param>
     /// <returns>True:succeed, False:failed.</returns>
-    Task<bool> UpdateAsync(Guid id, T domain);
+    Task<bool> UpdateAsync(TEntity entity);
 
     /// <summary>
     /// Delete a record from the database.

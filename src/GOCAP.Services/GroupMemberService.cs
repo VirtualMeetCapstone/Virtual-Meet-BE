@@ -3,10 +3,11 @@
 [RegisterService(typeof(IGroupMemberService))]
 internal class GroupMemberService(
     IGroupMemberRepository _repository,
+    IMapper _mapper,
     ILogger<GroupMemberService> _logger
-    ) : ServiceBase<GroupMember>(_repository, _logger), IGroupMemberService
+    ) : ServiceBase<GroupMember, GroupMemberEntity>(_repository, _mapper, _logger), IGroupMemberService
 {
-
+    private readonly IMapper _mapper = _mapper;
     /// <summary>
     /// Add or remove a group member.
     /// </summary>
@@ -26,7 +27,8 @@ internal class GroupMemberService(
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(GroupMember).Name);
             domain.InitCreation();
-            await _repository.AddAsync(domain);
+            var entity = _mapper.Map<GroupMemberEntity>(domain);
+            await _repository.AddAsync(entity);
         }
         return result;
     }

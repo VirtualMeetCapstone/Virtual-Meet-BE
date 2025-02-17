@@ -13,7 +13,7 @@ public class RoomsController(IRoomService _service,
     [HttpGet]
     public async Task<QueryResult<RoomModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
-        var domain = await _service.GetByPageAsync(queryInfo);
+        var domain = await _service.GetWithPagingAsync(queryInfo);
         var result = _mapper.Map<QueryResult<RoomModel>>(domain);
         return result;
     }

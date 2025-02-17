@@ -1,10 +1,10 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using GOCAP.Database.Common;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace GOCAP.Database;
 
-public abstract class EntityMongoBase
+public abstract class EntityMongoBase: EntityDateTrackingBase<Guid>
 {
     [BsonId]
-    public Guid Id { get; set; }
-    public required long CreateTime { get; set; } = 0;
-    public required long LastModifyTime { get; set; } = 0;
+    public required override Guid Id { get; set; }
 }

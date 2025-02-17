@@ -5,9 +5,11 @@ internal class RoomFavouriteService(
     IRoomFavouriteRepository _repository,
     IUserRepository _userRepository,
     IRoomRepository _roomRepository,
+    IMapper _mapper,
     ILogger<RoomFavouriteService> _logger
-    ) : ServiceBase<RoomFavourite>(_repository, _logger), IRoomFavouriteService
+    ) : ServiceBase<RoomFavourite, RoomFavouriteEntity>(_repository, _mapper, _logger), IRoomFavouriteService
 {
+    private readonly IMapper _mapper = _mapper;
     /// <summary>
     /// Create or delete the room favourite.
     /// </summary>
@@ -37,7 +39,8 @@ internal class RoomFavouriteService(
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(RoomFavourite).Name);
             domain.InitCreation();
-            await _repository.AddAsync(domain);
+            var entity = _mapper.Map<RoomFavouriteEntity>(domain);
+            await _repository.AddAsync(entity);
         }
         return result;
     }

@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class Story : DateObjectBase
+public class Story : DateTrackingBase
 {
     public string? Content { get; set; }
     public Guid UserId { get; set; }

@@ -6,9 +6,11 @@ internal class StoryReactionService(
     IStoryReactionRepository _repository,
     IStoryRepository _storyRepository,
     IUserRepository _userRepository,
+    IMapper _mapper,
     ILogger<StoryReactionService> _logger
-    ) : ServiceBase<StoryReaction>(_repository, _logger), IStoryReactionService
+    ) : ServiceBase<StoryReaction, StoryReactionEntity>(_repository, _mapper, _logger), IStoryReactionService
 {
+    private readonly IMapper _mapper = _mapper;
     public async Task<OperationResult> CreateOrDeleteAsync(StoryReaction domain)
     {
         if (!await _storyRepository.CheckExistAsync(domain.StoryId))
@@ -33,11 +35,16 @@ internal class StoryReactionService(
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(RoomFavourite).Name);
             domain.InitCreation();
-            await _repository.AddAsync(domain);
+            var entity = _mapper.Map<StoryReactionEntity>(domain);
+            await _repository.AddAsync(entity);
         }
         return result;
     }
 
     public async Task<QueryResult<StoryReaction>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo)
-    => await _repository.GetReactionDetailsWithPagingAsync(storyId, queryInfo);
+    {
+        var result = await _repository.GetReactionDetailsWithPagingAsync(storyId, queryInfo);
+        return _mapper.Map<QueryResult<StoryReaction>>(result);
+    }
+    
 }

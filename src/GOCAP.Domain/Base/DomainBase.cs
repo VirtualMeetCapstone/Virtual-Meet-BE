@@ -1,6 +1,7 @@
-﻿namespace GOCAP.Domain;
+﻿using GOCAP.Database.Common;
 
-public abstract class DomainBase
+namespace GOCAP.Domain;
+
+public abstract class DomainBase : EntityBase<Guid>
 {
-    public Guid Id { get; set; }
 }

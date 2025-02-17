@@ -2,12 +2,10 @@
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryRepository))]
-internal class StoryRepository(AppSqlDbContext context,
-     IMapper mapper) : SqlRepositoryBase<Story, StoryEntity>(context, mapper), IStoryRepository
+internal class StoryRepository(AppSqlDbContext context) : SqlRepositoryBase<StoryEntity>(context), IStoryRepository
 {
     private readonly AppSqlDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
-    public async Task<QueryResult<Story>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo)
+    public async Task<QueryResult<StoryEntity>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
         var followingIds = await _context.UserFollows
                                             .Where(f => f.FollowerId == userId) // Who this user is following
@@ -34,19 +32,19 @@ internal class StoryRepository(AppSqlDbContext context,
         }
 
 
-        return new QueryResult<Story>
+        return new QueryResult<StoryEntity>
         {
-            Data = _mapper.Map<List<Story>>(stories),
+            Data = stories,
             TotalCount = totalItems
         };
     }
 
-    public override async Task<Story> GetByIdAsync(Guid id)
+    public override async Task<StoryEntity> GetByIdAsync(Guid id)
     {
         var entity = await _context.Stories
                                     .AsNoTracking()
                                     .Include(x => x.User)
                                     .FirstOrDefaultAsync(x => x.Id == id);
-        return _mapper.Map<Story>(entity);
+        return entity ?? throw new ResourceNotFoundException($"Entity with {id} was not found.");
     }
 }

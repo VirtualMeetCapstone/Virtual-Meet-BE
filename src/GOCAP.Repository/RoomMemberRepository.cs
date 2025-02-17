@@ -2,9 +2,7 @@
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomMemberRepository))]
-internal class RoomMemberRepository(
-    AppSqlDbContext context,
-     IMapper mapper) : SqlRepositoryBase<RoomMember, RoomMemberEntity>(context, mapper), IRoomMemberRepository
+internal class RoomMemberRepository(AppSqlDbContext context) : SqlRepositoryBase<RoomMemberEntity>(context), IRoomMemberRepository
 {
     private readonly AppSqlDbContext _context = context;
     public async Task<int> DeleteByRoomIdAsync(Guid id)

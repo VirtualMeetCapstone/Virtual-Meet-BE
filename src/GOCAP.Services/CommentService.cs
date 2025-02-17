@@ -5,9 +5,11 @@ internal class CommentService(
     ICommentRepository _repository,
     IPostRepository _postRepository,
     IUserRepository _userRepository,
+    IMapper _mapper,
     ILogger<CommentService> _logger
-    ) : ServiceBase<Comment>(_repository, _logger), ICommentService
+    ) : ServiceBase<Comment, CommentEntity>(_repository, _mapper, _logger), ICommentService
 {
+    private readonly IMapper _mapper = _mapper;
     public override async Task<Comment> AddAsync(Comment domain)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Comment).Name);
@@ -26,13 +28,16 @@ internal class CommentService(
         {
             Id = author.Id,
             Name = author.Name,
-            Picture = author.Picture
+            Picture = JsonHelper.Deserialize<Media?>(author.Picture)
         };
 
-        return await _repository.AddAsync(domain);
+        var entity = _mapper.Map<CommentEntity>(domain);
+        var result = await _repository.AddAsync(entity);
+        return _mapper.Map<Comment>(result);
     }
     public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
     {
-        return await _repository.GetByPostIdWithPagingAsync(postId, queryInfo);
+        var result = await _repository.GetByPostIdWithPagingAsync(postId, queryInfo);
+        return _mapper.Map<QueryResult<Comment>>(result);
     }
 }

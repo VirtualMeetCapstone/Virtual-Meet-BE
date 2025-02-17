@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface ICommentRepository : IMongoRepositoryBase<Comment>
+public interface ICommentRepository : IMongoRepositoryBase<CommentEntity>
 {
-    Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo);
+    Task<QueryResult<CommentEntity>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo);
 }

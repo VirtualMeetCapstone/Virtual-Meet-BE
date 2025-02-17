@@ -1,7 +1,7 @@
 ﻿
 namespace GOCAP.Repository.Intention;
 
-public interface IStoryRepository : ISqlRepositoryBase<Story>
+public interface IStoryRepository : ISqlRepositoryBase<StoryEntity>
 {
-    Task<QueryResult<Story>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo);
+    Task<QueryResult<StoryEntity>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo);
 }

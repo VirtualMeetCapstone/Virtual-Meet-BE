@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class UserNotification : DateObjectBase
+public class UserNotification : DateTrackingBase
 {
     public Guid UserId { get; set; }
     public User? Sender { get; set; }

@@ -2,10 +2,9 @@
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(IGroupMemberRepository))]
-internal class GroupMemberRepository(AppSqlDbContext context, IMapper mapper) : SqlRepositoryBase<GroupMember, GroupMemberEntity>(context, mapper), IGroupMemberRepository
+internal class GroupMemberRepository(AppSqlDbContext context) : SqlRepositoryBase<GroupMemberEntity>(context), IGroupMemberRepository
 {
     private readonly AppSqlDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
     public async Task<int> DeleteByGroupIdAsync(Guid id)
     {
         return await _context.GroupMembers
@@ -13,11 +12,11 @@ internal class GroupMemberRepository(AppSqlDbContext context, IMapper mapper) : 
                                 .ExecuteDeleteAsync();
     }
 
-    public async Task<GroupMember?> GetByGroupMemberAsync(Guid groupId, Guid userId)
+    public async Task<GroupMemberEntity?> GetByGroupMemberAsync(Guid groupId, Guid userId)
     {
         var entity = await _context.GroupMembers.FirstOrDefaultAsync
                                                 (gm => gm.GroupId == groupId
                                                  && gm.UserId == userId);
-        return _mapper.Map<GroupMember?>(entity);
+        return entity;
     }
 }

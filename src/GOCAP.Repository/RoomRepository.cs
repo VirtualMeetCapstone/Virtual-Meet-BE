@@ -3,13 +3,12 @@
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
     AppSqlDbContext context,
-     IMapper mapper,
      IBlobStorageService _blobStorageService
-     ) : SqlRepositoryBase<Room, RoomEntity>(context, mapper), IRoomRepository
+     ) : SqlRepositoryBase<RoomEntity>(context), IRoomRepository
 {
     private readonly AppSqlDbContext _context = context;
 
-    public override async Task<QueryResult<Room>> GetByPageAsync(QueryInfo queryInfo)
+    public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
     {
         var roomQuery = _context.Rooms.AsQueryable();
 
@@ -28,7 +27,7 @@ internal class RoomRepository(
             Owner = new User
             {
                 Name = r.Owner?.Name ?? string.Empty,
-                Bio = r.Owner?.Picture,
+                Picture = JsonHelper.Deserialize<Media>(r.Owner?.Picture),
             },
             Topic = r.Topic,
             Description = r.Description,
@@ -58,22 +57,19 @@ internal class RoomRepository(
 
     }
 
-    public override async Task<bool> UpdateAsync(Guid id, Room domain)
+    public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
     {
-        var entity = await GetEntityByIdAsync(id);
+        var entity = await GetEntityByIdAsync(roomEntity.Id);
         if (!string.IsNullOrEmpty(entity.Medias))
         {
             var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
             await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
         }
-        entity.Topic = domain.Topic;
-        entity.Description = domain.Description;
-        entity.MaximumMembers = domain.MaximumMembers;
-        if (domain.Medias is not null || domain.Medias?.Count > 0)
-        {
-            entity.Medias = JsonHelper.Serialize(domain.Medias);
-        }
-        entity.LastModifyTime = domain.LastModifyTime;
+        entity.Topic = roomEntity.Topic;
+        entity.Description = roomEntity.Description;
+        entity.MaximumMembers = roomEntity.MaximumMembers;
+        entity.Medias = roomEntity.Medias;
+        entity.LastModifyTime = roomEntity.LastModifyTime;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }

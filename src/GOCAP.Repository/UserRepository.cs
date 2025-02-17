@@ -1,13 +1,9 @@
 ﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
-internal class UserRepository(AppSqlDbContext context,
-    IMapper mapper,
-    IBlobStorageService _blobStorageService
-    ) : SqlRepositoryBase<User, UserEntity>(context, mapper), IUserRepository
+internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobStorageService _blobStorageService) : SqlRepositoryBase<UserEntity>(context), IUserRepository
 {
     private readonly AppSqlDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
 
     public async Task<User?> GetByEmailAsync(string email)
     {
@@ -50,30 +46,24 @@ internal class UserRepository(AppSqlDbContext context,
         result.FriendsCount = await _context.UserFollows
                                             .AsNoTracking()
                                             .Where(f => _context.UserFollows
-                                            .Any(x => x.FollowerId == f.FollowingId && x.FollowingId == f.FollowerId))
+                                            .Any(x => x.FollowerId == f.FollowingId && x.FollowingId ==                                       f.FollowerId))
                                             .CountAsync(f => f.FollowerId == id);
         return result;
     }
 
-    public override async Task<bool> UpdateAsync(Guid id, User domain)
+    public override async Task<bool> UpdateAsync(UserEntity entity)
     {
-        var entity = await GetEntityByIdAsync(id);
-        if (domain.PictureUpload != null)
+        var userEntity = await GetEntityByIdAsync(entity.Id);
+        if (!string.IsNullOrEmpty(userEntity.Picture))
         {
-            var picture = await _blobStorageService.UploadFileAsync(domain.PictureUpload);
-            entity.Picture = JsonHelper.Serialize(picture);
-
-            if (!string.IsNullOrEmpty(entity.Picture))
-            {
-                var media = JsonHelper.Deserialize<Media>(entity.Picture);
-                await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
-            }
+            var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
+            await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
         }
-
-        entity.Name = domain.Name;
-        entity.Bio = domain.Bio;
-        entity.LastModifyTime = domain.LastModifyTime;
-        _context.Entry(entity).State = EntityState.Modified;
+        userEntity.Name = entity.Name;
+        userEntity.Picture = entity.Picture;
+        userEntity.Bio = entity.Bio;
+        userEntity.LastModifyTime = entity.LastModifyTime;
+        _context.Entry(userEntity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }
 }

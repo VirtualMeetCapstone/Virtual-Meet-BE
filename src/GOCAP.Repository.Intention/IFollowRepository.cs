@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IFollowRepository : ISqlRepositoryBase<Follow>
+public interface IFollowRepository : ISqlRepositoryBase<UserFollowEntity>
 {
-    Task<Follow?> GetByFollowerAndFollowingAsync(Guid followerId, Guid followingId);
+    Task<UserFollowEntity?> GetByFollowerAndFollowingAsync(Guid followerId, Guid followingId);
 }

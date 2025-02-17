@@ -1,9 +1,8 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class PostReactionModel
+public class PostReactionModel : EntityDateTrackingBase<Guid>
 {
-    public Guid Id { get; set; }
+    public override Guid Id { get; set; }
     public Guid PostId { get; set; }
     public Guid UserId { get; set; }
-    public long CreateTime { get; set; }
 }

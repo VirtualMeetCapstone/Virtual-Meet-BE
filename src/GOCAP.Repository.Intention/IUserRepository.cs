@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository;
 
-public interface IUserRepository : ISqlRepositoryBase<User>
+public interface IUserRepository : ISqlRepositoryBase<UserEntity>
 {
     Task<UserCount> GetUserCountsAsync();
     Task<bool> IsEmailExistsAsync(string email);
