@@ -2,7 +2,7 @@
 
 public abstract class ModelMapperProfileBase : Profile
 {
-    public ModelMapperProfileBase()
+    protected ModelMapperProfileBase()
     {
     }
 }

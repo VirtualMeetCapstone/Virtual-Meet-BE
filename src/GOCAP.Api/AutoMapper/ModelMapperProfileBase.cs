@@ -64,6 +64,10 @@ public abstract class ModelMapperProfileBase : Profile
             return MediaType.Image;
         if (contentType.StartsWith("video/"))
             return MediaType.Video;
+        if (contentType.StartsWith("file/"))
+            return MediaType.File;
+        if (contentType.StartsWith("audio/"))
+            return MediaType.Audio;
         return MediaType.Text;
     }
 }

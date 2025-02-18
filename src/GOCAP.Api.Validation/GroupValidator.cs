@@ -8,8 +8,8 @@ public class GroupValidator : ValidatorBase<GroupCreationModel>
             .NotEmpty()
             .WithMessage("Name must not be empty.")
             .WithErrorCode("1000")
-            .MaximumLength(GOCAPConstants.MaxLengthName)
-            .WithMessage($"Name must not be exceed {GOCAPConstants.MaxLengthName}.")
+            .MaximumLength(AppConstants.MaxLengthName)
+            .WithMessage($"Name must not be exceed {AppConstants.MaxLengthName}.")
             .WithErrorCode("1001");
     }
 }

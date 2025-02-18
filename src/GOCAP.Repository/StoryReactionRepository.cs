@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryReactionRepository))]
 internal class StoryReactionRepository(

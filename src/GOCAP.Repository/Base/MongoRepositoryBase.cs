@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Repository;
+﻿
+namespace GOCAP.Repository;
 
 internal abstract class MongoRepositoryBase<TEntity>
     (AppMongoDbContext _context) : IMongoRepositoryBase<TEntity>
@@ -59,6 +60,11 @@ internal abstract class MongoRepositoryBase<TEntity>
         var entity = await _collection.Find(filter).FirstOrDefaultAsync()
             ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
         return entity;
+    }
+
+    public Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     public virtual async Task<IEnumerable<TEntity>> GetByIdsAsync(List<Guid> ids, string fieldsName)

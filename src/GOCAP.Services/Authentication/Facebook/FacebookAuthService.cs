@@ -16,7 +16,7 @@ public class FacebookAuthService(
             { "code", code },
             { "client_id", _configuration["Authentication:Facebook:AppId"] ?? "" },
             { "client_secret", _configuration["Authentication:Facebook:AppSecret"] ?? "" },
-            { "redirect_uri", $"{GOCAPConstants.DefaultUri}{_configuration["Authentication:Facebook:RedirectUri"] ?? ""}" },
+            { "redirect_uri", $"{AppConstants.DefaultUri}{_configuration["Authentication:Facebook:RedirectUri"] ?? ""}" },
             { "grant_type", "authorization_code" }
         };
 

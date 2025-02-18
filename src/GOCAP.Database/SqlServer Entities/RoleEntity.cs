@@ -3,7 +3,7 @@
 [Table("Roles")]
 public class RoleEntity : EntitySqlBase
 {
-    [MaxLength(GOCAPConstants.MaxLengthName)]
+    [MaxLength(AppConstants.MaxLengthName)]
     public required string Name { get; set; }
 
     // Relationships

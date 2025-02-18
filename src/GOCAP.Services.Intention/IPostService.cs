@@ -2,5 +2,5 @@
 
 public interface IPostService : IServiceBase<Post>
 {
-    Task<OperationResult> LikeOrUnlikeAsync(PostReaction postLike);
+    Task<OperationResult> ReactOrUnreactAsync(PostReaction postReaction);
 }

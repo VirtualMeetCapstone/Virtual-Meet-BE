@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace GOCAP.Api.Common;
 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
 public class ValidateModelAttribute : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)

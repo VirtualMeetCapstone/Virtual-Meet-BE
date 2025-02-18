@@ -35,6 +35,15 @@ public interface IRepositoryBase<TEntity>
     Task<TEntity> GetByIdAsync(Guid id);
 
     /// <summary>
+    /// Get record by id with fields which need to be take.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="includes"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Get records list by Ids
     /// </summary>
     /// <param name="ids"></param>

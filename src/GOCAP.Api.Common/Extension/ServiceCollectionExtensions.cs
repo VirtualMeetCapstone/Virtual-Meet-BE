@@ -17,15 +17,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(GOCAPConstants.AzureBlobStorage)));
+        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(AppConstants.AzureBlobStorage)));
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         // Add for using sql server
         services
-            .AddSingleton<IGOCAPConfiguration, GOCAPConfiguration>()
+            .AddSingleton<IAppConfiguration, AppConfiguration>()
             .AddDbContext<AppSqlDbContext>((serviceProvider, options) =>
             {
-                var configuration = serviceProvider.GetRequiredService<IGOCAPConfiguration>();
+                var configuration = serviceProvider.GetRequiredService<IAppConfiguration>();
                 var connectionString = configuration.GetSqlServerConnectionString();
                 options.UseSqlServer(connectionString);
             });
@@ -33,8 +33,8 @@ public static class ServiceCollectionExtensions
         // Add for using MongoDB
         services.AddSingleton(sp =>
         {
-            var databaseName = GOCAPConstants.DatabaseName;
-            var connectionString = configuration.GetConnectionString(GOCAPConstants.MongoDbConnection) ?? string.Empty;
+            var databaseName = AppConstants.DatabaseName;
+            var connectionString = configuration.GetConnectionString(AppConstants.MongoDbConnection) ?? string.Empty;
             return new AppMongoDbContext(databaseName, connectionString);
         });
 
