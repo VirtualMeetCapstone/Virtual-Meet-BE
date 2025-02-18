@@ -41,7 +41,7 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=db9981.public.databaseasp.net; Database=db9981; User Id=db9981; Password=manhtuong1; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
+        optionsBuilder.UseSqlServer("");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
