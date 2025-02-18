@@ -43,4 +43,4 @@ else if (app.Environment.IsProduction())
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
