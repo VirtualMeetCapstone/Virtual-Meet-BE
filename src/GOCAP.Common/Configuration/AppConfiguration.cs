@@ -2,7 +2,7 @@
 
 namespace GOCAP.Common;
 
-public class GOCAPConfiguration (IConfiguration _configuration) : IGOCAPConfiguration
+public class AppConfiguration (IConfiguration _configuration) : IAppConfiguration
 {
 
     /// <summary>
@@ -17,6 +17,6 @@ public class GOCAPConfiguration (IConfiguration _configuration) : IGOCAPConfigur
             throw new InternalException("Configuration has not been initialized.");
         }
 
-        return _configuration.GetConnectionString(GOCAPConstants.SqlServerConnection);
+        return _configuration.GetConnectionString(AppConstants.SqlServerConnection);
     }   
 }

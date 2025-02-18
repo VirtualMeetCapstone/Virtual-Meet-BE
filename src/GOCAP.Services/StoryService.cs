@@ -27,7 +27,6 @@ internal class StoryService(
         }
 
         story.InitCreation();
-        story.ExpireTime = DateTime.UtcNow.AddHours(24).Ticks;
 
         try
         {

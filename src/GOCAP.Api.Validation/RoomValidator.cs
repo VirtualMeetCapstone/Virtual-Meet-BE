@@ -13,7 +13,7 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
             .WithMessage("Name must not exceed 256 characters.");
 
         RuleFor(x => x.Description)
-            .MaximumLength(GOCAPConstants.MaxLengthDescription)
+            .MaximumLength(AppConstants.MaxLengthDescription)
             .WithMessage("Name must not exceed 1000 characters.");
 
         RuleFor(x => x.MaximumMembers);

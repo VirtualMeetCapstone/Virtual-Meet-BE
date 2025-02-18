@@ -14,7 +14,7 @@ internal class PostService(
     /// </summary>
     /// <param name="postReaction"></param>
     /// <returns></returns>
-    public async Task<OperationResult> LikeOrUnlikeAsync(PostReaction postReaction)
+    public async Task<OperationResult> ReactOrUnreactAsync(PostReaction postReaction)
     {
         var result = new OperationResult(true);
         var isExists = await _postLikeRepository.CheckExistAsync(postReaction.PostId, postReaction.UserId);

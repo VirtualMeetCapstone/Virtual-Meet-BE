@@ -29,7 +29,7 @@ public class PostsController(
     public async Task<OperationResult> LikeOrUnlike([FromBody] PostReactionCreationModel model)
     {
         var domain = _mapper.Map<PostReaction>(model);
-        var result = await _service.LikeOrUnlikeAsync(domain);
+        var result = await _service.ReactOrUnreactAsync(domain);
         return result;
     }
 }

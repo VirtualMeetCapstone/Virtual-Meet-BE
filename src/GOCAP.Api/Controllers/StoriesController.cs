@@ -1,9 +1,12 @@
-﻿namespace GOCAP.Api.Controllers;
+﻿using GOCAP.Services.Intention;
+
+namespace GOCAP.Api.Controllers;
 
 [Route("stories")]
 public class StoriesController(
     IStoryService _service,
     IStoryReactionService _storyReactionService,
+    IStoryViewService _storyViewService,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -25,7 +28,7 @@ public class StoriesController(
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="queryInfo"></param>
-    /// <returns></returns>
+    /// <returns>QueryResult<StoryModel></returns>
     [HttpGet("{userId}/friends")]
     public async Task<QueryResult<StoryModel>> GetFollowingStoriesWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
@@ -37,7 +40,7 @@ public class StoriesController(
     /// Get story detail by id.
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <returns>StoryDetailModel</returns>
     [HttpGet("{id}")]
     public async Task<StoryDetailModel> GetById([FromRoute] Guid id)
     {
@@ -49,7 +52,7 @@ public class StoriesController(
     /// Delete story by id.
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <returns>OperationResult</returns>
     [HttpDelete("{id}")]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
@@ -61,7 +64,7 @@ public class StoriesController(
     /// </summary>
     /// <param name="storyId"></param>
     /// <param name="model"></param>
-    /// <returns></returns>
+    /// <returns>OperationResult</returns>
     [HttpPost("{storyId}/reactions")]
     public async Task<OperationResult> CreateOrDeleteReaction([FromRoute] Guid storyId, [FromBody] StoryReactionCreationModel model)
     {
@@ -71,11 +74,40 @@ public class StoriesController(
         return result;
     }
 
+    /// <summary>
+    /// Get reaction details with paging by story id.
+    /// </summary>
+    /// <param name="storyId"></param>
+    /// <param name="queryInfo"></param>
+    /// <returns>StoryReactionDetailModel</returns>
     [HttpGet("{storyId}/reactions/page")]
     public async Task<QueryResult<StoryReactionDetailModel>> GetReactionDetailsWithPaging([FromRoute] Guid storyId, [FromQuery] QueryInfo queryInfo)
     {
         var domain = await _storyReactionService.GetReactionDetailsWithPagingAsync(storyId, queryInfo);
         var result = _mapper.Map<QueryResult<StoryReactionDetailModel>>(domain);
+        return result;
+    }
+
+    /// <summary>
+    /// Record when one user views the story.
+    /// </summary>
+    /// <param name="storyId"></param>
+    /// <param name="model"></param>
+    /// <returns>StoryViewModel</returns>
+    [HttpPost("{storyId}/views")]
+    public async Task<StoryViewModel> RecordStoryView([FromRoute] Guid storyId, [FromBody] StoryViewCreationModel model)
+    {
+        var domain = _mapper.Map<StoryView>(model);
+        domain.StoryId = storyId;
+        var result = await _storyViewService.AddAsync(domain);
+        return _mapper.Map<StoryViewModel>(result);
+    }
+
+    [HttpGet("{storyId}/views")]
+    public async Task<QueryResult<StoryViewDetailModel>> GetStoryViewers([FromRoute] Guid storyId, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _storyViewService.GetWithPagingAsync(storyId, queryInfo);
+        var result = _mapper.Map<QueryResult<StoryViewDetailModel>>(domain);
         return result;
     }
 }

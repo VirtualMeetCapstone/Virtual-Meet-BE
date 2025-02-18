@@ -5,9 +5,9 @@ public class GroupEntity : EntitySqlBase
 {
     public Guid OwnerId { get; set; }
     public UserEntity? Owner { get; set; }
-    [MaxLength(GOCAPConstants.MaxLengthName)]
+    [MaxLength(AppConstants.MaxLengthName)]
     public required string Name { get; set; }
-    [MaxLength(GOCAPConstants.MaxLengthUrl)]
+    [MaxLength(AppConstants.MaxLengthUrl)]
     public string? Picture { get; set; }
     public ICollection<GroupMemberEntity> Members { get; set; } = [];
 }

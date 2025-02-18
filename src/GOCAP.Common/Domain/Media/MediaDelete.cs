@@ -2,6 +2,6 @@
 
 public class MediaDelete
 {
-    public string ContainerName { get; set; } = GOCAPConstants.BlobContainer;
+    public string ContainerName { get; set; } = AppConstants.BlobContainer;
     public string FileName { get; set; } = "";
 }

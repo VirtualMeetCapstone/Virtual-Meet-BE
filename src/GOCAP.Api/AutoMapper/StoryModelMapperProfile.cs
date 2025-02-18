@@ -27,5 +27,9 @@ public class StoryModelMapperProfile : ModelMapperProfileBase
 
         // Story view
         CreateMap<StoryView, StoryViewModel>().ReverseMap();
+        CreateMap<StoryView, StoryViewCreationModel>().ReverseMap();
+        CreateMap<User, StoryViewerModel>().ReverseMap();
+        CreateMap<StoryViewDetail, StoryViewDetailModel>().ReverseMap();
+        CreateMap<QueryResult<StoryViewDetail>, QueryResult<StoryViewDetailModel>>().ReverseMap();
     }
 }

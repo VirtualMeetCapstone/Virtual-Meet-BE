@@ -3,7 +3,7 @@
 [Table("Stories")]
 public class StoryEntity : EntitySqlBase
 {
-    [MaxLength(GOCAPConstants.MaxLengthDescription)]
+    [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Content { get; set; }
     public Guid UserId { get; set; }
     public UserEntity? User { get; set; }
