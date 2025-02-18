@@ -29,9 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GOCAP.Domain", "GOCAP.Domai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GOCAP.Migrations", "GOCAP.Migrations\GOCAP.Migrations.csproj", "{4C409BE5-AAD0-4CD4-A456-0A2D1A9FF429}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Admin.Api", "GOCAP.Admin.Api\GOCAP.Admin.Api.csproj", "{39D7FD22-C276-4C00-B559-918F3A8337B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GOCAP.Admin.Api", "GOCAP.Admin.Api\GOCAP.Admin.Api.csproj", "{39D7FD22-C276-4C00-B559-918F3A8337B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.ExternalServices", "GOCAP.ExternalServices\GOCAP.ExternalServices.csproj", "{4DD87135-D808-48FE-BB49-D984251F24AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GOCAP.ExternalServices", "GOCAP.ExternalServices\GOCAP.ExternalServices.csproj", "{4DD87135-D808-48FE-BB49-D984251F24AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{104EC54E-88DF-44DF-A629-721DE60C21A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
