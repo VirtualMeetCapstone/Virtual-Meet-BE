@@ -4,7 +4,7 @@ namespace GOCAP.Database;
 
 public class AppSqlDbContext
     (DbContextOptions<AppSqlDbContext> options,
-    IGOCAPConfiguration _configuration) : DbContext(options)
+    IAppConfiguration _configuration) : DbContext(options)
 {
     /// <summary>
     /// Please always updating the number of db sets and the db sets name by order.

@@ -3,7 +3,7 @@
 [Table("Posts")]
 public class PostEntity : EntitySqlBase
 {
-    [MaxLength(GOCAPConstants.MaxLengthDescription)]
+    [MaxLength(AppConstants.MaxLengthDescription)]
     public required string Content { get; set; }
     public string? Medias { get; set; }
     public PrivacyType Privacy { get; set; }

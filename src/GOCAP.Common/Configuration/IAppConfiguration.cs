@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Common;
 
-public interface IGOCAPConfiguration
+public interface IAppConfiguration
 {
     string? GetSqlServerConnectionString();
 }

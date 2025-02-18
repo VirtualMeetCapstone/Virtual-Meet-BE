@@ -3,13 +3,13 @@
 [Table("Users")]
 public class UserEntity : EntitySqlBase
 {
-    [MaxLength(GOCAPConstants.MaxLengthName)]
+    [MaxLength(AppConstants.MaxLengthName)]
     public required string Name { get; set; } 
-    [MaxLength(GOCAPConstants.MaxLengthEmail)]
+    [MaxLength(AppConstants.MaxLengthEmail)]
     public required string Email { get; set; }
-    [MaxLength(GOCAPConstants.MaxLengthUrl)]
+    [MaxLength(AppConstants.MaxLengthUrl)]
     public required string Picture { get; set; }
-    [MaxLength(GOCAPConstants.MaxLengthDescription)]
+    [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Bio { get; set; }
     public string? Gender { get; set; }
     public string? Birthday { get; set; }

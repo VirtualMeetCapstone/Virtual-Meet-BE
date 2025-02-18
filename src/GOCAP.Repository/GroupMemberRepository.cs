@@ -5,10 +5,10 @@ namespace GOCAP.Repository;
 internal class GroupMemberRepository(AppSqlDbContext context) : SqlRepositoryBase<GroupMemberEntity>(context), IGroupMemberRepository
 {
     private readonly AppSqlDbContext _context = context;
-    public async Task<int> DeleteByGroupIdAsync(Guid id)
+    public async Task<int> DeleteByGroupIdAsync(Guid groupId)
     {
         return await _context.GroupMembers
-                                .Where(rm => rm.GroupId == id)
+                                .Where(rm => rm.GroupId == groupId)
                                 .ExecuteDeleteAsync();
     }
 

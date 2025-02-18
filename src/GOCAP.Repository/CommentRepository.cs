@@ -17,7 +17,7 @@ internal class CommentRepository(AppMongoDbContext context)
             filter = Builders<CommentEntity>.Filter.And(filter, textFilter);
         }
 
-        var orderByField = !string.IsNullOrEmpty(queryInfo.OrderBy) ? queryInfo.OrderBy : GOCAPConstants.DefaultOrderBy;
+        var orderByField = !string.IsNullOrEmpty(queryInfo.OrderBy) ? queryInfo.OrderBy : AppConstants.DefaultOrderBy;
         var sortDefinition = queryInfo.OrderType == OrderType.Ascending
             ? Builders<CommentEntity>.Sort.Ascending(orderByField)
             : Builders<CommentEntity>.Sort.Descending(orderByField);

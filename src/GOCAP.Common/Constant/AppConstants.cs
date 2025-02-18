@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Common;
 
-public static class GOCAPConstants
+public static class AppConstants
 {
     public static readonly string DatabaseName = "GOCAP";
     public static readonly string DefaultUri = "https://localhost:7035";

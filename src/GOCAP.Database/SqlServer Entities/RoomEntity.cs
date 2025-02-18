@@ -3,9 +3,9 @@
 [Table("Rooms")]
 public class RoomEntity : EntitySqlBase
 {
-    [MaxLength(GOCAPConstants.MaxLengthTopic)]
+    [MaxLength(AppConstants.MaxLengthTopic)]
     public required string Topic { get; set; }
-    [MaxLength(GOCAPConstants.MaxLengthDescription)]
+    [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
     public string? Medias { get; set; } 
