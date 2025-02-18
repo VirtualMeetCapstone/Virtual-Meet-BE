@@ -9,22 +9,26 @@ jobs:
   build:
     name: Build and analyze
     runs-on: windows-latest
-    
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Đảm bảo SonarQube có đủ lịch sử commit để phân tích
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'  # Có thể dùng 'temurin', 'adopt',...
+
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~\.sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
@@ -32,18 +36,39 @@ jobs:
           path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
-      
+
       - name: Install SonarQube scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
-          if (-Not (Test-Path ".\.sonar\scanner")) {
+          if (!(Test-Path ".\.sonar\scanner")) {
             New-Item -Path .\.sonar\scanner -ItemType Directory
-            }
+          }
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-          
-      - name: Build and analyze
+
+      - name: Restore dependencies
+        run: dotnet restore ./src/GOCAP.sln
+
+      - name: Build solution
+        run: dotnet build ./src/GOCAP.sln --no-restore --configuration Release
+
+      - name: Run tests with coverage
+        run: dotnet test ./src/GOCAP.sln --no-restore --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings
+
+      - name: Convert coverage report to SonarQube format
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:./src/**/TestResults/**/*.xml -targetdir:coverage-report -reporttypes:SonarQube
+
+      - name: Run SonarQube analysis
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Virtual-Meet-BE" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.sources="src"  /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
-          dotnet build ./src/GOCAP.sln
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Virtual-Meet-BE" `
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" `
+            /d:sonar.sources="src" `
+            /d:sonar.cs.vscoveragexml.reportsPaths="coverage-report/SonarQube.xml"
+          
+          dotnet build ./src/GOCAP.sln --no-restore --configuration Release
+
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
