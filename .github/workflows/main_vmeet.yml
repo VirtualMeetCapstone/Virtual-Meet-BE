@@ -32,11 +32,15 @@ jobs:
           path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
+      
       - name: Install SonarQube scanner
         shell: powershell
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
+          if (-Not (Test-Path ".\.sonar\scanner")) {
+            New-Item -Path .\.sonar\scanner -ItemType Directory
+            }
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          
       - name: Build and analyze
         shell: powershell
         run: |
