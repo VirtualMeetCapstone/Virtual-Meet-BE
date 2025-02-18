@@ -39,6 +39,5 @@ jobs:
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Virtual-Meet-BE" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.sources="src"  /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Virtual-Meet-BE" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.sources="src"  /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" /d:sonar.scanner.skipCertificateCheck=true
           dotnet build ./src/GOCAP.sln
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
