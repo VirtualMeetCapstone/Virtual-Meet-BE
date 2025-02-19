@@ -1,7 +1,4 @@
-﻿using GOCAP.Repository;
-using GOCAP.Repository.Intention;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IPostService))]
 internal class PostService(
@@ -74,11 +71,10 @@ internal class PostService(
             await _unitOfWork.BeginTransactionAsync();
 
             //postReaction
-            await _postReactionRepository.DeleteByIdAsync(id);
+            await _postReactionRepository.DeleteByPostIdAsync(id);
             
             //commentMongo
             var result = await _repository.DeleteByIdAsync(id);
-
 
             // Commit if success
             await _unitOfWork.CommitTransactionAsync();

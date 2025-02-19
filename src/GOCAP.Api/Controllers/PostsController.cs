@@ -1,7 +1,4 @@
-﻿using GOCAP.Domain;
-using GOCAP.Services.Intention;
-
-namespace GOCAP.Api.Controllers;
+﻿namespace GOCAP.Api.Controllers;
 
 [Route("posts")]
 public class PostsController(
@@ -26,17 +23,7 @@ public class PostsController(
     public async Task<ActionResult<PostModel>> GetById([FromRoute] Guid id)
     {
         var post = await _service.GetDetailByIdAsync(id);
-        if (post == null)
-        {
-            return NotFound("Post not found");
-        }
-
         var postModel = _mapper.Map<PostModel>(post);
-
-        // Kiểm tra dữ liệu trước khi trả về
-        Console.WriteLine($"Post ID: {post.Id}, CountReaction: {post.Reactions.Count}");
-        Console.WriteLine($"Mapped CountReaction: {postModel.CountReaction}");
-
         return Ok(postModel);
     }
 

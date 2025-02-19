@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GOCAP.Repository.AutoMapper;
+﻿namespace GOCAP.Repository.AutoMapper;
 
 public class PostEntityMapperProfile : EntityMapperProfileBase
 {

@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Repository;
+﻿using GOCAP.Domain;
+
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IPostReactionRepository))]
 internal class PostReactionRepository(AppSqlDbContext context) :
@@ -16,5 +18,21 @@ internal class PostReactionRepository(AppSqlDbContext context) :
             ?? throw new ResourceNotFoundException("This like does not exists.");
         _context.PostReactions.Remove(postLike);
         return await _context.SaveChangesAsync();
+    }
+    public async Task<OperationResult> DeleteByPostIdAsync(Guid id)
+    {
+        var reactions = await _context.PostReactions
+       .Where(r => r.PostId == id)
+       .ToListAsync();
+
+        if (!reactions.Any())
+        {
+            return new OperationResult(false, "No reactions found for this post.");
+        }
+
+        _context.PostReactions.RemoveRange(reactions);
+        await _context.SaveChangesAsync();
+
+        return new OperationResult(true, "Delete OK");
     }
 }
