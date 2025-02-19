@@ -20,9 +20,9 @@ public class PostValidator : ValidatorBase<PostCreationModel>
             .NotNull()
             .WithMessage("User must not be null.");
 
-        RuleFor(x => x.MediaFiles)
-            .NotEmpty().WithMessage("MediaFiles cannot be empty.")
-            .NotNull().WithMessage("MediaFiles cannot be null.")
+        RuleFor(x => x.MediaUploads)
+            .NotEmpty().WithMessage("MediaUploads cannot be empty.")
+            .NotNull().WithMessage("MediaUploads cannot be null.")
             .Must(ValidateMediaCount).WithMessage("Invalid upload files. File must be image type or video type and between 1 to 5 images or 1 video only.");
     }
 
