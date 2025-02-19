@@ -1,6 +1,4 @@
-﻿
-
-namespace GOCAP.Repository.Intention;
+﻿namespace GOCAP.Repository.Intention;
 
 public interface IStoryReactionRepository : ISqlRepositoryBase<StoryReactionEntity>
 {

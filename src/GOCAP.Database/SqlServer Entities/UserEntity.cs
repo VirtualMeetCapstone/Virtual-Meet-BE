@@ -31,4 +31,5 @@ public class UserEntity : EntitySqlBase
     public ICollection<UserRewardEntity> Rewards { get; set; } = [];
     public ICollection<UserBlockEntity> Blocks { get; set; } = [];
     public ICollection<StoryEntity> Stories { get; set; } = [];
+    public ICollection<StoryHightLightEntity> StoryHightLights { get; set; } = [];
 }

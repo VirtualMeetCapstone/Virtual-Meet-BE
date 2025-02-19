@@ -45,16 +45,18 @@ public class UnitOfWork(AppSqlDbContext context) : IUnitOfWork
         _transaction = null;
     }
 
-    public void Dispose()
-    {
-        _transaction?.Dispose();
-        _context.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
     public void TrackEntity<TEntity>(TEntity entity) where TEntity : class
     {
         _context.Attach(entity);
         _context.Entry(entity).State = EntityState.Modified;
     }
+
+    public ValueTask DisposeAsync()
+    {
+        _transaction?.Dispose();
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
+    }
+
 }

@@ -80,6 +80,31 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("GroupMembers");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.PermissionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -128,6 +153,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -137,7 +165,7 @@ namespace GOCAP.Migrations.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostLikes");
+                    b.ToTable("PostReactions");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
@@ -160,6 +188,33 @@ namespace GOCAP.Migrations.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.RolePermissionEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
@@ -242,6 +297,9 @@ namespace GOCAP.Migrations.Migrations
 
                     b.Property<long>("LastModifyTime")
                         .HasColumnType("bigint");
+
+                    b.Property<int?>("Reaction")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
@@ -436,6 +494,47 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("Stories");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.StoryHightLightEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("NextStoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PrevStoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextStoryId")
+                        .IsUnique()
+                        .HasFilter("[NextStoryId] IS NOT NULL");
+
+                    b.HasIndex("PrevStoryId")
+                        .IsUnique()
+                        .HasFilter("[PrevStoryId] IS NOT NULL");
+
+                    b.HasIndex("StoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StoryHightLights");
+                });
+
             modelBuilder.Entity("GOCAP.Database.StoryReactionEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -450,6 +549,9 @@ namespace GOCAP.Migrations.Migrations
 
                     b.Property<Guid>("StoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -774,6 +876,25 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RolePermissionEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.PermissionEntity", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.RoleEntity", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "Owner")
@@ -885,6 +1006,39 @@ namespace GOCAP.Migrations.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.StoryHightLightEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.StoryHightLightEntity", "NextStory")
+                        .WithOne()
+                        .HasForeignKey("GOCAP.Database.StoryHightLightEntity", "NextStoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GOCAP.Database.StoryHightLightEntity", "PrevStory")
+                        .WithOne()
+                        .HasForeignKey("GOCAP.Database.StoryHightLightEntity", "PrevStoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GOCAP.Database.StoryEntity", "Story")
+                        .WithMany()
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.UserEntity", "User")
+                        .WithMany("StoryHightLights")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("NextStory");
+
+                    b.Navigation("PrevStory");
+
+                    b.Navigation("Story");
 
                     b.Navigation("User");
                 });
@@ -1022,6 +1176,11 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Members");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.PermissionEntity", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("GOCAP.Database.PostEntity", b =>
                 {
                     b.Navigation("Reactions");
@@ -1029,6 +1188,8 @@ namespace GOCAP.Migrations.Migrations
 
             modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -1078,6 +1239,8 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("RoomMembers");
 
                     b.Navigation("Stories");
+
+                    b.Navigation("StoryHightLights");
 
                     b.Navigation("UserRoles");
                 });
