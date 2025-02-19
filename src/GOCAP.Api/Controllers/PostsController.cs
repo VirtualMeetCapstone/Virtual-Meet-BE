@@ -6,17 +6,33 @@ public class PostsController(
     IMapper _mapper) : ApiControllerBase
 {
 
-    [HttpGet("{id}")]
-    public async Task<PostModel?> GetById([FromRoute] Guid id)
+    /// <summary>
+    /// Get posts by with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<QueryResult<PostModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
-        var result = await _service.GetByIdAsync(id);
-        return _mapper.Map<PostModel>(result);
+        var domain = await _service.GetByPageAsync(queryInfo);
+        var result = _mapper.Map<QueryResult<PostModel>>(domain);
+        return result;
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<PostModel>> GetById([FromRoute] Guid id)
+    {
+        var post = await _service.GetDetailByIdAsync(id);
+        var postModel = _mapper.Map<PostModel>(post);
+        return Ok(postModel);
     }
 
     [HttpPost]
     public async Task<PostModel> Create([FromForm] PostCreationModel model)
     {
-        return await Task.FromResult(new PostModel());
+        var post = _mapper.Map<Post>(model);
+        var result = await _service.AddAsync(post);
+        return _mapper.Map<PostModel>(result);
     }
 
     [HttpDelete("{id}")]
@@ -25,8 +41,8 @@ public class PostsController(
         return await _service.DeleteByIdAsync(id);
     }
 
-    [HttpPost("like")]
-    public async Task<OperationResult> LikeOrUnlike([FromBody] PostReactionCreationModel model)
+    [HttpPost("react")]
+    public async Task<OperationResult> ReactOrUnReact([FromBody] PostReactionCreationModel model)
     {
         var domain = _mapper.Map<PostReaction>(model);
         var result = await _service.ReactOrUnreactAsync(domain);
