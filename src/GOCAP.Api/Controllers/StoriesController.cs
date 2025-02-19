@@ -1,12 +1,11 @@
-﻿using GOCAP.Services.Intention;
-
-namespace GOCAP.Api.Controllers;
+﻿namespace GOCAP.Api.Controllers;
 
 [Route("stories")]
 public class StoriesController(
     IStoryService _service,
     IStoryReactionService _storyReactionService,
     IStoryViewService _storyViewService,
+    IStoryHightLightService _storyHightLightService,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -103,11 +102,32 @@ public class StoriesController(
         return _mapper.Map<StoryViewModel>(result);
     }
 
+    /// <summary>
+    /// Get story viewer with paging by story id.
+    /// </summary>
+    /// <param name="storyId"></param>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
     [HttpGet("{storyId}/views")]
     public async Task<QueryResult<StoryViewDetailModel>> GetStoryViewers([FromRoute] Guid storyId, [FromQuery] QueryInfo queryInfo)
     {
         var domain = await _storyViewService.GetWithPagingAsync(storyId, queryInfo);
         var result = _mapper.Map<QueryResult<StoryViewDetailModel>>(domain);
         return result;
+    }
+
+    /// <summary>
+    /// Add one hight light story to user profile.
+    /// </summary>
+    /// <param name="storyId"></param>
+    /// <param name="model"></param>
+    /// <returns>StoryHightLightModel</returns>
+    [HttpPost("{storyId}/hight-light")]
+    public async Task<StoryHightLightModel> AddHightLightStory([FromRoute] Guid storyId, [FromBody] StoryHightLightCreationModel model)
+    {
+        var domain = _mapper.Map<StoryHightLight>(model);
+        domain.StoryId = storyId;
+        var result = await _storyHightLightService.AddAsync(domain);
+        return _mapper.Map<StoryHightLightModel>(result);
     }
 }

@@ -31,17 +31,20 @@ public class AppDbContext : DbContext
     public DbSet<UserFollowEntity> UserFollows { get; set; }
     public DbSet<UserNotificationEntity> UserNotifications { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
+    public DbSet<PostReactionEntity> PostReactions { get; set; }
     public DbSet<UserRewardEntity> UserRewards { get; set; }
     public DbSet<UserRoleEntity> UserRoles { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<PermissionEntity> Permissions { get; set; }
+    public DbSet<RolePermissionEntity> RolePermissions { get; set; }
     public DbSet<StoryEntity> Stories { get; set; }
     public DbSet<StoryViewEntity> StoryViews { get; set; }
     public DbSet<StoryReactionEntity> StoryReactions { get; set; }
-    public DbSet<PostReactionEntity> PostReactions { get; set; }
+    public DbSet<StoryHightLightEntity> StoryHightLights { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("");
+        optionsBuilder.UseSqlServer("Server=db9981.public.databaseasp.net; Database=db9981; User Id=db9981; Password=manhtuong1; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -104,6 +107,24 @@ public class AppDbContext : DbContext
                     .HasOne(rf => rf.Story)
                     .WithMany(u => u.Reactions)
                     .HasForeignKey(rf => rf.StoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StoryHightLightEntity>()
+                    .HasOne(s => s.User)
+                    .WithMany(u => u.StoryHightLights)
+                    .HasForeignKey(s => s.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StoryHightLightEntity>()
+                    .HasOne(s => s.PrevStory)
+                    .WithOne()
+                    .HasForeignKey<StoryHightLightEntity>(s => s.PrevStoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StoryHightLightEntity>()
+                    .HasOne(s => s.NextStory)
+                    .WithOne()
+                    .HasForeignKey<StoryHightLightEntity>(s => s.NextStoryId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         base.OnModelCreating(modelBuilder);

@@ -251,6 +251,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
     {
         var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
         await blobContainerClient.CreateIfNotExistsAsync();
+        await blobContainerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
         return blobContainerClient;
     }
 
@@ -267,5 +268,4 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         }
     }
 
-    
 }
