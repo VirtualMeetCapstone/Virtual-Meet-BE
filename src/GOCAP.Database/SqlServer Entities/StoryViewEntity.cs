@@ -1,5 +1,6 @@
 ﻿namespace GOCAP.Database;
 
+[Table("StoryViews")]
 public class StoryViewEntity : EntitySqlBase
 {
     public Guid StoryId { get; set; }
