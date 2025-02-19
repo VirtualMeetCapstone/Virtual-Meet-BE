@@ -1,8 +1,8 @@
 ﻿namespace GOCAP.Repository;
 
-[RegisterService(typeof(IPostLikeRepository))]
-internal class PostLikeRepository(AppSqlDbContext context) :
-    SqlRepositoryBase<PostReactionEntity>(context), IPostLikeRepository
+[RegisterService(typeof(IPostReactionRepository))]
+internal class PostReactionRepository(AppSqlDbContext context) :
+    SqlRepositoryBase<PostReactionEntity>(context), IPostReactionRepository
 {
     private readonly AppSqlDbContext _context = context;
     public async Task<bool> CheckExistAsync(Guid postId, Guid userId)

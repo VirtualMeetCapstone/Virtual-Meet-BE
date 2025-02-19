@@ -1,10 +1,15 @@
-﻿namespace GOCAP.Domain;
+﻿using GOCAP.Database;
 
-public class Post : DomainBase
+namespace GOCAP.Domain;
+
+public class Post : DateTrackingBase
 {
     public string? Content { get; set; }
     public Guid UserId { get; set; }
     public User? User { get; set; }
-    public IEnumerable<Media>? Medias { get; set; }
-    public long CreateTime { get; set; } = DateTime.UtcNow.Ticks;
+    public List<Media>? Medias { get; set; }
+    public List<MediaUpload>? MediaUploads { get; set; }
+    public PrivacyType? Privacy { get; set; }
+    public ICollection<PostReactionEntity> Reactions { get; set; } = [];
+    public int CountReaction { get; set; }
 }
