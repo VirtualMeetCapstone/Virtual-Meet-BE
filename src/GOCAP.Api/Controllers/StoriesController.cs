@@ -122,12 +122,29 @@ public class StoriesController(
     /// <param name="storyId"></param>
     /// <param name="model"></param>
     /// <returns>StoryHightLightModel</returns>
-    [HttpPost("{storyId}/hight-light")]
-    public async Task<StoryHightLightModel> AddHightLightStory([FromRoute] Guid storyId, [FromBody] StoryHightLightCreationModel model)
+    [HttpPost("{storyId}/hightlight")]
+    public async Task<StoryHightLightModel> AddHightlightStory([FromRoute] Guid storyId, [FromBody] StoryHightLightCreationModel model)
     {
         var domain = _mapper.Map<StoryHightLight>(model);
         domain.StoryId = storyId;
         var result = await _storyHightLightService.AddAsync(domain);
         return _mapper.Map<StoryHightLightModel>(result);
+    }
+
+    /// <summary>
+    /// Remove hight light story.
+    /// </summary>
+    /// <param name="storyId"></param>
+    /// <param name="storyHighlightId"></param>
+    /// <returns>Operation result</returns>
+    [HttpDelete("{storyId}/hightlight/{storyHighlightId}")]
+    public async Task<OperationResult> RemoveHightlightStory([FromRoute] Guid storyId, [FromRoute] Guid storyHighlightId)
+    => await _storyHightLightService.DeleteAsync(storyId, storyHighlightId);
+
+    [HttpGet("highlight/users/{userId}")]
+    public async Task<List<List<StoryModel>>> GetStoryHighlightByUserId([FromRoute] Guid userId)
+    {
+        var result = await _storyHightLightService.GetStoryHighlightByUserIdAsync(userId);
+        return _mapper.Map<List<List<StoryModel>>>(result);
     }
 }

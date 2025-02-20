@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAP_DB : Migration
+    public partial class GOCAPDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -135,28 +135,35 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rooms",
+                name: "RoomChannels",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Topic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    MaximumMembers = table.Column<int>(type: "int", nullable: false),
-                    Medias = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
-                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Picture = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreateUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModifyUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.PrimaryKey("PK_RoomChannels", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rooms_Users_OwnerId",
-                        column: x => x.OwnerId,
+                        name: "FK_RoomChannels_Users_CreateUserId",
+                        column: x => x.CreateUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RoomChannels_Users_ModifyUserId",
+                        column: x => x.ModifyUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -390,6 +397,133 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Topic = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    MaximumMembers = table.Column<int>(type: "int", nullable: false),
+                    Medias = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: true),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoomChannelEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rooms_RoomChannels_RoomChannelEntityId",
+                        column: x => x.RoomChannelEntityId,
+                        principalTable: "RoomChannels",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Rooms_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StoryHightLights",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrevStoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    NextStoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StoryHightLights", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StoryHightLights_Stories_StoryId",
+                        column: x => x.StoryId,
+                        principalTable: "Stories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StoryHightLights_StoryHightLights_NextStoryId",
+                        column: x => x.NextStoryId,
+                        principalTable: "StoryHightLights",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StoryHightLights_StoryHightLights_PrevStoryId",
+                        column: x => x.PrevStoryId,
+                        principalTable: "StoryHightLights",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StoryHightLights_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StoryReactions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StoryReactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StoryReactions_Stories_StoryId",
+                        column: x => x.StoryId,
+                        principalTable: "Stories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StoryReactions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StoryViews",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ViewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StoryViews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StoryViews_Stories_StoryId",
+                        column: x => x.StoryId,
+                        principalTable: "Stories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StoryViews_Users_ViewerId",
+                        column: x => x.ViewerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoomEvents",
                 columns: table => new
                 {
@@ -532,102 +666,6 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StoryHightLights",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PrevStoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    NextStoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StoryHightLights", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StoryHightLights_Stories_StoryId",
-                        column: x => x.StoryId,
-                        principalTable: "Stories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_StoryHightLights_StoryHightLights_NextStoryId",
-                        column: x => x.NextStoryId,
-                        principalTable: "StoryHightLights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StoryHightLights_StoryHightLights_PrevStoryId",
-                        column: x => x.PrevStoryId,
-                        principalTable: "StoryHightLights",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StoryHightLights_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StoryReactions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StoryReactions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StoryReactions_Stories_StoryId",
-                        column: x => x.StoryId,
-                        principalTable: "Stories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StoryReactions_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StoryViews",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ViewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StoryViews", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StoryViews_Stories_StoryId",
-                        column: x => x.StoryId,
-                        principalTable: "Stories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StoryViews_Users_ViewerId",
-                        column: x => x.ViewerId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RoomMemberRoles",
                 columns: table => new
                 {
@@ -689,6 +727,16 @@ namespace GOCAP.Migrations.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoomChannels_CreateUserId",
+                table: "RoomChannels",
+                column: "CreateUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomChannels_ModifyUserId",
+                table: "RoomChannels",
+                column: "ModifyUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoomEvents_RoomId",
                 table: "RoomEvents",
                 column: "RoomId");
@@ -727,6 +775,11 @@ namespace GOCAP.Migrations.Migrations
                 name: "IX_Rooms_OwnerId",
                 table: "Rooms",
                 column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_RoomChannelEntityId",
+                table: "Rooms",
+                column: "RoomChannelEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomSettings_RoomId",
@@ -910,6 +963,9 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "Rooms");
+
+            migrationBuilder.DropTable(
+                name: "RoomChannels");
 
             migrationBuilder.DropTable(
                 name: "Users");

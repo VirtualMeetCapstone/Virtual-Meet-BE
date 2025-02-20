@@ -1,6 +1,4 @@
-﻿using SharpCompress.Common;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
 internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobStorageService _blobStorageService) : SqlRepositoryBase<UserEntity>(context), IUserRepository
@@ -46,27 +44,28 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
                                                   null : JsonHelper.Deserialize<Media>(user.Picture),
                                         Bio = user.Bio
                                     })
-                                    .FirstOrDefaultAsync();
+                                    .FirstOrDefaultAsync()
+                                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
         var count = await _context.UserFollows
-                                .AsNoTracking()
-                                .Where(f => f.FollowerId == id || f.FollowingId == id)
-                                .Select(f => new
-                                {
-                                    FollowersCount = _context.UserFollows.Count(f => f.FollowingId == id),
-                                    FollowingsCount = _context.UserFollows.Count(f => f.FollowerId == id),
-                                    FriendsCount = _context.UserFollows
-                                        .Count(f => f.FollowerId == id && f.FollowingId != id
-                                            && _context.UserFollows.Any(f2 => f2.FollowerId == f.FollowingId
-                                            && f2.FollowingId == id))
-                                })
-                                .FirstOrDefaultAsync()
-                                ?? new
-                                {
-                                    FollowersCount = 0,
-                                    FollowingsCount = 0,
-                                    FriendsCount = 0
-                                };
+                                    .AsNoTracking()
+                                    .Where(f => f.FollowerId == id || f.FollowingId == id)
+                                    .Select(f => new
+                                    {
+                                        FollowersCount = _context.UserFollows.Count(f => f.FollowingId == id),
+                                        FollowingsCount = _context.UserFollows.Count(f => f.FollowerId == id),
+                                        FriendsCount = _context.UserFollows
+                                            .Count(f => f.FollowerId == id && f.FollowingId != id
+                                                && _context.UserFollows.Any(f2 => f2.FollowerId == f.FollowingId
+                                                && f2.FollowingId == id))
+                                    })
+                                    .FirstOrDefaultAsync()
+                                    ?? new
+                                    {
+                                        FollowersCount = 0,
+                                        FollowingsCount = 0,
+                                        FriendsCount = 0
+                                    };
 
         result.FollowersCount = count.FollowersCount;
         result.FollowingsCount = count.FollowingsCount;

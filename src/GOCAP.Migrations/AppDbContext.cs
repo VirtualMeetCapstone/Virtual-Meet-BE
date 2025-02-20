@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
 
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }
+    public DbSet<RoomChannelEntity> RoomChannels { get; set; }
     public DbSet<RoomEntity> Rooms { get; set; }
     public DbSet<RoomEventEntity> RoomEvents { get; set; }
     public DbSet<RoomFavouriteEntity> RoomFavourites { get; set; }
