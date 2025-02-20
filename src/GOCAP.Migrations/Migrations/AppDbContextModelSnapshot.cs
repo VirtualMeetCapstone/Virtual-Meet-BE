@@ -918,7 +918,7 @@ namespace GOCAP.Migrations.Migrations
                     b.HasOne("GOCAP.Database.PostEntity", "Post")
                         .WithMany("Reactions")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GOCAP.Database.UserEntity", "User")

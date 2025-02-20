@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250220080059_GOCAP_DB")]
-    partial class GOCAP_DB
+    [Migration("20250220183337_GOCAPDB")]
+    partial class GOCAPDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

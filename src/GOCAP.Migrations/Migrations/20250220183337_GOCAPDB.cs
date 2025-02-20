@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAP_DB : Migration
+    public partial class GOCAPDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
