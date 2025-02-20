@@ -11,11 +11,23 @@ public class RoomsController(IRoomService _service,
     /// <param name="queryInfo"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<QueryResult<RoomModel>> GetByPage([FromQuery] QueryInfo queryInfo)
+    public async Task<QueryResult<RoomModel>> GetWithPaging([FromQuery] QueryInfo queryInfo)
     {
         var domain = await _service.GetWithPagingAsync(queryInfo);
         var result = _mapper.Map<QueryResult<RoomModel>>(domain);
         return result;
+    }
+
+    /// <summary>
+    /// Get room by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    public async Task<RoomModel> GetById([FromRoute] Guid id)
+    {
+        var domain = await _service.GetByIdAsync(id);
+        return _mapper.Map<RoomModel>(domain);
     }
 
     /// <summary>

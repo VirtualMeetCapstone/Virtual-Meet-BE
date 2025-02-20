@@ -2,6 +2,7 @@
 
 public interface IRoomRepository : ISqlRepositoryBase<RoomEntity>
 {
+    Task<Room> GetDetailIdAsync(Guid id);
     Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo);
     Task<RoomCount> GetRoomCountsAsync();
 }

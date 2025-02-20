@@ -14,19 +14,46 @@ internal class StoryHightLightService(
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Story).Name);
 
-        if (!await _userRepository.CheckExistAsync(domain.UserId))
+        if (await _repository.CheckExistAsync(domain.UserId, domain.StoryId))
         {
-            throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
+            throw new ParameterInvalidException($"Story {domain.StoryId} existed in hight light stories.");
         }
 
         if (!await _storyRepository.CheckExistAsync(domain.StoryId))
         {
-            throw new ResourceNotFoundException($"User {domain.StoryId} was not found.");
+            throw new ResourceNotFoundException($"Story {domain.StoryId} was not found.");
         }
 
+        if (!await _userRepository.CheckExistAsync(domain.UserId))
+        {
+            throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
+        }
+        
         domain.InitCreation();
+
         var entity = _mapper.Map<StoryHightLightEntity>(domain);
         var result = await _repository.AddAsync(entity);
-        return _mapper.Map<StoryHightLight>(result);
+        var story = _mapper.Map<StoryHightLight>(result);
+
+        if (domain.PrevStoryId.HasValue && domain.PrevStoryId != Guid.Empty)
+        {
+            var prevStory = await _repository.GetByStoryIdAsync(domain.PrevStoryId.Value);
+            if (prevStory != null)
+            {
+                prevStory.NextStoryId = story.Id;
+            }
+        }
+
+        if (domain.NextStoryId.HasValue && domain.NextStoryId != Guid.Empty)
+        {
+            var nextStory = await _repository.GetByStoryIdAsync(domain.NextStoryId.Value);
+            if (nextStory != null)
+            {
+                nextStory.PrevStoryId = story.Id;
+            }
+        }
+
+
+        return story;
     }
 }

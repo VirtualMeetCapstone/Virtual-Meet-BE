@@ -1,5 +1,5 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface ISqlRepositoryBase<T> : IRepositoryBase<T>
+public interface ISqlRepositoryBase<TEntity> : IRepositoryBase<TEntity>
 {
 }

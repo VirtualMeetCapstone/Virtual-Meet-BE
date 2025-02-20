@@ -15,7 +15,7 @@ internal class PostReactionRepository(AppSqlDbContext context) :
     {
         var postLike = await _context.PostReactions
             .FirstOrDefaultAsync(rf => rf.PostId == postId && rf.UserId == userId)
-            ?? throw new ResourceNotFoundException("This like does not exists.");
+            ?? throw new ResourceNotFoundException("This reaction does not exists.");
         _context.PostReactions.Remove(postLike);
         return await _context.SaveChangesAsync();
     }

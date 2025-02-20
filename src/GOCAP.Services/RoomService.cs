@@ -111,4 +111,7 @@ internal class RoomService(
 
     public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
     => await _repository.GetWithPagingAsync(queryInfo);
+
+    public async Task<Room> GetDetailIdAsync(Guid id)
+    => await _repository.GetDetailIdAsync(id);
 }
