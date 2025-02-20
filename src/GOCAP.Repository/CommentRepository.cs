@@ -13,7 +13,7 @@ internal class CommentRepository(AppMongoDbContext context)
         // Add condition if having search text.
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
-            var textFilter = Builders<CommentEntity>.Filter.Regex(c => c.Contents, new BsonRegularExpression(queryInfo.SearchText, "i"));
+            var textFilter = Builders<CommentEntity>.Filter.Regex(c => c.Content, new BsonRegularExpression(queryInfo.SearchText, "i"));
             filter = Builders<CommentEntity>.Filter.And(filter, textFilter);
         }
 

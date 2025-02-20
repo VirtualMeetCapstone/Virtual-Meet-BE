@@ -19,7 +19,7 @@ internal class PostService(
     }
 
     /// <summary>
-    /// Create a new Post
+    /// Create a new post.
     /// </summary>
     /// <param name="Post"></param>
     /// <returns></returns>

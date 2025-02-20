@@ -4,5 +4,5 @@ public class CommentAuthor
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
-    public Media? Picture { get; set; }
+    public string? Picture { get; set; }
 }

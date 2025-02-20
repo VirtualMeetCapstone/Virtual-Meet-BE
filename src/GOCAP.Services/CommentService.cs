@@ -13,6 +13,12 @@ internal class CommentService(
     public override async Task<Comment> AddAsync(Comment domain)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Comment).Name);
+
+        if (domain.Author == null)
+        {
+            throw new ParameterInvalidException();
+        }
+
         domain.InitCreation();
 
         // Check whether post id and author existed or not.
@@ -28,7 +34,7 @@ internal class CommentService(
         {
             Id = author.Id,
             Name = author.Name,
-            Picture = JsonHelper.Deserialize<Media?>(author.Picture)
+            Picture = author.Picture
         };
 
         var entity = _mapper.Map<CommentEntity>(domain);
