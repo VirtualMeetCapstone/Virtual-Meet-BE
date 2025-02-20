@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Repository;
+﻿
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
@@ -10,52 +11,47 @@ internal class RoomRepository(
 
     public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
     {
-        var roomQuery = _context.Rooms.AsQueryable();
+        var totalItems = queryInfo.NeedTotalCount
+                ? await _context.Rooms.CountAsync()
+                : 0;
 
-        var rooms = await roomQuery.Include(r => r.Owner)
-                                   .Include(r => r.Members)
-                                   .ThenInclude(rm => rm.User)
-                                   .OrderByDescending(r => r.CreateTime)
-                                   .Skip(queryInfo.Skip)
-                                   .Take(queryInfo.Top)
-                                   .ToListAsync();
-
-        var roomsDetail = rooms.Select(r => new Room
-        {
-            Id = r.Id,
-            OwnerId = r.OwnerId,
-            Owner = new User
-            {
-                Name = r.Owner?.Name ?? string.Empty,
-                Picture = JsonHelper.Deserialize<Media>(r.Owner?.Picture),
-            },
-            Topic = r.Topic,
-            Description = r.Description,
-            MaximumMembers = r.MaximumMembers,
-            Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
-            Status = r.Status,
-            CreateTime = r.CreateTime,
-            Members = r.Members.Select(rm => new User
-            {
-                Name = rm.User?.Name ?? string.Empty,
-                Email = rm.User?.Email,
-                Picture = JsonHelper.Deserialize<Media>(rm.User?.Picture)
-            })
-        });
-
-        int totalItems = 0;
-        if (queryInfo.NeedTotalCount)
-        {
-            totalItems = await _context.Rooms.CountAsync();
-        }
+        var rooms = await _context.Rooms
+                            .OrderByDescending(r => r.CreateTime)
+                            .Skip(queryInfo.Skip)
+                            .Take(queryInfo.Top)
+                            .Select(r => new Room
+                            {
+                                Id = r.Id,
+                                OwnerId = r.OwnerId,
+                                Owner = r.Owner != null ? new User
+                                {
+                                    Name = r.Owner.Name,
+                                    Picture = JsonHelper.Deserialize<Media>(r.Owner.Picture),
+                                } : null,
+                                Topic = r.Topic,
+                                Description = r.Description,
+                                MaximumMembers = r.MaximumMembers,
+                                Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
+                                Status = r.Status,
+                                CreateTime = r.CreateTime,
+                                Members = _context.RoomMembers
+                                    .Where(rm => rm.RoomId == r.Id)
+                                    .Join(_context.Users, rm => rm.UserId, u => u.Id, (rm, u) => new User
+                                    {
+                                        Name = u.Name,
+                                        Picture = JsonHelper.Deserialize<Media>(u.Picture)
+                                    })
+                                    .ToList()
+                            })
+                            .ToListAsync();
 
         return new QueryResult<Room>
         {
-            Data = roomsDetail,
+            Data = rooms,
             TotalCount = totalItems
         };
-
     }
+
 
     public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
     {
@@ -90,4 +86,35 @@ internal class RoomRepository(
 
         return counts ?? new RoomCount();
     }
+
+    public async Task<Room> GetDetailIdAsync(Guid id)
+    => await (from r in _context.Rooms.AsNoTracking()
+              join m in _context.RoomMembers.AsNoTracking() on r.Id equals m.RoomId
+              join u in _context.Users.AsNoTracking() on m.UserId equals u.Id
+              where r.Id == id
+              select new Room
+              {
+                  Id = r.Id,
+                  OwnerId = r.OwnerId,
+                  Owner = new User
+                  {
+                      Name = u.Name,
+                      Picture = JsonHelper.Deserialize<Media>(u.Picture),
+                  },
+                  Topic = r.Topic,
+                  Description = r.Description,
+                  MaximumMembers = r.MaximumMembers,
+                  Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
+                  Status = r.Status,
+                  CreateTime = r.CreateTime,
+                  Members = _context.RoomMembers
+                      .AsNoTracking() 
+                      .Where(rm => rm.RoomId == r.Id)
+                      .Join(_context.Users.AsNoTracking(), rm => rm.UserId, u => u.Id, (rm, u) => new User
+                      {
+                          Name = u.Name,
+                          Picture = JsonHelper.Deserialize<Media>(u.Picture)
+                      }).ToList()
+              }).FirstOrDefaultAsync()
+        ?? throw new ResourceNotFoundException($"Room {id} was not found.");
 }

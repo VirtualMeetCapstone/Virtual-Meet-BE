@@ -13,7 +13,6 @@ internal class PostService(
 {
     private readonly IMapper _mapper = _mapper;
 
-
     public async Task<Post> GetDetailByIdAsync(Guid id)
     {
         return await _repository.GetDetailByIdAsync(id);
@@ -70,10 +69,12 @@ internal class PostService(
             // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
-            //postReaction
+            // Post reaction
             await _postReactionRepository.DeleteByPostIdAsync(id);
+
+            // Remove comments of the post.
             
-            //commentMongo
+            // Post
             var result = await _repository.DeleteByIdAsync(id);
 
             // Commit if success
