@@ -6,7 +6,9 @@ public static class AppConstants
     public static readonly string DefaultUri = "https://localhost:7035";
     public static readonly string DefaultGroupPicture = "";
     public static readonly string DefaultUserPicture = "";
-    public const int DefaultPageSize = 10;
+    public const int DefaultPageTop = 10;
+    public const int DefaultPageSkip = 0;
+    public const bool DefaultNeedTotalCount = false;
     public const int MaxPageSize = 100;
     public const int DefaultPage = 1;
     public const string DefaultOrderBy = "CreateTime";

@@ -1,14 +1,17 @@
-﻿namespace GOCAP.Database;
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace GOCAP.Database;
 
 [BsonCollection("Comments")]
 public class CommentEntity : EntityMongoBase
 {
     public Guid PostId { get; set; }
-    public required CommentAuthorEntity Author { get; set; }
-    public required string Content { get; set; }
-    public List<CommentContentEntity>? Contents { get; set; }
+    public CommentAuthorEntity? Author { get; set; }
+    public string? Content { get; set; }
+    public List<string> Mentions { get; set; } = [];
     public Guid? ParentId { get; set; }
-    public List<Guid> ReplyIds { get; set; } = [];
+    [BsonIgnore]
+    public List<CommentEntity>? Replies { get; set; } // No saving directly in db, only using for returning api
 }
 
 public class CommentAuthorEntity
@@ -16,11 +19,4 @@ public class CommentAuthorEntity
     public Guid Id { get; set; }
     public string? Name { get; set; }
     public string? Picture { get; set; }
-}
-
-public class CommentContentEntity
-{
-    public required MediaType Type { get; set; }
-    public required string Value { get; set; }
-    public string? Thumbnail { get; set; }
 }

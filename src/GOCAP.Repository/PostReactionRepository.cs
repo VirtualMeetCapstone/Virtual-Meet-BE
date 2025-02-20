@@ -22,10 +22,10 @@ internal class PostReactionRepository(AppSqlDbContext context) :
     public async Task<OperationResult> DeleteByPostIdAsync(Guid id)
     {
         var reactions = await _context.PostReactions
-       .Where(r => r.PostId == id)
-       .ToListAsync();
+                               .Where(r => r.PostId == id)
+                               .ToListAsync();
 
-        if (!reactions.Any())
+        if (reactions.Count == 0)
         {
             return new OperationResult(false, "No reactions found for this post.");
         }
