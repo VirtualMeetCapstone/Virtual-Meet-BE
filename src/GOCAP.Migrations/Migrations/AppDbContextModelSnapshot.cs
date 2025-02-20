@@ -217,6 +217,57 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoomChannelEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("CreateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ModifyUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Picture")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("ModifyUserId");
+
+                    b.ToTable("RoomChannels");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -242,6 +293,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("RoomChannelEntityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int?>("Status")
                         .HasColumnType("int");
 
@@ -253,6 +307,8 @@ namespace GOCAP.Migrations.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("RoomChannelEntityId");
 
                     b.ToTable("Rooms");
                 });
@@ -862,7 +918,7 @@ namespace GOCAP.Migrations.Migrations
                     b.HasOne("GOCAP.Database.PostEntity", "Post")
                         .WithMany("Reactions")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GOCAP.Database.UserEntity", "User")
@@ -895,6 +951,21 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoomChannelEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.UserEntity", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId");
+
+                    b.HasOne("GOCAP.Database.UserEntity", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId");
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "Owner")
@@ -902,6 +973,10 @@ namespace GOCAP.Migrations.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("GOCAP.Database.RoomChannelEntity", null)
+                        .WithMany("Rooms")
+                        .HasForeignKey("RoomChannelEntityId");
 
                     b.Navigation("Owner");
                 });
@@ -1191,6 +1266,11 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.RoomChannelEntity", b =>
+                {
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>

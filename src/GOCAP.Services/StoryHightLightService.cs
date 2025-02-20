@@ -1,10 +1,12 @@
-﻿namespace GOCAP.Services;
+﻿
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IStoryHightLightService))]
 internal class StoryHightLightService(
     IStoryHightLightRepository _repository,
     IStoryRepository _storyRepository,
     IUserRepository _userRepository,
+    IUnitOfWork _unitOfWork,
     IMapper _mapper,
     ILogger<StoryHightLightService> _logger
     ) : ServiceBase<StoryHightLight, StoryHightLightEntity>(_repository, _mapper, _logger), IStoryHightLightService
@@ -28,32 +30,69 @@ internal class StoryHightLightService(
         {
             throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
         }
-        
-        domain.InitCreation();
 
-        var entity = _mapper.Map<StoryHightLightEntity>(domain);
-        var result = await _repository.AddAsync(entity);
-        var story = _mapper.Map<StoryHightLight>(result);
-
-        if (domain.PrevStoryId.HasValue && domain.PrevStoryId != Guid.Empty)
+        if (await _repository.GetByStoryIdAsync(domain.StoryId) != null)
         {
-            var prevStory = await _repository.GetByStoryIdAsync(domain.PrevStoryId.Value);
+            throw new ResourceDuplicatedException($"Story {domain.StoryId} existed in hightlight story list");
+        }
+
+        domain.InitCreation();
+        try
+        {
+            StoryHightLightEntity? prevStory = null;
+            StoryHightLightEntity? nextStory = null;
+
+            if (domain.PrevStoryId.HasValue && domain.PrevStoryId != Guid.Empty)
+            {
+                prevStory = await _repository.GetByIdAsync(domain.PrevStoryId.Value);
+
+            }
+
+            if (domain.NextStoryId.HasValue && domain.NextStoryId != Guid.Empty)
+            {
+                nextStory = await _repository.GetByIdAsync(domain.NextStoryId.Value);
+            }
+
+            // Begin transaction by unit of work.
+            await _unitOfWork.BeginTransactionAsync();
+
+            var entity = _mapper.Map<StoryHightLightEntity>(domain);
+            var result = await _repository.AddAsync(entity);
+            var story = _mapper.Map<StoryHightLight>(result);
+
             if (prevStory != null)
             {
                 prevStory.NextStoryId = story.Id;
+                await _repository.UpdateAsync(prevStory);
             }
-        }
 
-        if (domain.NextStoryId.HasValue && domain.NextStoryId != Guid.Empty)
-        {
-            var nextStory = await _repository.GetByStoryIdAsync(domain.NextStoryId.Value);
             if (nextStory != null)
             {
                 nextStory.PrevStoryId = story.Id;
+                await _repository.UpdateAsync(nextStory);
             }
+
+            // Commit the transaction if success.
+            await _unitOfWork.CommitTransactionAsync();
+            return story;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(StoryHightLight).Name);
+            // Rollback the transaction if fail.
+            await _unitOfWork.RollbackTransactionAsync();
+            throw new InternalException(ex.Message);
         }
 
-
-        return story;
     }
+
+    public async Task<OperationResult> DeleteAsync(Guid storyId, Guid storyHighlightId)
+    {
+        _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(StoryHightLight).Name);
+        var result = await _repository.DeleteAsync(storyId, storyHighlightId);
+        return new OperationResult(result > 0);
+    }
+
+    public async Task<List<List<Story>>> GetStoryHighlightByUserIdAsync(Guid userId)
+    => await _repository.GetStoryHighlightByUserIdAsync(userId);
 }

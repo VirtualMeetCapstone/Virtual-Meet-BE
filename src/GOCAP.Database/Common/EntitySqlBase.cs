@@ -5,5 +5,5 @@ namespace GOCAP.Database;
 public abstract class EntitySqlBase : EntityDateTrackingBase<Guid>
 {
     [Key]
-    public required override Guid Id { get; set; }
+    public override Guid Id { get; set; }
 }
