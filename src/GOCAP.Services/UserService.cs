@@ -60,4 +60,5 @@ internal class UserService(
 	{
 		return await _repository.GetUserCountsAsync() ?? new UserCount();
 	}
+
 }

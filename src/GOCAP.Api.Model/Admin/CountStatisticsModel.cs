@@ -7,6 +7,7 @@ public class CountStatisticsModel
     public int UserActive { get; set; }
     public int UserInActive { get; set; }
     public int UserDeleted { get; set; }
+    public int UserBanned { get; set; }
 
     //Room
     public int RoomTotal { get; set; }

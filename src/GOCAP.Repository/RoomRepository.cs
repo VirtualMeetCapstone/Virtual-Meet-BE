@@ -73,6 +73,11 @@ internal class RoomRepository(
     public async Task<RoomCount> GetRoomCountsAsync()
     {
         var counts = await _context.Rooms
+            .Select(r => new
+            {
+                r.Status
+            })
+            .AsNoTracking()
             .GroupBy(r => 1)
             .Select(g => new RoomCount
             {
@@ -85,8 +90,8 @@ internal class RoomRepository(
             .FirstOrDefaultAsync();
 
         return counts ?? new RoomCount();
-    }
 
+    }
     public async Task<Room> GetDetailIdAsync(Guid id)
     => await (from r in _context.Rooms.AsNoTracking()
               join m in _context.RoomMembers.AsNoTracking() on r.Id equals m.RoomId

@@ -1,6 +1,4 @@
-﻿using GOCAP.Domain;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IPostReactionRepository))]
 internal class PostReactionRepository(AppSqlDbContext context) :
@@ -34,5 +32,19 @@ internal class PostReactionRepository(AppSqlDbContext context) :
         await _context.SaveChangesAsync();
 
         return new OperationResult(true, "Delete OK");
+    }
+
+    public async Task<List<PostReactionCount>> GetReactionsByPostIdsAsync(List<Guid> postIds)
+    {
+        return await _context.PostReactions
+             .Where(r => postIds.Contains(r.PostId))
+             .GroupBy(r => new { r.PostId, r.Type })
+             .Select(g => new PostReactionCount
+             {
+                 PostId = g.Key.PostId,
+                 Type = (ReactionType)g.Key.Type!,
+                 Count = g.Count()
+             })
+             .ToListAsync();
     }
 }

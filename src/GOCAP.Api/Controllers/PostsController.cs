@@ -49,4 +49,6 @@ public class PostsController(
         var result = await _service.ReactOrUnreactAsync(domain);
         return result;
     }
+
 }
+

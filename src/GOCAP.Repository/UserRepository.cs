@@ -11,18 +11,25 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
 		return _mapper.Map<User>(entity);
 	}
 
-	public async Task<UserCount> GetUserCountsAsync()
-	{
-		var counts = await _context.Users
-		.GroupBy(u => 1)
-		.Select(g => new UserCount
-		{
-			Total = g.Count(),
-			Active = g.Count(u => u.Status == UserStatusType.Active),
-			InActive = g.Count(u => u.Status == UserStatusType.InActive),
-			Deleted = g.Count(u => u.Status == UserStatusType.Deleted)
-		})
-		.FirstOrDefaultAsync();
+    public async Task<UserCount> GetUserCountsAsync()
+    {
+        var counts = await _context.Users
+            .Select(u => new
+            {
+                u.Status,
+                u.IsDeleted
+            })
+            .AsNoTracking()
+            .GroupBy(u => 1)
+            .Select(g => new UserCount
+            {
+                Total = g.Count(),
+                Active = g.Count(u => u.Status == UserStatusType.Active),
+                InActive = g.Count(u => u.Status == UserStatusType.InActive),
+                Deleted = g.Count(u => u.IsDeleted),
+                Banned = g.Count(u => u.Status == UserStatusType.Banned)
+            })
+            .FirstOrDefaultAsync();
 
 		return counts ?? new UserCount();
 	}
@@ -32,20 +39,21 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
 		return await _context.Users.AnyAsync(user => user.Email == email);
 	}
 
-	public async Task<User> GetUserProfileAsync(Guid id)
-	{
-		var result = await _context.Users
-									.AsNoTracking()
-									.Where(user => user.Id == id)
-									.Select(user => new User
-									{
-										Name = user.Name,
-										Picture = string.IsNullOrEmpty(user.Picture) ?
-												  null : JsonHelper.Deserialize<Media>(user.Picture),
-										Bio = user.Bio
-									})
-									.FirstOrDefaultAsync()
-									?? throw new ResourceNotFoundException($"User {id} was not found.");
+    public async Task<User> GetUserProfileAsync(Guid id)
+    {
+        var result = await _context.Users
+                                    .AsNoTracking()
+                                    .Where(user => user.Id == id)
+                                    .Select(user => new User
+                                    {
+                                        Name = user.Name,
+                                        Picture = string.IsNullOrEmpty(user.Picture) ?
+                                                  null : JsonHelper.Deserialize<Media>(user.Picture),
+                                        Bio = user.Bio,
+                                        Status = user.Status
+                                    })
+                                    .FirstOrDefaultAsync()
+                                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
 		var count = await _context.UserFollows
 									.AsNoTracking()
@@ -73,19 +81,30 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
 		return result;
 	}
 
-	public override async Task<bool> UpdateAsync(UserEntity entity)
-	{
-		var userEntity = await GetEntityByIdAsync(entity.Id);
-		if (!string.IsNullOrEmpty(userEntity.Picture))
-		{
-			var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
-			await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
-		}
-		userEntity.Name = entity.Name;
-		userEntity.Picture = entity.Picture;
-		userEntity.Bio = entity.Bio;
-		userEntity.LastModifyTime = entity.LastModifyTime;
-		_context.Entry(userEntity).State = EntityState.Modified;
-		return await _context.SaveChangesAsync() > 0;
-	}
+    public override async Task<bool> UpdateAsync(UserEntity entity)
+    {
+        var userEntity = await GetEntityByIdAsync(entity.Id);
+        if (!string.IsNullOrEmpty(userEntity.Picture))
+        {
+            var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
+            await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
+        }
+        userEntity.Name = entity.Name;
+        userEntity.Picture = entity.Picture;
+        userEntity.Bio = entity.Bio;
+        userEntity.LastModifyTime = entity.LastModifyTime;
+        _context.Entry(userEntity).State = EntityState.Modified;
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public override async Task<int> DeleteByIdAsync(Guid id)
+    {
+        var entity = await _context.Users.FindAsync(id)
+                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
+       
+        entity.IsDeleted = true;
+        int rowsAffected = await _context.SaveChangesAsync();
+
+        return rowsAffected; 
+    }
 }

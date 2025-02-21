@@ -83,4 +83,15 @@ public class UsersController(IUserService _userService,
 		var results = await _userBlockService.BlockOrUnblockAsync(block);
 		return results;
 	}
+
+    /// <summary>
+    /// Delete a user by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public async Task<OperationResult> Delete([FromRoute] Guid id)
+    {
+        return await _userService.DeleteByIdAsync(id);
+    }
 }
