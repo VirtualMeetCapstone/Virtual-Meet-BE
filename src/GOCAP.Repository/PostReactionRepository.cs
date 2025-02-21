@@ -37,7 +37,7 @@ internal class PostReactionRepository(AppSqlDbContext context) :
     public async Task<List<PostReactionCount>> GetReactionsByPostIdsAsync(List<Guid> postIds)
     {
         return await _context.PostReactions
-            .AsNoTracking()
+             .AsNoTracking()
              .Where(r => postIds.Contains(r.PostId))
              .GroupBy(r => new { r.PostId, r.Type })
              .Select(g => new PostReactionCount
