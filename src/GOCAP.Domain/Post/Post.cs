@@ -10,5 +10,6 @@ public class Post : DateTrackingBase
     public List<MediaUpload>? MediaUploads { get; set; }
     public PrivacyType? Privacy { get; set; }
     public ICollection<PostReaction> Reactions { get; set; } = [];
-    public int CountReaction { get; set; }
+    public int TotalReactions { get; set; }
+    public Dictionary<string, int> ReactionCounts { get; set; } = new();
 }

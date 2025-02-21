@@ -14,15 +14,22 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users
-        .GroupBy(u => 1)
-        .Select(g => new UserCount
-        {
-            Total = g.Count(),
-            Active = g.Count(u => u.Status == UserStatusType.Active),
-            InActive = g.Count(u => u.Status == UserStatusType.InActive),
-            Deleted = g.Count(u => u.Status == UserStatusType.Deleted)
-        })
-        .FirstOrDefaultAsync();
+            .Select(u => new
+            {
+                u.Status,
+                u.IsDeleted
+            })
+            .AsNoTracking()
+            .GroupBy(u => 1)
+            .Select(g => new UserCount
+            {
+                Total = g.Count(),
+                Active = g.Count(u => u.Status == UserStatusType.Active),
+                InActive = g.Count(u => u.Status == UserStatusType.InActive),
+                Deleted = g.Count(u => u.IsDeleted),
+                Banned = g.Count(u => u.Status == UserStatusType.Banned)
+            })
+            .FirstOrDefaultAsync();
 
         return counts ?? new UserCount();
     }
@@ -42,7 +49,8 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
                                         Name = user.Name,
                                         Picture = string.IsNullOrEmpty(user.Picture) ?
                                                   null : JsonHelper.Deserialize<Media>(user.Picture),
-                                        Bio = user.Bio
+                                        Bio = user.Bio,
+                                        Status = user.Status
                                     })
                                     .FirstOrDefaultAsync()
                                     ?? throw new ResourceNotFoundException($"User {id} was not found.");
@@ -87,5 +95,16 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
         userEntity.LastModifyTime = entity.LastModifyTime;
         _context.Entry(userEntity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
+    }
+
+    public override async Task<int> DeleteByIdAsync(Guid id)
+    {
+        var entity = await _context.Users.FindAsync(id)
+                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
+       
+        entity.IsDeleted = true;
+        int rowsAffected = await _context.SaveChangesAsync();
+
+        return rowsAffected; 
     }
 }

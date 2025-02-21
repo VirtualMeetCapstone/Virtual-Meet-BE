@@ -13,6 +13,35 @@ internal class PostService(
 {
     private readonly IMapper _mapper = _mapper;
 
+    public override async Task<QueryResult<Post>> GetByPageAsync(QueryInfo queryInfo)
+    {
+        //root
+        var postsResult = await _repository.GetByPageAsync(queryInfo);
+
+        //custome
+        var postIds = postsResult.Data.Select(p => p.Id).ToList();
+
+        var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync(postIds);
+
+        var postDomain = _mapper.Map<List<Post>>(postsResult.Data);
+
+      
+        foreach (var post in postDomain)
+        {
+            var postReactions = reactions.Where(r => r.PostId == post.Id);
+
+            post.TotalReactions = postReactions.Sum(r => r.Count);
+            post.ReactionCounts = postReactions
+                .ToDictionary(r => r.Type.ToString(), r => r.Count);
+        }
+
+        return new QueryResult<Post>
+        {
+            Data = postDomain,
+            TotalCount = postsResult.TotalCount
+        };
+    }
+
     public async Task<Post> GetDetailByIdAsync(Guid id)
     {
         return await _repository.GetDetailByIdAsync(id);

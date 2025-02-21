@@ -38,7 +38,7 @@ internal class UserService(
             }
             throw new InternalException(ex.Message);
         }
-        
+
     }
 
     public async Task<bool> IsEmailExists(string email)
@@ -58,6 +58,28 @@ internal class UserService(
 
     public async Task<UserCount> GetUserCountsAsync()
     {
-        return await _repository.GetUserCountsAsync()?? new UserCount();
+        return await _repository.GetUserCountsAsync() ?? new UserCount();
     }
+    public override async Task<OperationResult> DeleteByIdAsync(Guid id)
+    {
+        try
+        {
+           
+            int isDeleted = await _repository.DeleteByIdAsync(id);
+
+            if (isDeleted > 0)
+            {
+                return new OperationResult(true, "Entity deleted successfully.");
+            }
+            else
+            {
+                return new OperationResult(false, "Entity not found or could not be deleted.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false,$"An error occurred while deleting the entity: {ex.Message}");
+        }
+    }
+
 }
