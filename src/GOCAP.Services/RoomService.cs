@@ -37,8 +37,8 @@ internal class RoomService(
         try
         {
             var entity = _mapper.Map<RoomEntity>(room);
-            var roomDomain = await _repository.AddAsync(entity);
-            return _mapper.Map<Room>(roomDomain);
+            var result = await _repository.AddAsync(entity);
+            return _mapper.Map<Room>(result);
         }
         catch (Exception ex)
         {

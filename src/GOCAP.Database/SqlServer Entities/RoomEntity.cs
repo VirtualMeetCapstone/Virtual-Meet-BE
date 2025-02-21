@@ -12,6 +12,8 @@ public class RoomEntity : EntitySqlBase
     public RoomStatusType? Status { get; set; }
     public Guid OwnerId { get; set; }
     public UserEntity? Owner { get; set; }
+    public Guid? ChannelId { get; set; }
+    public RoomChannelEntity? Channel { get; set; }
     public ICollection<RoomEventEntity> Events { get; set; } = [];
     public ICollection<RoomTagEntity> Tags { get; set; } = [];
     public ICollection<RoomSettingEntity> Settings { get; set; } = [];

@@ -53,6 +53,7 @@ namespace GOCAP.Migrations.Migrations
                     Birthday = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
+                    DeleteTime = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
@@ -407,7 +408,7 @@ namespace GOCAP.Migrations.Migrations
                     Medias = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
                     OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoomChannelEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ChannelId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -415,8 +416,8 @@ namespace GOCAP.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rooms_RoomChannels_RoomChannelEntityId",
-                        column: x => x.RoomChannelEntityId,
+                        name: "FK_Rooms_RoomChannels_ChannelId",
+                        column: x => x.ChannelId,
                         principalTable: "RoomChannels",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -772,14 +773,14 @@ namespace GOCAP.Migrations.Migrations
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Rooms_ChannelId",
+                table: "Rooms",
+                column: "ChannelId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rooms_OwnerId",
                 table: "Rooms",
                 column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rooms_RoomChannelEntityId",
-                table: "Rooms",
-                column: "RoomChannelEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomSettings_RoomId",

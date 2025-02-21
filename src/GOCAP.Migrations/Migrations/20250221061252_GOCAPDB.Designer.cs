@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250220183337_GOCAPDB")]
+    [Migration("20250221061252_GOCAPDB")]
     partial class GOCAPDB
     {
         /// <inheritdoc />
@@ -277,6 +277,9 @@ namespace GOCAP.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ChannelId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
@@ -296,9 +299,6 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("RoomChannelEntityId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("Status")
                         .HasColumnType("int");
 
@@ -309,9 +309,9 @@ namespace GOCAP.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("ChannelId");
 
-                    b.HasIndex("RoomChannelEntityId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Rooms");
                 });
@@ -722,6 +722,9 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<long>("CreateTime")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("DeleteTime")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(320)
@@ -971,15 +974,17 @@ namespace GOCAP.Migrations.Migrations
 
             modelBuilder.Entity("GOCAP.Database.RoomEntity", b =>
                 {
+                    b.HasOne("GOCAP.Database.RoomChannelEntity", "Channel")
+                        .WithMany("Rooms")
+                        .HasForeignKey("ChannelId");
+
                     b.HasOne("GOCAP.Database.UserEntity", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GOCAP.Database.RoomChannelEntity", null)
-                        .WithMany("Rooms")
-                        .HasForeignKey("RoomChannelEntityId");
+                    b.Navigation("Channel");
 
                     b.Navigation("Owner");
                 });
