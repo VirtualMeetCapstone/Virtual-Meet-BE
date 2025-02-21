@@ -11,6 +11,7 @@ public class RoomsController(IRoomService _service,
     /// <param name="queryInfo"></param>
     /// <returns></returns>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<QueryResult<RoomModel>> GetWithPaging([FromQuery] QueryInfo queryInfo)
     {
         var domain = await _service.GetWithPagingAsync(queryInfo);
@@ -81,12 +82,12 @@ public class RoomsController(IRoomService _service,
         var result = await _roomFavouriteService.CreateOrDeleteAsync(room);
         return result;
     }
-	
+
     [HttpGet("{userId}/favourite")]
-	public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomFavouritesByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
-	{
-		var domain = await _roomFavouriteService.GetFavouritesByUserIdWithPagingAsync(userId, queryInfo);
-		var result = _mapper.Map<QueryResult<RoomFavouriteDetailModel>>(domain);
-		return result;
-	}
+    public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomFavouritesByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _roomFavouriteService.GetFavouritesByUserIdWithPagingAsync(userId, queryInfo);
+        var result = _mapper.Map<QueryResult<RoomFavouriteDetailModel>>(domain);
+        return result;
+    }
 }

@@ -12,10 +12,10 @@ public class AuthenticationFailedException : ApiExceptionBase
     {
     }
 
-    public AuthenticationFailedException(String message, Exception? innerException = null)
+    public AuthenticationFailedException(string message, Exception? innerException = null)
         : base(message, innerException)
     {
-        this.ErrorCode = (int)Common.ErrorCode.Unauthorized;
-        this.StatusCode = HttpStatusCode.Unauthorized;
+        ErrorCode = (int)Common.ErrorCode.Unauthorized;
+        StatusCode = HttpStatusCode.Unauthorized;
     }
 }
