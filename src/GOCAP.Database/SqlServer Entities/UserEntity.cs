@@ -1,21 +1,23 @@
-﻿namespace GOCAP.Database;
+﻿using GOCAP.Database.Common.Entities;
+
+namespace GOCAP.Database;
 
 [Table("Users")]
-public class UserEntity : EntitySqlBase
+public class UserEntity : EntitySqlBase, ISoftDelete
 {
     [MaxLength(AppConstants.MaxLengthName)]
     public required string Name { get; set; } 
     [MaxLength(AppConstants.MaxLengthEmail)]
     public required string Email { get; set; }
     [MaxLength(AppConstants.MaxLengthUrl)]
-    public required string Picture { get; set; }
+    public string Picture { get; set; } = string.Empty;
     [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Bio { get; set; }
     public string? Gender { get; set; }
     public string? Birthday { get; set; }
     public string? Location { get; set; }
     public UserStatusType? Status { get; set; }
-    [Required]
+    public long? DeleteTime { get; set; }
     public bool IsDeleted { get; set; }
 
     // Relationships
