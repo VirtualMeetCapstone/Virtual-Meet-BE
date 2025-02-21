@@ -69,4 +69,15 @@ public class UsersController(IUserService _userService,
         var result = await _followService.FollowOrUnfollowAsync(follow);
         return result;
     }
+
+    /// <summary>
+    /// Delete a user by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public async Task<OperationResult> Delete([FromRoute] Guid id)
+    {
+        return await _userService.DeleteByIdAsync(id);
+    }
 }

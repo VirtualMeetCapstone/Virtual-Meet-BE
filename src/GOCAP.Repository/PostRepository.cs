@@ -13,7 +13,7 @@ internal class PostRepository(AppSqlDbContext _context, IMapper _mapper) : SqlRe
             ?? throw new ResourceNotFoundException($"Entity with {id} was not found."); 
 
         var domain = _mapper.Map<Post>(postEntity);
-        domain.CountReaction = await _context.PostReactions.CountAsync(p => p.PostId == id);
+        //domain.CountReaction = await _context.PostReactions.CountAsync(p => p.PostId == id);
 
         return domain;
     }

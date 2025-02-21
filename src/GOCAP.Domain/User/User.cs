@@ -1,6 +1,5 @@
 ﻿namespace GOCAP.Domain;
-
-public class User : CreatedObjectBase
+public class User : CreatedObjectBase, ISoftDelete
 {
     public string? Email { get; set; }
     public Media? Picture { get; set; }
@@ -21,4 +20,6 @@ public class User : CreatedObjectBase
     public ICollection<Follow> Followers { get; set; } = [];
     public ICollection<Follow> Followings { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
+    public bool IsDeleted { get; set;}
+    public long? DeleteTime { get; set;}
 }

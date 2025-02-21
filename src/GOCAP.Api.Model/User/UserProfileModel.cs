@@ -8,4 +8,6 @@ public class UserProfileModel
     public int FollowersCount { get; set; }
     public int FollowingsCount{ get; set; }
     public int FriendsCount { get; set; }
+    public UserStatusType? Status { get; set; }
+
 }
