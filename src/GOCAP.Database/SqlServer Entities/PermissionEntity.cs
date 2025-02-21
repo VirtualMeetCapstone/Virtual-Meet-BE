@@ -3,8 +3,8 @@
 [Table("Permissions")]
 public class PermissionEntity : EntitySqlBase
 {
-    public required PermissionType Type { get; set; }
+    public PermissionType Type { get; set; }
     [MaxLength(AppConstants.MaxLengthName)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public ICollection<RolePermissionEntity> RolePermissions { get; set; } = [];
 }

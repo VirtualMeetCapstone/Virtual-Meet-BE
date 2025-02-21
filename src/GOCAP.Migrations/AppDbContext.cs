@@ -36,6 +36,7 @@ public class AppDbContext : DbContext
     public DbSet<UserRewardEntity> UserRewards { get; set; }
     public DbSet<UserRoleEntity> UserRoles { get; set; }
     public DbSet<RoleEntity> Roles { get; set; }
+    public DbSet<RoleHierarchyEntity> RoleHierarchies { get; set; }
     public DbSet<PermissionEntity> Permissions { get; set; }
     public DbSet<RolePermissionEntity> RolePermissions { get; set; }
     public DbSet<StoryEntity> Stories { get; set; }
@@ -126,6 +127,18 @@ public class AppDbContext : DbContext
                     .HasOne(s => s.NextStory)
                     .WithOne()
                     .HasForeignKey<StoryHightLightEntity>(s => s.NextStoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoleHierarchyEntity>()
+                    .HasOne(rh => rh.ParentRole)
+                    .WithMany(r => r.ChildRoles)
+                    .HasForeignKey(rh => rh.ParentRoleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoleHierarchyEntity>()
+                    .HasOne(rh => rh.ChildRole)
+                    .WithMany(r => r.ParentRoles)
+                    .HasForeignKey(rh => rh.ChildRoleId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         base.OnModelCreating(modelBuilder);

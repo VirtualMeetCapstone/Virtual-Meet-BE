@@ -32,6 +32,7 @@ namespace GOCAP.Migrations.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -61,6 +62,33 @@ namespace GOCAP.Migrations.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleHierarchies",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ParentRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ChildRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleHierarchies", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoleHierarchies_Roles_ChildRoleId",
+                        column: x => x.ChildRoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RoleHierarchies_Roles_ParentRoleId",
+                        column: x => x.ParentRoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -718,6 +746,16 @@ namespace GOCAP.Migrations.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoleHierarchies_ChildRoleId",
+                table: "RoleHierarchies",
+                column: "ChildRoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleHierarchies_ParentRoleId",
+                table: "RoleHierarchies",
+                column: "ParentRoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
                 table: "RolePermissions",
                 column: "PermissionId");
@@ -895,6 +933,9 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "PostReactions");
+
+            migrationBuilder.DropTable(
+                name: "RoleHierarchies");
 
             migrationBuilder.DropTable(
                 name: "RolePermissions");

@@ -28,6 +28,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCustomExceptionHandler();
+app.UseMiddleware<PermissionsControlMiddleware>();
 app.UseCors();
 app.UseHttpsRedirection();
 app.UseRouting();

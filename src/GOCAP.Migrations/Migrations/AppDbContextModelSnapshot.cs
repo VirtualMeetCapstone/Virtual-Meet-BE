@@ -185,9 +185,39 @@ namespace GOCAP.Migrations.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("GOCAP.Database.RoleHierarchyEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChildRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("ParentRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChildRoleId");
+
+                    b.HasIndex("ParentRoleId");
+
+                    b.ToTable("RoleHierarchies");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RolePermissionEntity", b =>
@@ -935,6 +965,25 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoleHierarchyEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.RoleEntity", "ChildRole")
+                        .WithMany("ParentRoles")
+                        .HasForeignKey("ChildRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.RoleEntity", "ParentRole")
+                        .WithMany("ChildRoles")
+                        .HasForeignKey("ParentRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChildRole");
+
+                    b.Navigation("ParentRole");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RolePermissionEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.PermissionEntity", "Permission")
@@ -1268,6 +1317,10 @@ namespace GOCAP.Migrations.Migrations
 
             modelBuilder.Entity("GOCAP.Database.RoleEntity", b =>
                 {
+                    b.Navigation("ChildRoles");
+
+                    b.Navigation("ParentRoles");
+
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");

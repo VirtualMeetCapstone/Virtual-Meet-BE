@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class UserRole : DomainBase
+public class UserRole : DateTrackingBase
 {
     public Guid UserId { get; set; }
     public User? User { get; set; }

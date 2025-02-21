@@ -12,6 +12,7 @@ public class PostsController(
     /// <param name="queryInfo"></param>
     /// <returns></returns>
     [HttpGet]
+    [AllowAnonymous]
     public async Task<QueryResult<PostModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
         var domain = await _service.GetByPageAsync(queryInfo);
