@@ -46,6 +46,6 @@ internal class RoomFavouriteService(
 		return result;
 	}
 
-	public async Task<QueryResult<Room>> GetRoomFavouriteAsync(Guid userId, QueryInfo queryInfo)
+	public async Task<QueryResult<Room>> GetFavouritesByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
 		=> await _repository.GetRoomFavouriteAsync(userId, queryInfo);
 }

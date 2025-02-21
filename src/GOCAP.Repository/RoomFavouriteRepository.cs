@@ -33,7 +33,7 @@ internal class RoomFavouriteRepository(AppSqlDbContext context) : SqlRepositoryB
 								  })
 								  .ToListAsync();
 
-		var totalItems = queryInfo.NeedTotalCount ? await _context.RoomFavourites.Where(x => x.UserId == userId).CountAsync() : 0;
+		var totalItems = queryInfo.NeedTotalCount ? rooms.Count : 0;
 
 		return new QueryResult<Room>
 		{
