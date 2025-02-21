@@ -81,10 +81,11 @@ public class RoomsController(IRoomService _service,
         var result = await _roomFavouriteService.CreateOrDeleteAsync(room);
         return result;
     }
-	[HttpGet("{userId}/favourite")]
-	public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomFavourite([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+	
+    [HttpGet("{userId}/favourite")]
+	public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomFavouritesByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
 	{
-		var domain = await _roomFavouriteService.GetRoomFavouriteAsync(userId, queryInfo);
+		var domain = await _roomFavouriteService.GetFavouritesByUserIdWithPagingAsync(userId, queryInfo);
 		var result = _mapper.Map<QueryResult<RoomFavouriteDetailModel>>(domain);
 		return result;
 	}

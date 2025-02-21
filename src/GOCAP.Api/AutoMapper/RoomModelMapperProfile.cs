@@ -24,12 +24,7 @@ public class RoomModelMapperProfile : ModelMapperProfileBase
         CreateMap<RoomFavourite, RoomFavouriteModel>().ReverseMap();
         CreateMap<RoomFavourite, RoomFavouriteCreationModel>().ReverseMap();
         CreateMap<QueryResult<RoomFavourite>, QueryResult<RoomFavouriteModel>>().ReverseMap();
-		CreateMap<Room, RoomFavouriteDetailModel>()
-			.ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.Id))
-			.ReverseMap();
-
-		CreateMap<QueryResult<Room>, QueryResult<RoomFavouriteDetailModel>>()
-			.ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data))
-			.ReverseMap();
+		CreateMap<Room, RoomFavouriteDetailModel>().ReverseMap();
+		CreateMap<QueryResult<Room>, QueryResult<RoomFavouriteDetailModel>>().ReverseMap();
 	}
 }

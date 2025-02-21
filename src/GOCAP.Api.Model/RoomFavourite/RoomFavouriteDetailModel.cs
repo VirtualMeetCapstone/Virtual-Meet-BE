@@ -1,8 +1,8 @@
-﻿namespace GOCAP.Api.Model.RoomFavourite;
+﻿namespace GOCAP.Api.Model;
 
 public class RoomFavouriteDetailModel
 {
-	public Guid RoomId { get; set; }
+	public Guid Id { get; set; }
 	public Guid? OwnerId { get; set; }
 	public RoomMemberModel? Owner { get; set; }
 	public string Topic { get; set; } = string.Empty;
