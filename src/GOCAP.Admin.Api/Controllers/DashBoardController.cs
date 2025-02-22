@@ -11,6 +11,7 @@ public class DashBoardController(ICountStatisticService _countStatisticService,
         var result = _mapper.Map<CountStatisticsModel>(countStatistics);
         return result;
     }
+    //test
 }
 
 
