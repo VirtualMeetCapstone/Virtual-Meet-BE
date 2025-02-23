@@ -12,5 +12,3 @@ public class DashBoardController(ICountStatisticService _countStatisticService,
         return result;
     }
 }
-
-

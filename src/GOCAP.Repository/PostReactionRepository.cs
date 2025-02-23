@@ -1,6 +1,4 @@
-﻿using GOCAP.Domain;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IPostReactionRepository))]
 internal class PostReactionRepository(AppSqlDbContext context) :
@@ -34,5 +32,52 @@ internal class PostReactionRepository(AppSqlDbContext context) :
         await _context.SaveChangesAsync();
 
         return new OperationResult(true, "Delete OK");
+    }
+
+    public async Task<List<PostReactionCount>> GetReactionsByPostIdsAsync(List<Guid> postIds)
+    {
+        return await _context.PostReactions
+             .AsNoTracking()
+             .Where(r => postIds.Contains(r.PostId))
+             .GroupBy(r => new { r.PostId, r.Type })
+             .Select(g => new PostReactionCount
+             {
+                 PostId = g.Key.PostId,
+                 Type = g.Key.Type ?? ReactionType.Default,
+                 Count = g.Sum(r => 1)
+             })
+             .ToListAsync();
+    }
+
+    public async Task<QueryResult<UserReactionPost>> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo)
+    {
+        var reactions = await (from reaction in _context.PostReactions.AsNoTracking()
+                               join user in _context.Users.AsNoTracking()
+                               on reaction.UserId equals user.Id into userGroup
+                               from user in userGroup.DefaultIfEmpty() 
+                               where reaction.PostId == postId
+                               orderby reaction.CreateTime descending
+                               select new UserReactionPost
+                               {
+                                   PostId = reaction.PostId,
+                                   UserName = user != null ? user.Name : "Unknown User",
+                                   ReactionType = reaction.Type ?? ReactionType.Default
+                               }).ToListAsync();
+
+        int totalItems = queryInfo.NeedTotalCount
+            ? await _context.PostReactions.Where(r => r.PostId == postId).CountAsync()
+            : 0;
+
+        return new QueryResult<UserReactionPost>
+        {
+            Data = reactions,
+            TotalCount = totalItems
+        };
+    }
+    public async Task<PostReactionEntity> GetByPostAndUserAsync(Guid postId, Guid userId)
+    {
+        return await _context.PostReactions
+            .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId)
+            ?? new PostReactionEntity();
     }
 }
