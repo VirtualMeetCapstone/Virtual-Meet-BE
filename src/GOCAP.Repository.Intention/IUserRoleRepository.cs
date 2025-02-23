@@ -2,4 +2,5 @@
 
 public interface IUserRoleRepository : ISqlRepositoryBase<UserRoleEntity>
 {
+    public Task<UserRoleEntity> AssignRoleToUser(UserRoleEntity entity);
 }
