@@ -2,7 +2,8 @@
 
 public class UserReactionPostModel
 {
-    public Guid PostId { get; set; }
-    public string UserName { get; set; } = string.Empty;
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public Media? Media { get; set; } = null;
     public ReactionType ReactionType { get; set; }
 }

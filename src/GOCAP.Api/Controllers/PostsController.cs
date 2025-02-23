@@ -52,15 +52,15 @@ public class PostsController(
     }
 
     /// <summary>
-    /// Get posts by with paging.
+    /// Get list user-reaction by with paging.
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("users-reaction/{id}")]
+    [HttpGet("users-reaction/{postId}")]
     [AllowAnonymous]
-    public async Task<QueryResult<UserReactionPostModel>> GetUserReactionsByPostIdAsync([FromRoute] Guid id, [FromQuery] QueryInfo queryInfo)
+    public async Task<QueryResult<UserReactionPostModel>> GetUserReactionsByPostIdAsync([FromRoute] Guid postId, [FromQuery] QueryInfo queryInfo)
     {
-        var domain = await _postReactionService.GetUserReactionsByPostIdAsync(id,queryInfo);
+        var domain = await _postReactionService.GetUserReactionsByPostIdAsync(postId, queryInfo);
         var result = _mapper.Map<QueryResult<UserReactionPostModel>>(domain);
         return result;
     }
