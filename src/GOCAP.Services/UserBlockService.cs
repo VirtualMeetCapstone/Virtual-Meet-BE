@@ -56,6 +56,12 @@ internal class UserBlockService
 		throw new NotImplementedException();
 	}
 
+	public async Task<List<UserBlock>> GetUserBlockAsync(Guid userId)
+	{
+		var result = await _repository.GetUserBlockAsync(userId);
+		return result;
+	}
+
 	public Task<OperationResult> UpdateAsync(Guid id, UserBlock domain)
 	{
 		throw new NotImplementedException();

@@ -23,5 +23,9 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 		CreateMap<FacebookUser, User>();
 		CreateMap<User, FacebookUser>();
 		CreateMap<UserBlockCreationModel, UserBlock>().ReverseMap();
+		CreateMap<UserBlock, UserBlockModel>()
+			.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.BlockedUser != null ? src.BlockedUser.Name : string.Empty))
+			.ForMember(dest => dest.Picture, opt => opt.MapFrom(src => src.BlockedUser != null ? src.BlockedUser.Picture : null))
+			.ReverseMap();
 	}
 }
