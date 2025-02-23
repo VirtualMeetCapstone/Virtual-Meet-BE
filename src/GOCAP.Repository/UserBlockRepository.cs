@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Repository;
+﻿
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserBlockRepository))]
 internal class UserBlockRepository
@@ -7,10 +8,19 @@ internal class UserBlockRepository
 	private readonly AppSqlDbContext _context = context;
 	public async Task<UserBlock?> GetBlockOrBlockedAsync(UserBlock model)
 	{
-		var list = await _context.UserBlocks.ToListAsync();
 		var entity = await _context.UserBlocks.FirstOrDefaultAsync
 											  (x => x.BlockedUserId == model.BlockedUserId
 											   && x.BlockedByUserId == model.BlockedByUserId);
 		return _mapper.Map<UserBlock>(entity);
+	}
+
+	public async Task<List<UserBlock>> GetUserBlockAsync(Guid userId)
+	{
+		var entities = await _context.UserBlocks
+			.Where(x => x.BlockedUserId == userId)
+			.Include(x => x.BlockedUser)
+			.ToListAsync();
+
+		return _mapper.Map<List<UserBlock>>(entities);
 	}
 }

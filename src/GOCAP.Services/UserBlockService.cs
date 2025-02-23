@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Services;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IUserBlockService))]
 internal class UserBlockService
@@ -54,6 +56,12 @@ internal class UserBlockService
 	public Task<int> GetCountAsync(Expression<Func<UserBlock, bool>>? condition = null)
 	{
 		throw new NotImplementedException();
+	}
+
+	public async Task<List<UserBlock>> GetUserBlockAsync(Guid userId)
+	{
+		var result = await _repository.GetUserBlockAsync(userId);
+		return result;
 	}
 
 	public Task<OperationResult> UpdateAsync(Guid id, UserBlock domain)
