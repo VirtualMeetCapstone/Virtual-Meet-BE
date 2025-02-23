@@ -15,25 +15,49 @@ internal class PostService(
 
     public override async Task<QueryResult<Post>> GetByPageAsync(QueryInfo queryInfo)
     {
-        //root
         var postsResult = await _repository.GetByPageAsync(queryInfo);
-
-        //custome
         var postIds = postsResult.Data.Select(p => p.Id).ToList();
+
+        if (!postIds.Any()) 
+        {
+            return new QueryResult<Post>
+            {
+                Data = new List<Post>(),
+                TotalCount = postsResult.TotalCount
+            };
+        }
 
         var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync(postIds);
 
-        var postDomain = _mapper.Map<List<Post>>(postsResult.Data);
+        var reactionsDict = reactions
+            .GroupBy(r => r.PostId)
+            .ToDictionary(
+                g => g.Key,
+                g => new
+                {
+                    Total = g.Sum(r => r.Count),
+                    TypeCounts = g.GroupBy(r => r.Type.ToString())
+                                  .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
+                }
+            );
 
-      
-        foreach (var post in postDomain)
-        {
-            var postReactions = reactions.Where(r => r.PostId == post.Id);
-
-            post.TotalReactions = postReactions.Sum(r => r.Count);
-            post.ReactionCounts = postReactions
-                .ToDictionary(r => r.Type.ToString(), r => r.Count);
-        }
+        var postDomain = postsResult.Data
+            .Select(entity =>
+            {
+                var domainPost = _mapper.Map<Post>(entity);
+                if (reactionsDict.TryGetValue(domainPost.Id, out var postReactions))
+                {
+                    domainPost.TotalReactions = postReactions.Total;
+                    domainPost.ReactionCounts = postReactions.TypeCounts;
+                }
+                else
+                {
+                    domainPost.TotalReactions = 0;
+                    domainPost.ReactionCounts = [];
+                }
+                return domainPost;
+            })
+            .ToList();
 
         return new QueryResult<Post>
         {
@@ -44,7 +68,39 @@ internal class PostService(
 
     public async Task<Post> GetDetailByIdAsync(Guid id)
     {
-        return await _repository.GetDetailByIdAsync(id);
+        var postEntity = await _repository.GetDetailByIdAsync(id);
+
+        if (postEntity == null)
+            throw new ResourceNotFoundException($"Post with ID {id} was not found.");
+
+        var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync([id]);
+
+        var reactionsDict = reactions
+            .GroupBy(r => r.PostId)
+            .ToDictionary(
+                g => g.Key,
+                g => new
+                {
+                    Total = g.Sum(r => r.Count),
+                    TypeCounts = g.GroupBy(r => r.Type.ToString())
+                                  .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
+                }
+            );
+
+        var post = _mapper.Map<Post>(postEntity);
+
+        if (reactionsDict.TryGetValue(post.Id, out var postReactions))
+        {
+            post.TotalReactions = postReactions.Total;
+            post.ReactionCounts = postReactions.TypeCounts;
+        }
+        else
+        {
+            post.TotalReactions = 0;
+            post.ReactionCounts = [];
+        }
+
+        return post;
     }
 
     /// <summary>
@@ -117,30 +173,5 @@ internal class PostService(
             await _unitOfWork.RollbackTransactionAsync();
             return new OperationResult(false);
         }
-    }
-
-    /// <summary>
-    /// Like or unlike one post.
-    /// </summary>
-    /// <param name="postReaction"></param>
-    /// <returns></returns>
-    public async Task<OperationResult> ReactOrUnreactAsync(PostReaction postReaction)
-    {
-        var result = new OperationResult(true);
-        var isExists = await _postReactionRepository.CheckExistAsync(postReaction.PostId, postReaction.UserId);
-        if (isExists)
-        {
-            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(PostReaction).Name);
-            var resultDelete = await _postReactionRepository.DeleteAsync(postReaction.PostId, postReaction.UserId);
-            result = new OperationResult(resultDelete > 0);
-        }
-        else
-        {
-            _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(PostReaction).Name);
-            postReaction.InitCreation();
-            var entity = _mapper.Map<PostReactionEntity>(postReaction);
-            await _postReactionRepository.AddAsync(entity);
-        }
-        return result;
     }
 }

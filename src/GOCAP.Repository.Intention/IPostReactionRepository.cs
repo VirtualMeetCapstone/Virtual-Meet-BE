@@ -6,4 +6,6 @@ public interface IPostReactionRepository : ISqlRepositoryBase<PostReactionEntity
     Task<int> DeleteAsync(Guid postId, Guid userId);
     Task<OperationResult> DeleteByPostIdAsync(Guid id);
     Task<List<PostReactionCount>> GetReactionsByPostIdsAsync(List<Guid> postIds);
+    Task<PostReactionEntity> GetByPostAndUserAsync(Guid postId, Guid userId);
+    Task<QueryResult<UserReactionPost>> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo);
 }

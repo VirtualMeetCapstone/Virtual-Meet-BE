@@ -6,5 +6,6 @@ public class PostCreationModel
     public Guid UserId { get; set; }
     public PrivacyType? Privacy { get; set; }
     public List<IFormFile>? MediaUploads { get; set; }
+    public ReactionType ReactionType { get; set; }
 }
     
