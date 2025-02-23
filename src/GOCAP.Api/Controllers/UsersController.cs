@@ -70,7 +70,13 @@ public class UsersController(IUserService _userService,
 		var result = await _followService.FollowOrUnfollowAsync(follow);
 		return result;
 	}
-	[HttpPost("block")]
+
+    /// <summary>
+    /// Block or unblock another user.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns>OperationResult</returns>
+    [HttpPost("block")]
 	public async Task<OperationResult> BlockOrUnblock([FromBody] UserBlockCreationModel model)
 	{
 		var block = _mapper.Map<UserBlock>(model);

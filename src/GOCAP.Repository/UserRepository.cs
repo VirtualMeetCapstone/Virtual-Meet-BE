@@ -88,19 +88,4 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
 		_context.Entry(userEntity).State = EntityState.Modified;
 		return await _context.SaveChangesAsync() > 0;
 	}
-
-	public async Task<UserBlock?> GetBlockOrBlockedAsync(UserBlock model)
-	{
-		var list = await _context.UserBlocks.ToListAsync();
-		var entity = await _context.UserBlocks.FirstOrDefaultAsync
-											  (x => x.BlockedUserId == model.BlockedUserId
-											   && x.BlockedByUserId == model.BlockedByUserId);
-
-		//var userBlock = new UserBlock
-		//{
-		//	BlockedUserId = entity.BlockedUserId,
-		//	BlockedByUserId = entity.BlockedByUserId
-		//};
-		return _mapper.Map<UserBlock>(entity);
-	}
 }

@@ -5,7 +5,6 @@ internal class UserService(
 	IUserRepository _repository,
 	IBlobStorageService _blobStorageService,
 	IUserNotificationRepository _userNotificationRepository,
-	IUserBlockRepository _userBlockRepository,
 	IMapper _mapper,
 	ILogger<UserService> _logger
 	) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
@@ -61,37 +60,4 @@ internal class UserService(
 	{
 		return await _repository.GetUserCountsAsync() ?? new UserCount();
 	}
-
-	public async Task<OperationResult> BlockOrUnBlockAsync(UserBlock model)
-	{
-		if (model.BlockedUserId == model.BlockedByUserId)
-		{
-			throw new ParameterInvalidException();
-		}
-
-		if (!await _repository.CheckExistAsync(model.BlockedUserId))
-		{
-			throw new ResourceNotFoundException($"User {model.BlockedUserId} was not found");
-		}
-
-		if (!await _repository.CheckExistAsync(model.BlockedByUserId))
-		{
-			throw new ResourceNotFoundException($"User {model.BlockedByUserId} was not found");
-		}
-
-		var block = await _repository.GetBlockOrBlockedAsync(model);
-		if (block != null)
-		{
-			var resultDelete = await _userBlockRepository.DeleteByIdAsync(block.Id);
-			return new OperationResult(resultDelete > 0);
-		}
-		else
-		{
-			model.InitCreation();
-			var blockEntity = _mapper.Map<UserBlockEntity>(model);
-			await _userBlockRepository.AddAsync(blockEntity);
-			return new OperationResult(true);
-		}
-	}
-
 }
