@@ -7,4 +7,6 @@ public interface IUserService : IServiceBase<User>
     Task<User> GetUserProfileAsync(Guid id);
     Task<bool> IsEmailExists(string email);
     Task<User?> GetByEmail(string email);
+	Task<OperationResult> BlockOrUnBlockAsync(UserBlock model);
+
 }
