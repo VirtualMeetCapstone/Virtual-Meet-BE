@@ -3,6 +3,7 @@
 [Route("posts")]
 public class PostsController(
     IPostService _service,
+       IPostReactionService _postReactionService,
     IMapper _mapper) : ApiControllerBase
 {
 
@@ -46,7 +47,21 @@ public class PostsController(
     public async Task<OperationResult> ReactOrUnReact([FromBody] PostReactionCreationModel model)
     {
         var domain = _mapper.Map<PostReaction>(model);
-        var result = await _service.ReactOrUnreactAsync(domain);
+        var result = await _postReactionService.ReactOrUnreactedAsync(domain);
+        return result;
+    }
+
+    /// <summary>
+    /// Get posts by with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
+    [HttpGet("users-reaction/{id}")]
+    [AllowAnonymous]
+    public async Task<QueryResult<UserReactionPostModel>> GetUserReactionsByPostIdAsync([FromRoute] Guid id, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _postReactionService.GetUserReactionsByPostIdAsync(id,queryInfo);
+        var result = _mapper.Map<QueryResult<UserReactionPostModel>>(domain);
         return result;
     }
 
