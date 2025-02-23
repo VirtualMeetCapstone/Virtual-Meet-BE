@@ -59,8 +59,9 @@ internal class PostReactionRepository(AppSqlDbContext context) :
                                orderby reaction.CreateTime descending
                                select new UserReactionPost
                                {
-                                   PostId = reaction.PostId,
-                                   UserName = user != null ? user.Name : "Unknown User",
+                                   Id = reaction.UserId,
+                                   Name = user != null ? user.Name : "Unknown User",
+                                   Media = JsonHelper.Deserialize<Media>(user.Picture),
                                    ReactionType = reaction.Type ?? ReactionType.Default
                                }).ToListAsync();
 

@@ -3,23 +3,23 @@
 [RegisterService(typeof(IUserRepository))]
 internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobStorageService _blobStorageService) : SqlRepositoryBase<UserEntity>(context), IUserRepository
 {
-	private readonly AppSqlDbContext _context = context;
+    private readonly AppSqlDbContext _context = context;
 
-	public async Task<User?> GetByEmailAsync(string email)
-	{
-		var entity = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-		return _mapper.Map<User>(entity);
-	}
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        var entity = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+        return _mapper.Map<User>(entity);
+    }
 
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users
+              .AsNoTracking()
             .Select(u => new
             {
                 u.Status,
                 u.IsDeleted
             })
-            .AsNoTracking()
             .GroupBy(u => 1)
             .Select(g => new UserCount
             {
@@ -31,13 +31,13 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
             })
             .FirstOrDefaultAsync();
 
-		return counts ?? new UserCount();
-	}
+        return counts ?? new UserCount();
+    }
 
-	public async Task<bool> IsEmailExistsAsync(string email)
-	{
-		return await _context.Users.AnyAsync(user => user.Email == email);
-	}
+    public async Task<bool> IsEmailExistsAsync(string email)
+    {
+        return await _context.Users.AnyAsync(user => user.Email == email);
+    }
 
     public async Task<User> GetUserProfileAsync(Guid id)
     {
@@ -55,31 +55,31 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
                                     .FirstOrDefaultAsync()
                                     ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
-		var count = await _context.UserFollows
-									.AsNoTracking()
-									.Where(f => f.FollowerId == id || f.FollowingId == id)
-									.Select(f => new
-									{
-										FollowersCount = _context.UserFollows.Count(f => f.FollowingId == id),
-										FollowingsCount = _context.UserFollows.Count(f => f.FollowerId == id),
-										FriendsCount = _context.UserFollows
-											.Count(f => f.FollowerId == id && f.FollowingId != id
-												&& _context.UserFollows.Any(f2 => f2.FollowerId == f.FollowingId
-												&& f2.FollowingId == id))
-									})
-									.FirstOrDefaultAsync()
-									?? new
-									{
-										FollowersCount = 0,
-										FollowingsCount = 0,
-										FriendsCount = 0
-									};
+        var count = await _context.UserFollows
+                                    .AsNoTracking()
+                                    .Where(f => f.FollowerId == id || f.FollowingId == id)
+                                    .Select(f => new
+                                    {
+                                        FollowersCount = _context.UserFollows.Count(f => f.FollowingId == id),
+                                        FollowingsCount = _context.UserFollows.Count(f => f.FollowerId == id),
+                                        FriendsCount = _context.UserFollows
+                                            .Count(f => f.FollowerId == id && f.FollowingId != id
+                                                && _context.UserFollows.Any(f2 => f2.FollowerId == f.FollowingId
+                                                && f2.FollowingId == id))
+                                    })
+                                    .FirstOrDefaultAsync()
+                                    ?? new
+                                    {
+                                        FollowersCount = 0,
+                                        FollowingsCount = 0,
+                                        FriendsCount = 0
+                                    };
 
-		result.FollowersCount = count.FollowersCount;
-		result.FollowingsCount = count.FollowingsCount;
-		result.FriendsCount = count.FriendsCount;
-		return result;
-	}
+        result.FollowersCount = count.FollowersCount;
+        result.FollowingsCount = count.FollowingsCount;
+        result.FriendsCount = count.FriendsCount;
+        return result;
+    }
 
     public override async Task<bool> UpdateAsync(UserEntity entity)
     {
@@ -101,10 +101,10 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
     {
         var entity = await _context.Users.FindAsync(id)
                     ?? throw new ResourceNotFoundException($"User {id} was not found.");
-       
+
         entity.IsDeleted = true;
         int rowsAffected = await _context.SaveChangesAsync();
 
-        return rowsAffected; 
+        return rowsAffected;
     }
 }

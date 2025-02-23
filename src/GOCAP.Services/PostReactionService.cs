@@ -59,7 +59,6 @@ internal class PostReactionService(
         }
     }
 
-
     public async Task<QueryResult<UserReactionPost>> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo)
     {
         return await _postReactionRepository.GetUserReactionsByPostIdAsync(postId, queryInfo);
