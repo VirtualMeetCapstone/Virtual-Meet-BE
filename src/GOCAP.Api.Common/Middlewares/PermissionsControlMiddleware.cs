@@ -28,7 +28,7 @@ public class PermissionsControlMiddleware(RequestDelegate next)
                                                       .Distinct()
                                                       .ToList();
         // Get user id from jwt token
-        var userId = Guid.Parse("af1da9bb-7f84-4280-8c8c-dac67221c36d");
+        var userId = Guid.Parse("132550D4-998F-4ADB-A546-330AA5AB78E4");
         var userPermissions = await permissionService.GetUserPermissionsByUserIdAsync(userId);
         var userPermissionTypes = userPermissions.Select(x => x.Type).ToList();
 
@@ -36,5 +36,6 @@ public class PermissionsControlMiddleware(RequestDelegate next)
         {
             throw new AuthenticationFailedException("Forbidden: You do not have the required permissions.");
         }
+        await _next(context);
     }
 }
