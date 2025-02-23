@@ -11,5 +11,6 @@ public class UserEntityMapperProfile : EntityMapperProfileBase
             .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => JsonHelper.Deserialize<Media?>(src.Picture)));
         CreateMap<QueryResult<User>, QueryResult<UserEntity>>().ReverseMap();
         CreateMap<UserNotification, UserNotificationEntity>().ReverseMap();
-    }
+		CreateMap<UserBlockEntity, UserBlock>().ReverseMap();
+	}
 }
