@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Services;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IUserBlockService))]
 internal class UserBlockService
