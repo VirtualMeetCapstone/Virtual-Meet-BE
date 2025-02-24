@@ -6,11 +6,11 @@ internal class UserBlockRepository
 	(AppSqlDbContext context, IMapper _mapper) : SqlRepositoryBase<UserBlockEntity>(context), IUserBlockRepository
 {
 	private readonly AppSqlDbContext _context = context;
-	public async Task<UserBlock?> GetBlockOrBlockedAsync(UserBlock model)
+	public async Task<UserBlock?> GetBlockOrBlockedAsync(UserBlock domain)
 	{
-		var entity = await _context.UserBlocks.FirstOrDefaultAsync
-											  (x => x.BlockedUserId == model.BlockedUserId
-											   && x.BlockedByUserId == model.BlockedByUserId);
+		var entity = await _context.UserBlocks.AsNoTracking().FirstOrDefaultAsync
+											  (x => x.BlockedUserId == domain.BlockedUserId
+											   && x.BlockedByUserId == domain.BlockedByUserId);
 		return _mapper.Map<UserBlock>(entity);
 	}
 
