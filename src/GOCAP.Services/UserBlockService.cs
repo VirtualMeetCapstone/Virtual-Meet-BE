@@ -8,16 +8,7 @@ internal class UserBlockService
 	ILogger<UserBlockService> _logger)
 	: ServiceBase<UserBlock, UserBlockEntity>(_repository, _mapper, _logger), IUserBlockService
 {
-	public Task<UserBlock> AddAsync(UserBlock domain)
-	{
-		throw new NotImplementedException();
-	}
-
-	public Task<OperationResult> AddRangeAsync(IEnumerable<UserBlock> domains)
-	{
-		throw new NotImplementedException();
-	}
-
+	private readonly IMapper _mapper = _mapper;
 	public async Task<OperationResult> BlockOrUnblockAsync(UserBlock domain)
 	{
 		if (domain.BlockedUserId == domain.BlockedByUserId)
@@ -49,35 +40,9 @@ internal class UserBlockService
 			return new OperationResult(true);
 		}
 	}
-
-
-	public Task<int> GetCountAsync(Expression<Func<UserBlock, bool>>? condition = null)
+	public async Task<List<UserBlock>> GetUserBlocksAsync(Guid userId)
 	{
-		throw new NotImplementedException();
-	}
-
-	public Task<OperationResult> UpdateAsync(Guid id, UserBlock domain)
-	{
-		throw new NotImplementedException();
-	}
-
-	Task<IEnumerable<UserBlock>> IServiceBase<UserBlock>.GetAllAsync()
-	{
-		throw new NotImplementedException();
-	}
-
-	Task<UserBlock> IServiceBase<UserBlock>.GetByIdAsync(Guid id)
-	{
-		throw new NotImplementedException();
-	}
-
-	Task<IEnumerable<UserBlock>> IServiceBase<UserBlock>.GetByIdsAsync(List<Guid> ids, string fieldsName)
-	{
-		throw new NotImplementedException();
-	}
-
-	Task<QueryResult<UserBlock>> IServiceBase<UserBlock>.GetByPageAsync(QueryInfo queryInfo)
-	{
-		throw new NotImplementedException();
+		var result = await _repository.GetUserBlocksAsync(userId);
+		return result;
 	}
 }
