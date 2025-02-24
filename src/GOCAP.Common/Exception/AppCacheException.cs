@@ -7,15 +7,15 @@ public class AppCacheException : ApiExceptionBase
     {
     }
 
-    public AppCacheException(String message)
+    public AppCacheException(string message)
         : base(message)
     {
     }
 
-    public AppCacheException(String invalidParameterName, String message)
+    public AppCacheException(string invalidParameterName, string message)
         : base(message)
     {
-        this.InvalidParameterName = invalidParameterName;
+        InvalidParameterName = invalidParameterName;
     }
 
     public string? InvalidParameterName { get; set; }

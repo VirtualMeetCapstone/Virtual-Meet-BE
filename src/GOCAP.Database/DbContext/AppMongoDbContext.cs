@@ -4,11 +4,15 @@ public class AppMongoDbContext
 {
     private readonly IMongoDatabase _database;
     public IMongoCollection<CommentEntity> Comments { get; set; }
+    public IMongoCollection<CommentReactionEntity> CommentReactions { get; set; }
+    public IMongoCollection<SearchHistoryEntity> SearchHistories { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
         var _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
         Comments = GetCollection<CommentEntity>();
+        CommentReactions = GetCollection<CommentReactionEntity>();
+        SearchHistories = GetCollection<SearchHistoryEntity>();
     }
 
 

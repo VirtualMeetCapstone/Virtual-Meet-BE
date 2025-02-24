@@ -32,12 +32,13 @@ public static class ExceptionHandlerExtensions
                 {
                     ErrorMessage = "Unexpected error has occurred.",
                     ErrorCode = (int)ErrorCode.InternalError,
+                    ErrorDetails = ["An internal server error occurred. Please try again later."]
                 };
                 if (exception is not null && exception is ValidationException validationException)
                 {
-                    var error = validationException.Errors.FirstOrDefault();
-                    errorModel.ErrorMessage = error?.ErrorMessage ?? "";
-                    errorModel.ErrorCode = int.Parse(error?.ErrorCode ?? "10000");
+                    errorModel.ErrorMessage = "Validation failed.";
+                    errorModel.ErrorCode = (int)ErrorCode.InvalidRequest;
+                    errorModel.ErrorDetails = validationException.Errors.Select(error => error.ErrorMessage).ToList();
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 }
                 if (exception is not null && exception is ApiExceptionBase apiException)

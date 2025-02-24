@@ -29,12 +29,12 @@ internal class GroupRepository(AppSqlDbContext context, IMapper _mapper)
     public async Task<GroupCount> GetGroupCountsAsync()
     {
         var counts = await _context.Groups
+             .AsNoTracking()
             .GroupBy(g => 1) 
             .Select(g => new GroupCount
             {
                 Total = g.Count()
             })
-            .AsNoTracking() 
             .FirstOrDefaultAsync();
 
         return counts ?? new GroupCount();      

@@ -7,10 +7,10 @@ public class ParameterInvalidException : ApiExceptionBase
     {
     }
 
-    public ParameterInvalidException(String message)
+    public ParameterInvalidException(string message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.InvalidParameters;
-        this.StatusCode = HttpStatusCode.BadRequest;
+        ErrorCode = (int)Common.ErrorCode.InvalidParameters;
+        StatusCode = HttpStatusCode.BadRequest;
     }
 }

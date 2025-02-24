@@ -7,10 +7,10 @@ public class NoAuthenticationHeaderException : ApiExceptionBase
     {
     }
 
-    public NoAuthenticationHeaderException(String message)
+    public NoAuthenticationHeaderException(string message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.Unauthorized;
-        this.StatusCode = HttpStatusCode.Unauthorized;
+        ErrorCode = (int)Common.ErrorCode.Unauthorized;
+        StatusCode = HttpStatusCode.Unauthorized;
     }
 }

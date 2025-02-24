@@ -7,9 +7,9 @@ public class InternalException : ApiExceptionBase
     {
     }
 
-    public InternalException(String message)
+    public InternalException(string message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.InternalError;
+        ErrorCode = (int)Common.ErrorCode.InternalError;
     }
 }
