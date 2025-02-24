@@ -52,7 +52,6 @@ internal class RoomRepository(
         };
     }
 
-
     public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
     {
         var entity = await GetEntityByIdAsync(roomEntity.Id);
@@ -92,6 +91,7 @@ internal class RoomRepository(
         return counts ?? new RoomCount();
 
     }
+
     public async Task<Room> GetDetailIdAsync(Guid id)
     => await (from r in _context.Rooms.AsNoTracking()
               join m in _context.RoomMembers.AsNoTracking() on r.Id equals m.RoomId
