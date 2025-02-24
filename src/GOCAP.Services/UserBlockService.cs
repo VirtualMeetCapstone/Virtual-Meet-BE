@@ -40,9 +40,9 @@ internal class UserBlockService
 			return new OperationResult(true);
 		}
 	}
-	public async Task<List<UserBlock>> GetUserBlockAsync(Guid userId)
+	public async Task<List<UserBlock>> GetUserBlocksAsync(Guid userId)
 	{
-		var result = await _repository.GetUserBlockAsync(userId);
+		var result = await _repository.GetUserBlocksAsync(userId);
 		return result;
 	}
 }

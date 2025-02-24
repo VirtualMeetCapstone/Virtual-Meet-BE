@@ -95,10 +95,12 @@ public class UsersController(IUserService _userService,
         return await _userService.DeleteByIdAsync(id);
     }
 	[HttpGet("{userId}/blocked")]
-	public async Task<List<UserBlockModel>> GetUserBlock([FromRoute] Guid userId)
+	public async Task<List<UserBlockModel>> GetUserBlocks([FromRoute] Guid userId)
 	{
-		var userBlocks = await _userBlockService.GetUserBlockAsync(userId);
+		var userBlocks = await _userBlockService.GetUserBlocksAsync(userId);
 		var results = _mapper.Map<List<UserBlockModel>>(userBlocks);
 		return results;
 	}
+	//[HttpGet("search")]
+	//public 
 }

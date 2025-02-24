@@ -14,13 +14,24 @@ internal class UserBlockRepository
 		return _mapper.Map<UserBlock>(entity);
 	}
 
-	public async Task<List<UserBlock>> GetUserBlockAsync(Guid userId)
+	public async Task<List<UserBlock>> GetUserBlocksAsync(Guid userId)
 	{
 		var entities = await _context.UserBlocks
-			.Where(x => x.BlockedUserId == userId)
-			.Include(x => x.BlockedUser)
-			.ToListAsync();
+			.AsNoTracking()
+			.Where(u => u.BlockedUserId == userId)
+			.Join(
+				_context.Users.AsNoTracking(),
+				block => block.BlockedUserId,
+				user => user.Id,
+				(block, user) => new UserBlock
+				{
+					Id = block.Id,
+					Name = user.Name,
+					Picture = string.IsNullOrEmpty(user.Picture) ?
+							  null : JsonHelper.Deserialize<Media>(user.Picture),
+				})
+				.ToListAsync();
 
-		return _mapper.Map<List<UserBlock>>(entities);
+		return entities!;
 	}
 }
