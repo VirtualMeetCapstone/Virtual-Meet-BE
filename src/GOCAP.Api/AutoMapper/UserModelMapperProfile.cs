@@ -24,5 +24,6 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 		CreateMap<User, FacebookUser>();
 		CreateMap<UserBlockCreationModel, UserBlock>().ReverseMap();
 		CreateMap<UserBlock, UserBlockModel>().ReverseMap();
+		CreateMap<User, UserSearchModel>().ReverseMap();
 	}
 }

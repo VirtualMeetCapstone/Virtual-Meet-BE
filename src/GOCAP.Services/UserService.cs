@@ -61,4 +61,9 @@ internal class UserService(
 		return await _repository.GetUserCountsAsync() ?? new UserCount();
 	}
 
+	public async Task<List<User>> SearchUsersAsync(string userName, int limit)
+	{
+
+		return await _repository.SearchUsersAsync(userName, limit);
+	}
 }
