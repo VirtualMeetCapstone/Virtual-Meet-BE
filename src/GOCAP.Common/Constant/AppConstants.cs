@@ -26,6 +26,7 @@ public static class AppConstants
     public const int MaxLengthDescription = 1000;
     public const int MaxLengthHastTag = 50;
     public const int MaxLengthUrl = 2000;
+    public const int MaxLengthSearchQuery = 150;
 
     // Default media file size
     public const long MaxBlobSize = 1024 * 1024 * 50;

@@ -34,7 +34,7 @@ public class PermissionsControlMiddleware(RequestDelegate next)
 
         if (!requiredPermissions.All(userPermissionTypes.Contains))
         {
-            throw new AuthenticationFailedException("Forbidden: You do not have the required permissions.");
+            throw new ForbiddenException("You do not have the required permissions.");
         }
         await _next(context);
     }

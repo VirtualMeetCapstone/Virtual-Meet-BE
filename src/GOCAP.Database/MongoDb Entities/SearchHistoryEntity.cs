@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Database;
 
-[BsonCollection("RoomMessages")]
+[BsonCollection("SearchHistories")]
 public class SearchHistoryEntity : EntityMongoBase
 {
     public Guid? UserId { get; set; }
