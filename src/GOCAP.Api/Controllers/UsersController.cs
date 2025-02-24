@@ -101,6 +101,11 @@ public class UsersController(IUserService _userService,
 		var results = _mapper.Map<List<UserBlockModel>>(userBlocks);
 		return results;
 	}
-	//[HttpGet("search")]
-	//public 
+	[HttpGet("search")]
+	public async Task<List<UserSearchModel>> SearchUsers([FromQuery] string userName, [FromQuery] int limit = 10)
+	{
+		var uses = await _userService.SearchUsersAsync(userName, limit);
+		var results = _mapper.Map<List<UserSearchModel>>(uses);
+		return results;
+	}
 }
