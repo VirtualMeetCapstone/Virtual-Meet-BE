@@ -18,11 +18,11 @@ internal class PostService(
         var postsResult = await _repository.GetByPageAsync(queryInfo);
         var postIds = postsResult.Data.Select(p => p.Id).ToList();
 
-        if (!postIds.Any()) 
+        if (postIds.Count == 0) 
         {
             return new QueryResult<Post>
             {
-                Data = new List<Post>(),
+                Data = [],
                 TotalCount = postsResult.TotalCount
             };
         }
@@ -36,7 +36,7 @@ internal class PostService(
                 g => new
                 {
                     Total = g.Sum(r => r.Count),
-                    TypeCounts = g.GroupBy(r => r.Type.ToString())
+                    TypeCounts = g.GroupBy(r => (int)r.Type)
                                   .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
                 }
             );
@@ -69,10 +69,6 @@ internal class PostService(
     public async Task<Post> GetDetailByIdAsync(Guid id)
     {
         var postEntity = await _repository.GetDetailByIdAsync(id);
-
-        if (postEntity == null)
-            throw new ResourceNotFoundException($"Post with ID {id} was not found.");
-
         var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync([id]);
 
         var reactionsDict = reactions
@@ -82,8 +78,8 @@ internal class PostService(
                 g => new
                 {
                     Total = g.Sum(r => r.Count),
-                    TypeCounts = g.GroupBy(r => r.Type.ToString())
-                                  .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
+                    TypeCounts = g.GroupBy(r => (int)r.Type)
+                                   .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
                 }
             );
 
@@ -92,7 +88,7 @@ internal class PostService(
         if (reactionsDict.TryGetValue(post.Id, out var postReactions))
         {
             post.TotalReactions = postReactions.Total;
-            post.ReactionCounts = postReactions.TypeCounts;
+            post.ReactionCounts =  postReactions.TypeCounts;
         }
         else
         {
