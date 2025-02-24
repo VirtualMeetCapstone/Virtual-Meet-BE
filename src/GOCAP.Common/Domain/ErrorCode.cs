@@ -2,6 +2,7 @@
 
 public enum ErrorCode
 {
+    InvalidRequest = 10000,
     Unauthorized = 10001,
     InvalidAuthorizationToken = 10002,
     ExpiredAuthorizationToken = 10003,
@@ -14,6 +15,7 @@ public enum ErrorCode
     InvalidApplicationType = 20004,
     InternalError = 30001,
     CorruptedTenant = 40001,
+    Forbidden = 40002,
 }
 
 //10001 – No Authorization Token
@@ -26,3 +28,4 @@ public enum ErrorCode
 //20004 – Invalid Application Type
 //30001 – Internal Error
 //40001 - Tenant Not Init
+//40002 - Forbidden

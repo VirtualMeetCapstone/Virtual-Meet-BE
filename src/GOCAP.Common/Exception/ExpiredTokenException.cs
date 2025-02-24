@@ -7,10 +7,10 @@ public class ExpiredTokenException : ApiExceptionBase
     {
     }
 
-    public ExpiredTokenException(String message)
+    public ExpiredTokenException(string message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.ExpiredAuthorizationToken;
-        this.StatusCode = HttpStatusCode.Unauthorized;
+        ErrorCode = (int)Common.ErrorCode.ExpiredAuthorizationToken;
+        StatusCode = HttpStatusCode.Unauthorized;
     }
 }

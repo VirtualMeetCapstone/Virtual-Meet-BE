@@ -10,6 +10,6 @@ public class InvalidTokenException : ApiExceptionBase
     public InvalidTokenException(String message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.InvalidAuthorizationToken;
+        ErrorCode = (int)Common.ErrorCode.InvalidAuthorizationToken;
     }
 }

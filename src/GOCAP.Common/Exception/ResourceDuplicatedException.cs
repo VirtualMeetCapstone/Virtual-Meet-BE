@@ -7,9 +7,9 @@ public class ResourceDuplicatedException : ApiExceptionBase
     {
     }
 
-    public ResourceDuplicatedException(String message) : base(message)
+    public ResourceDuplicatedException(string message) : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.ResourceDuplicated;
-        this.StatusCode = HttpStatusCode.Conflict;
+        ErrorCode = (int)Common.ErrorCode.ResourceDuplicated;
+        StatusCode = HttpStatusCode.Conflict;
     }
 }
