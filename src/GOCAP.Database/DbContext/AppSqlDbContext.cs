@@ -8,7 +8,7 @@ public class AppSqlDbContext
 {
     /// <summary>
     /// Please always updating the number of db sets and the db sets name by order.
-    /// There are 28 db sets.
+    /// There are 29 db sets.
     /// </summary>
     public DbSet<GroupEntity> Groups { get; set; }
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }
@@ -20,7 +20,8 @@ public class AppSqlDbContext
     public DbSet<RoomMemberRoleEntity> RoomMemberRoles { get; set; }
     public DbSet<RoomNotificationEntity> RoomNotifications { get; set; }
     public DbSet<RoomSettingEntity> RoomSettings { get; set; }
-    public DbSet<RoomTagEntity> RoomTags { get; set; }
+    public DbSet<HashTagEntity> HashTags { get; set; }
+    public DbSet<RoomHashTagEntity> RoomHashTags { get; set; }
     public DbSet<UserActivityEntity> UserActivities { get; set; }
     public DbSet<UserBlockEntity> UserBlocks { get; set; }
     public DbSet<UserEntity> Users { get; set; }

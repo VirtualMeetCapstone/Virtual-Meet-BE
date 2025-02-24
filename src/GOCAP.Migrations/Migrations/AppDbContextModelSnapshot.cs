@@ -80,6 +80,27 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("GroupMembers");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.HashTagEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HashTags");
+                });
+
             modelBuilder.Entity("GOCAP.Database.PermissionEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -402,6 +423,33 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("RoomFavourites");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoomHashTagEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CreateTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("HashTagId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("LastModifyTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HashTagId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomHashTags");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -511,32 +559,6 @@ namespace GOCAP.Migrations.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("RoomSettings");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.RoomTagEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TagName")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("RoomTags");
                 });
 
             modelBuilder.Entity("GOCAP.Database.StoryEntity", b =>
@@ -1065,6 +1087,25 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.RoomHashTagEntity", b =>
+                {
+                    b.HasOne("GOCAP.Database.HashTagEntity", "HashTag")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HashTagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GOCAP.Database.RoomEntity", "Room")
+                        .WithMany("HashTags")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HashTag");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
@@ -1110,17 +1151,6 @@ namespace GOCAP.Migrations.Migrations
                 {
                     b.HasOne("GOCAP.Database.RoomEntity", "Room")
                         .WithMany("Settings")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("GOCAP.Database.RoomTagEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.RoomEntity", "Room")
-                        .WithMany("Tags")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1305,6 +1335,11 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Members");
                 });
 
+            modelBuilder.Entity("GOCAP.Database.HashTagEntity", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
             modelBuilder.Entity("GOCAP.Database.PermissionEntity", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -1335,11 +1370,11 @@ namespace GOCAP.Migrations.Migrations
                 {
                     b.Navigation("Events");
 
+                    b.Navigation("HashTags");
+
                     b.Navigation("Members");
 
                     b.Navigation("Settings");
-
-                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("GOCAP.Database.RoomMemberEntity", b =>

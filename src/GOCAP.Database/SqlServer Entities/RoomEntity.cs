@@ -15,7 +15,7 @@ public class RoomEntity : EntitySqlBase
     public Guid? ChannelId { get; set; }
     public RoomChannelEntity? Channel { get; set; }
     public ICollection<RoomEventEntity> Events { get; set; } = [];
-    public ICollection<RoomTagEntity> Tags { get; set; } = [];
+    public ICollection<RoomHashTagEntity> HashTags { get; set; } = [];
     public ICollection<RoomSettingEntity> Settings { get; set; } = [];
     public ICollection<RoomMemberEntity> Members { get; set; } = [];
 }
