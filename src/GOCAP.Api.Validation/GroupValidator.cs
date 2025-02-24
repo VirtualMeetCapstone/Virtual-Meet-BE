@@ -7,9 +7,11 @@ public class GroupValidator : ValidatorBase<GroupCreationModel>
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Name must not be empty.")
-            .WithErrorCode("1000")
             .MaximumLength(AppConstants.MaxLengthName)
-            .WithMessage($"Name must not be exceed {AppConstants.MaxLengthName}.")
-            .WithErrorCode("1001");
+            .WithMessage($"Name must not be exceed {AppConstants.MaxLengthName}.");
+
+        RuleFor(x => x.OwnerId)
+            .NotEmpty()
+            .WithMessage("OwnerId must not be empty.");
     }
 }

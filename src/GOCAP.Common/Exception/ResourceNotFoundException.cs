@@ -7,10 +7,10 @@ public class ResourceNotFoundException : ApiExceptionBase
     {
     }
 
-    public ResourceNotFoundException(String message)
+    public ResourceNotFoundException(string message)
         : base(message)
     {
-        this.ErrorCode = (int)Common.ErrorCode.ResourceNotFound;
-        this.StatusCode = HttpStatusCode.NotFound;
+        ErrorCode = (int)Common.ErrorCode.ResourceNotFound;
+        StatusCode = HttpStatusCode.NotFound;
     }
 }
