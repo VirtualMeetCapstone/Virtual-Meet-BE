@@ -12,6 +12,20 @@ namespace GOCAP.Migrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "HashTags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HashTags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Permissions",
                 columns: table => new
                 {
@@ -603,6 +617,33 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoomHashTags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    HashTagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomHashTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoomHashTags_HashTags_HashTagId",
+                        column: x => x.HashTagId,
+                        principalTable: "HashTags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoomHashTags_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoomMembers",
                 columns: table => new
                 {
@@ -667,27 +708,6 @@ namespace GOCAP.Migrations.Migrations
                     table.PrimaryKey("PK_RoomSettings", x => x.Id);
                     table.ForeignKey(
                         name: "FK_RoomSettings_Rooms_RoomId",
-                        column: x => x.RoomId,
-                        principalTable: "Rooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RoomTags",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TagName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoomTags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RoomTags_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
@@ -791,6 +811,16 @@ namespace GOCAP.Migrations.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoomHashTags_HashTagId",
+                table: "RoomHashTags",
+                column: "HashTagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomHashTags_RoomId",
+                table: "RoomHashTags",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoomMemberRoles_RoomMemberId",
                 table: "RoomMemberRoles",
                 column: "RoomMemberId");
@@ -823,11 +853,6 @@ namespace GOCAP.Migrations.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RoomSettings_RoomId",
                 table: "RoomSettings",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoomTags_RoomId",
-                table: "RoomTags",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
@@ -947,6 +972,9 @@ namespace GOCAP.Migrations.Migrations
                 name: "RoomFavourites");
 
             migrationBuilder.DropTable(
+                name: "RoomHashTags");
+
+            migrationBuilder.DropTable(
                 name: "RoomMemberRoles");
 
             migrationBuilder.DropTable(
@@ -954,9 +982,6 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoomSettings");
-
-            migrationBuilder.DropTable(
-                name: "RoomTags");
 
             migrationBuilder.DropTable(
                 name: "StoryHightLights");
@@ -993,6 +1018,9 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "HashTags");
 
             migrationBuilder.DropTable(
                 name: "RoomMembers");
