@@ -1,5 +1,4 @@
-﻿using GOCAP.Database;
-namespace GOCAP.Domain;
+﻿namespace GOCAP.Domain;
 
 public class Post : DateTrackingBase
 {
@@ -11,5 +10,5 @@ public class Post : DateTrackingBase
     public PrivacyType? Privacy { get; set; }
     public ICollection<PostReaction> Reactions { get; set; } = [];
     public int TotalReactions { get; set; }
-    public Dictionary<string, int> ReactionCounts { get; set; } = new();
+    public Dictionary<int, int> ReactionCounts { get; set; } = [];
 }
