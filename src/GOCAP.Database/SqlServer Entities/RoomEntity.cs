@@ -8,7 +8,8 @@ public class RoomEntity : EntitySqlBase
     [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
-    public string? Medias { get; set; } 
+    public string? Medias { get; set; }
+    public PrivacyType? Privacy { get; set; }
     public RoomStatusType? Status { get; set; }
     public Guid OwnerId { get; set; }
     public UserEntity? Owner { get; set; }
