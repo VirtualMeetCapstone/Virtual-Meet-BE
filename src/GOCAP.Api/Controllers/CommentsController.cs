@@ -27,4 +27,14 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
     {
         return await _service.DeleteByIdAsync(id);
     }
+
+    [HttpGet("replies/{commentId}")]
+    public async Task<QueryResult<CommentModel>> GetReplies([FromRoute] Guid commentId, [FromQuery] QueryInfo queryInfo)
+    {
+        //use replyModel
+        var replies = await _service.GetRepliesAsyncWithPagingAsync(commentId, queryInfo);
+        var result = _mapper.Map<QueryResult<CommentModel>>(replies);
+        return result;
+    }
+
 }

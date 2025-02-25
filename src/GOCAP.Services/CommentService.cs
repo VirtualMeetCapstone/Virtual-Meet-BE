@@ -30,6 +30,15 @@ internal class CommentService(
             throw new ResourceNotFoundException($"Post {domain.PostId} does not found.");
         }
 
+        if (domain.ParentId.HasValue && domain.ParentId.Value != Guid.Empty)
+         {
+            var parentCommentExists = await _repository.CheckExistAsync(domain.ParentId.Value);
+            if (!parentCommentExists)
+            {
+                throw new ResourceNotFoundException($"Parent comment {domain.ParentId.Value} does not exist.");
+            }
+        }
+
         domain.Author = new CommentAuthor
         {
             Id = author.Id,
@@ -44,6 +53,12 @@ internal class CommentService(
     public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
     {
         var result = await _repository.GetByPostIdWithPagingAsync(postId, queryInfo);
+        return _mapper.Map<QueryResult<Comment>>(result);
+    }
+
+   public async Task<QueryResult<Comment>> GetRepliesAsyncWithPagingAsync(Guid commentId, QueryInfo queryInfo)
+    {
+        var result = await _repository.GetRepliesAsyncWithPagingAsync(commentId, queryInfo);
         return _mapper.Map<QueryResult<Comment>>(result);
     }
 }

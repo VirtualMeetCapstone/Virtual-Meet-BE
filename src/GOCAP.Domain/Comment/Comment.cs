@@ -7,4 +7,5 @@ public class Comment : DateTrackingBase
     public string? Content {  get; set; }
     public Guid? ParentId { get; set; }
     public List<Guid> ReplyIds { get; set; } = [];
+    public int ReplyCount { get; set; }
 }
