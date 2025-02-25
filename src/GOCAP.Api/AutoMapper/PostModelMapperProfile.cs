@@ -6,6 +6,7 @@ public class PostModelMapperProfile : ModelMapperProfileBase
     {
         CreateMap<QueryResult<Post>, QueryResult<PostModel>>().ReverseMap();
         CreateMap<Post, PostModel>().ReverseMap();
+        CreateMap<User, UserPostModel>().ReverseMap();
 
         CreateMap<Post, PostCreationModel>()
             .ForMember(dest => dest.MediaUploads, opt => opt
