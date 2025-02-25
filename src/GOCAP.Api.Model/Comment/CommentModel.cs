@@ -7,7 +7,8 @@ public class CommentModel
     public required CommentAuthor Author { get; set; }
     public required string Content { get; set; }
     public Guid? ParentId { get; set; }
-    public List<Guid> ReplyIds { get; set; } = [];
+    public List<Guid> Replies { get; set; } = [];
     public long CreateTime { get; set; }
-    public long LastModifyTime { get; set; }    
+    public long LastModifyTime { get; set; }
+    public int ReplyCount { get; set; }
 }

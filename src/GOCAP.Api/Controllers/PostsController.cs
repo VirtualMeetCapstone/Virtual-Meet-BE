@@ -16,11 +16,16 @@ public class PostsController(
     [AllowAnonymous]
     public async Task<QueryResult<PostModel>> GetByPage([FromQuery] QueryInfo queryInfo)
     {
-        var domain = await _service.GetByPageAsync(queryInfo);
+        var domain = await _service.GetWithPagingAsync(queryInfo);
         var result = _mapper.Map<QueryResult<PostModel>>(domain);
         return result;
     }
 
+    /// <summary>
+    /// Get list post by postID with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<PostModel>> GetById([FromRoute] Guid id)
     {
@@ -52,7 +57,7 @@ public class PostsController(
     }
 
     /// <summary>
-    /// Get list user-reaction by with paging.
+    /// Get list user-reaction of post by with paging.
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
@@ -65,5 +70,30 @@ public class PostsController(
         return result;
     }
 
-}
+    /// <summary>
+    /// Get list post by UserID with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
+    [HttpGet("user/{userId}")]
+    public async Task<QueryResult<PostModel>> GetPostByUserIdAsync([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _service.GetPostByUserIdAsync(userId, queryInfo);
+        var result = _mapper.Map<QueryResult<PostModel>>(domain);
+        return result;
+    }
 
+    /// <summary>
+    /// Get list post by UserID have reacted with paging.
+    /// </summary>
+    /// <param name="queryInfo"></param>
+    /// <returns></returns>
+    [HttpGet("user/reacted/{userId}")]
+    public async Task<QueryResult<PostModel>> GetPostsUserReactedAsync([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _service.GetPostsUserReactedAsync(userId, queryInfo);
+        var result = _mapper.Map<QueryResult<PostModel>>(domain);
+        return result;
+    }
+
+}

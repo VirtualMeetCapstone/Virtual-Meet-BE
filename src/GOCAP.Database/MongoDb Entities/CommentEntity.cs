@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-
-namespace GOCAP.Database;
+﻿namespace GOCAP.Database;
 
 [BsonCollection("Comments")]
 public class CommentEntity : EntityMongoBase
@@ -11,7 +9,9 @@ public class CommentEntity : EntityMongoBase
     public List<string> Mentions { get; set; } = [];
     public Guid? ParentId { get; set; }
     [BsonIgnore]
-    public List<CommentEntity>? Replies { get; set; } // No saving directly in db, only using for returning api
+    public List<CommentEntity>? Replies { get; set; }
+    [BsonIgnore]
+    public int ReplyCount { get; set; }
 }
 
 public class CommentAuthorEntity

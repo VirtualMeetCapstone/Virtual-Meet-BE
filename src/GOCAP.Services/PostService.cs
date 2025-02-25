@@ -13,91 +13,12 @@ internal class PostService(
 {
     private readonly IMapper _mapper = _mapper;
 
-    public override async Task<QueryResult<Post>> GetByPageAsync(QueryInfo queryInfo)
-    {
-        var postsResult = await _repository.GetByPageAsync(queryInfo);
-        var postIds = postsResult.Data.Select(p => p.Id).ToList();
+    public async Task<QueryResult<Post>> GetWithPagingAsync(QueryInfo queryInfo)
+    => await _repository.GetWithPagingAsync(queryInfo);
 
-        if (postIds.Count == 0) 
-        {
-            return new QueryResult<Post>
-            {
-                Data = [],
-                TotalCount = postsResult.TotalCount
-            };
-        }
-
-        var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync(postIds);
-
-        var reactionsDict = reactions
-            .GroupBy(r => r.PostId)
-            .ToDictionary(
-                g => g.Key,
-                g => new
-                {
-                    Total = g.Sum(r => r.Count),
-                    TypeCounts = g.GroupBy(r => (int)r.Type)
-                                  .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
-                }
-            );
-
-        var postDomain = postsResult.Data
-            .Select(entity =>
-            {
-                var domainPost = _mapper.Map<Post>(entity);
-                if (reactionsDict.TryGetValue(domainPost.Id, out var postReactions))
-                {
-                    domainPost.TotalReactions = postReactions.Total;
-                    domainPost.ReactionCounts = postReactions.TypeCounts;
-                }
-                else
-                {
-                    domainPost.TotalReactions = 0;
-                    domainPost.ReactionCounts = [];
-                }
-                return domainPost;
-            })
-            .ToList();
-
-        return new QueryResult<Post>
-        {
-            Data = postDomain,
-            TotalCount = postsResult.TotalCount
-        };
-    }
 
     public async Task<Post> GetDetailByIdAsync(Guid id)
-    {
-        var postEntity = await _repository.GetDetailByIdAsync(id);
-        var reactions = await _postReactionRepository.GetReactionsByPostIdsAsync([id]);
-
-        var reactionsDict = reactions
-            .GroupBy(r => r.PostId)
-            .ToDictionary(
-                g => g.Key,
-                g => new
-                {
-                    Total = g.Sum(r => r.Count),
-                    TypeCounts = g.GroupBy(r => (int)r.Type)
-                                   .ToDictionary(gr => gr.Key, gr => gr.Sum(r => r.Count))
-                }
-            );
-
-        var post = _mapper.Map<Post>(postEntity);
-
-        if (reactionsDict.TryGetValue(post.Id, out var postReactions))
-        {
-            post.TotalReactions = postReactions.Total;
-            post.ReactionCounts =  postReactions.TypeCounts;
-        }
-        else
-        {
-            post.TotalReactions = 0;
-            post.ReactionCounts = [];
-        }
-
-        return post;
-    }
+    => await _repository.GetDetailByIdAsync(id);
 
     /// <summary>
     /// Create a new post.
@@ -154,7 +75,7 @@ internal class PostService(
             await _postReactionRepository.DeleteByPostIdAsync(id);
 
             // Remove comments of the post.
-            
+
             // Post
             var result = await _repository.DeleteByIdAsync(id);
 
@@ -170,4 +91,15 @@ internal class PostService(
             return new OperationResult(false);
         }
     }
+
+    public async Task<QueryResult<Post>> GetPostByUserIdAsync(
+        Guid userId,
+        QueryInfo queryInfo)
+        => await _repository.GetPostByUserIdAsync(userId, queryInfo);
+
+    public async Task<QueryResult<Post>> GetPostsUserReactedAsync(
+        Guid userId,
+        QueryInfo queryInfo)
+        => await _repository.GetPostsUserReactedAsync(userId, queryInfo);
+
 }
