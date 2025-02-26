@@ -10,5 +10,5 @@ internal class RoomHashTagService(
 	private readonly IMapper _mapper = _mapper;
 
 	public async Task<QueryResult<Room>> GetRoomsByHashTagWithPagingAsync(string tag, QueryInfo queryInfo)
-		=> await _repository.GetRoomsByHashTagsWithPagingAsync(tag, queryInfo);
+		=> await _repository.GetRoomsByHashTagWithPagingAsync(tag, queryInfo);
 }

@@ -2,5 +2,5 @@
 
 public interface IRoomHashTagRepository : ISqlRepositoryBase<RoomHashTagEntity>
 {
-	Task<QueryResult<Room>> GetRoomsByHashTagsWithPagingAsync(string tag, QueryInfo queryInfo);
+	Task<QueryResult<Room>> GetRoomsByHashTagWithPagingAsync(string tag, QueryInfo queryInfo);
 }
