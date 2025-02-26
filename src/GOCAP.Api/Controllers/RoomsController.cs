@@ -84,7 +84,7 @@ public class RoomsController(IRoomService _service,
     }
 
     [HttpGet("{userId}/favourite")]
-    public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomsFavouritesByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    public async Task<QueryResult<RoomFavouriteDetailModel>> GetRoomFavouritesByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
         var domain = await _roomFavouriteService.GetFavouritesByUserIdWithPagingAsync(userId, queryInfo);
         var result = _mapper.Map<QueryResult<RoomFavouriteDetailModel>>(domain);
