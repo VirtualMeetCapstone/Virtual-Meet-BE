@@ -6,10 +6,13 @@ namespace GOCAP.Database;
 public class UserEntity : EntitySqlBase, ISoftDelete
 {
     [MaxLength(AppConstants.MaxLengthName)]
-    public required string Name { get; set; } 
+    [Required]
+    public string Name { get; set; } = string.Empty;
     [MaxLength(AppConstants.MaxLengthEmail)]
-    public required string Email { get; set; }
+    [Required]
+    public string Email { get; set; } = string.Empty;
     [MaxLength(AppConstants.MaxLengthUrl)]
+    [Required]
     public string Picture { get; set; } = string.Empty;
     [MaxLength(AppConstants.MaxLengthDescription)]
     public string? Bio { get; set; }

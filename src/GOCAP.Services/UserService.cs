@@ -46,10 +46,11 @@ internal class UserService(
 		return await _repository.IsEmailExistsAsync(email);
 	}
 
-	public Task<User?> GetByEmail(string email)
+	public async Task<User?> GetByEmailAsync(string email)
 	{
-		return _repository.GetByEmailAsync(email);
-	}
+		var entity = await _repository.GetByEmailAsync(email);
+		return _mapper.Map<User?>(entity);
+    }
 
 	public async Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId)
 	{
