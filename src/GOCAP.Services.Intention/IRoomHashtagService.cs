@@ -2,5 +2,5 @@
 
 public interface IRoomHashTagService : IServiceBase<RoomHashTag>
 {
-	Task<QueryResult<Room>> GetRoomByHashTagWithPagingAsync(string tag, QueryInfo queryInfo);
+	Task<QueryResult<Room>> GetRoomsByHashTagWithPagingAsync(string tag, QueryInfo queryInfo);
 }

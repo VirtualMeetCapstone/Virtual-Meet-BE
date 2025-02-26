@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IHashtagRepository : ISqlRepositoryBase<HashTagEntity>
+public interface IHashTagRepository : ISqlRepositoryBase<HashTagEntity>
 {
-	Task<List<Hashtag>>  SearchHashtagsAsync(string prefix, int limit);
+	Task<List<HashTag>>  SearchHashTagsAsync(string prefix, int limit);
 }

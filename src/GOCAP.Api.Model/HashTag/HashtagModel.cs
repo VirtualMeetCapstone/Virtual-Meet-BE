@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class HashtagModel
+public class HashTagModel
 {
 	public Guid Id { get; set; }
 

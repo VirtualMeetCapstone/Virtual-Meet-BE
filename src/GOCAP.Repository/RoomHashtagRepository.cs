@@ -7,7 +7,7 @@ internal class RoomHashTagRepository(AppSqlDbContext _context, IMapper _mapper) 
 	private readonly IMapper _mapper = _mapper;
 	private readonly AppSqlDbContext _context = _context;
 
-	public async Task<QueryResult<Room>> GetRoomByHashtagsWithPagingAsync(string tag, QueryInfo queryInfo)
+	public async Task<QueryResult<Room>> GetRoomsByHashTagsWithPagingAsync(string tag, QueryInfo queryInfo)
 	{
 		var totalItems = await _context.RoomHashTags
 			.Where(r => r.HashTag!.Name!.StartsWith(tag))

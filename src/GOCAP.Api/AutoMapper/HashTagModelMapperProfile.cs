@@ -4,7 +4,7 @@ public class HashTagModelMapperProfile : ModelMapperProfileBase
 {
 	public HashTagModelMapperProfile()
 	{
-		CreateMap<Hashtag, HashtagModel>().ReverseMap();
+		CreateMap<HashTag, HashTagModel>().ReverseMap();
 		CreateMap<RoomHashTag, RoomModel>().ReverseMap();
 	}
 }

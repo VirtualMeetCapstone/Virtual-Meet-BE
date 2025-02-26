@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Services.Intention;
 
-public interface IHashtagService : IServiceBase<Hashtag>
+public interface IHashTagService : IServiceBase<HashTag>
 {
-	Task<List<Hashtag>> SearchHashtagsAsync(string prefix, int limit);
+	Task<List<HashTag>> SearchHashTagsAsync(string prefix, int limit);
 }
