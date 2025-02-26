@@ -4,7 +4,7 @@
 internal class UserRoleRepository(AppSqlDbContext context) : SqlRepositoryBase<UserRoleEntity>(context), IUserRoleRepository
 {
     private readonly AppSqlDbContext _context = context;
-    public async Task<UserRoleEntity> AssignRoleToUser(UserRoleEntity entity)
+    public async Task<UserRoleEntity> AssignRoleToUserAsync(UserRoleEntity entity)
     {
         await ValidateAsync(entity);
         await _context.UserRoles.AddAsync(entity);

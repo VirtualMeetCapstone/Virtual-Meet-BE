@@ -11,7 +11,7 @@ internal class UserRoleService(
     public async Task<UserRole> AssignRoleToUser(UserRole domain)
     {
         var entity = _mapper.Map<UserRoleEntity>(domain);
-        var result = await _repository.AssignRoleToUser(entity);
+        var result = await _repository.AssignRoleToUserAsync(entity);
         return _mapper.Map<UserRole>(result);
     }
 }
