@@ -5,5 +5,6 @@ public class HashTagEntityMapperProfile : EntityMapperProfileBase
 	public HashTagEntityMapperProfile()
 	{
 		CreateMap<Hashtag, HashTagEntity>().ReverseMap();
+		CreateMap<RoomHashtag, RoomHashTagEntity>().ReverseMap();
 	}
 }
