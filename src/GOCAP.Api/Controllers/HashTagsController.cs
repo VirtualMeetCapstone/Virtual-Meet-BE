@@ -1,8 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("hashtags")]
-
-public class HashtagController(
+public class HashTagsController(
 	IHashTagService _service,
 	IRoomHashTagService _roomHashTagService,
 	IMapper _mapper) : ApiControllerBase
@@ -13,8 +12,8 @@ public class HashtagController(
 		var results = await _service.SearchHashTagsAsync(prefix, limit);
 		return _mapper.Map<List<HashTagModel>>(results);
 	}
-	[HttpGet("/rooms/page")]
-	public async Task<QueryResult<RoomModel>> GetRoomByHashTagWithPaging([FromQuery] string tag, [FromQuery] QueryInfo queryInfo)
+	[HttpGet("rooms/page")]
+	public async Task<QueryResult<RoomModel>> GetRoomsByHashTagWithPaging([FromQuery] string tag, [FromQuery] QueryInfo queryInfo)
 	{
 		var rooms = await _roomHashTagService.GetRoomsByHashTagWithPagingAsync(tag, queryInfo);
 		var result = _mapper.Map<QueryResult<RoomModel>>(rooms);

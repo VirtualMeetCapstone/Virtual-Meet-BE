@@ -10,7 +10,7 @@ public class AuthController(IAuthService _service) : ApiControllerBase
         {
             var payload = await _service.VerifyGoogleTokenAsync(idToken);
             var user = await _service.GetOrCreateUserAsync(payload);
-            var jwtToken = _service.GenerateJwtToken(user);
+            var jwtToken = await _service.GenerateJwtToken(user);
             return new ApiResponse { Data = jwtToken };
         }
         catch (Exception ex)
