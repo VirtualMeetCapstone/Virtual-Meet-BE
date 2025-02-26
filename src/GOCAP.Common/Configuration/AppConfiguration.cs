@@ -2,7 +2,7 @@
 
 namespace GOCAP.Common;
 
-public class AppConfiguration (IConfiguration _configuration) : IAppConfiguration
+public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
 {
 
     /// <summary>
@@ -23,11 +23,20 @@ public class AppConfiguration (IConfiguration _configuration) : IAppConfiguratio
     {
         return _configuration["Authentication:Google:ClientId"];
     }
+
+    /// <summary>
+    /// Get jwt settings.
+    /// </summary>
+    /// <returns></returns>
     public JwtSettings GetJwtSettings()
     {
         var jwtSettings = new JwtSettings();
         _configuration.GetSection("Jwt").Bind(jwtSettings);
+        jwtSettings.Issuer = GetDefaultDomain();
+        jwtSettings.Audience = GetDefaultDomain();
         return jwtSettings;
     }
 
+    public string GetDefaultDomain()
+    => _configuration.GetSection("Domain").Value ?? "";
 }

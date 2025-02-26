@@ -11,6 +11,7 @@ public static class JwtBearerAuthenticationExtensions
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration _configuration)
     {
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"] ?? "");
+        var domain = _configuration.GetSection("Domain").Value;
 
         // Configure jwt authentication
         services
@@ -27,8 +28,8 @@ public static class JwtBearerAuthenticationExtensions
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidIssuer = AppConstants.DefaultUri,
-                    ValidAudience = AppConstants.DefaultUri,
+                    ValidIssuer = domain,
+                    ValidAudience = domain,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             })
