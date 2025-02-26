@@ -1,8 +1,8 @@
 ﻿namespace GOCAP.Repository;
 
-[RegisterService(typeof(IRoomHashtagRepository))]
-internal class RoomHashtagRepository(AppSqlDbContext _context, IMapper _mapper) : SqlRepositoryBase<RoomHashTagEntity>(_context),
-	IRoomHashtagRepository
+[RegisterService(typeof(IRoomHashTagRepository))]
+internal class RoomHashTagRepository(AppSqlDbContext _context, IMapper _mapper) : SqlRepositoryBase<RoomHashTagEntity>(_context),
+	IRoomHashTagRepository
 {
 	private readonly IMapper _mapper = _mapper;
 	private readonly AppSqlDbContext _context = _context;

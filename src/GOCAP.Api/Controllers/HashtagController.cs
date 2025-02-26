@@ -4,7 +4,7 @@
 
 public class HashtagController(
 	IHashtagService _service,
-	IRoomHashtagService _roomHashtagService,
+	IRoomHashTagService _roomHashtagService,
 	IMapper _mapper) : ApiControllerBase
 {
 	[HttpGet("search")]

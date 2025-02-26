@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class RoomHashtag : DateTrackingBase
+public class RoomHashTag : DateTrackingBase
 {
 	public Guid RoomId { get; set; }
 	public Room? Room { get; set; }

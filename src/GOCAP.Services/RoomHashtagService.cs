@@ -1,11 +1,11 @@
 ﻿namespace GOCAP.Services;
 
-[RegisterService(typeof(IRoomHashtagService))]
-internal class RoomHashtagService(
-	IRoomHashtagRepository _repository,
+[RegisterService(typeof(IRoomHashTagService))]
+internal class RoomHashTagService(
+	IRoomHashTagRepository _repository,
 	IMapper _mapper,
-    ILogger<RoomHashtagService> _logger
-    ) : ServiceBase<RoomHashtag, RoomHashTagEntity>(_repository, _mapper, _logger), IRoomHashtagService
+    ILogger<RoomHashTagService> _logger
+    ) : ServiceBase<RoomHashTag, RoomHashTagEntity>(_repository, _mapper, _logger), IRoomHashTagService
 {
 	private readonly IMapper _mapper = _mapper;
 

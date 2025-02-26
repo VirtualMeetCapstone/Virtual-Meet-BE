@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IRoomHashtagRepository : ISqlRepositoryBase<RoomHashTagEntity>
+public interface IRoomHashTagRepository : ISqlRepositoryBase<RoomHashTagEntity>
 {
 	Task<QueryResult<Room>> GetRoomByHashtagsWithPagingAsync(string tag, QueryInfo queryInfo);
 }
