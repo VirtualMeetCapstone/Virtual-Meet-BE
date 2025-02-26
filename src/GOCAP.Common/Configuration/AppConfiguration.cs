@@ -6,17 +6,28 @@ public class AppConfiguration (IConfiguration _configuration) : IAppConfiguratio
 {
 
     /// <summary>
-    /// Get sql server connection string 
+    /// Get sql server connection string.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public string? GetSqlServerConnectionString()
+    public string GetSqlServerConnectionString()
     {
-        if (_configuration is null)
-        {
-            throw new InternalException("Configuration has not been initialized.");
-        }
-
-        return _configuration.GetConnectionString(AppConstants.SqlServerConnection);
+        return _configuration.GetConnectionString(AppConstants.SqlServerConnection)
+            ?? throw new InternalException();
     }   
+
+    /// <summary>
+    /// Get google client id string.
+    /// </summary>
+    /// <returns></returns>
+    public string? GetGoogleClientIdString()
+    {
+        return _configuration["Authentication:Google:ClientId"];
+    }
+    public JwtSettings GetJwtSettings()
+    {
+        var jwtSettings = new JwtSettings();
+        _configuration.GetSection("Jwt").Bind(jwtSettings);
+        return jwtSettings;
+    }
+
 }

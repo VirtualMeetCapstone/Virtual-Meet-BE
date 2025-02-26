@@ -6,6 +6,6 @@ public interface IUserService : IServiceBase<User>
     Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId);
     Task<User> GetUserProfileAsync(Guid id);
     Task<bool> IsEmailExists(string email);
-    Task<User?> GetByEmail(string email);
+    Task<User?> GetByEmailAsync(string email);
     Task<List<User>> SearchUsersAsync(string userName, int limit);
 }

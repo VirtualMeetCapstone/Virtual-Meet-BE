@@ -1,4 +1,6 @@
 ﻿#if DEBUG
+using GOCAP.Api.Hubs;
+
 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development", EnvironmentVariableTarget.Process);
 #endif
 
@@ -10,6 +12,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+
+// SignalR
+builder.Services.AddSignalR();
 
 // Add services to the container.
 builder.Services.AddCorsPolicy()
@@ -35,6 +40,7 @@ app.UseAuthentication();
 app.UseMiddleware<PermissionsControlMiddleware>();
 app.UseAuthorization();
 app.UseCors();
+app.MapHub<ChatHub>("/chatHub");
 
 // Configure the HTTP request pipeline.
 

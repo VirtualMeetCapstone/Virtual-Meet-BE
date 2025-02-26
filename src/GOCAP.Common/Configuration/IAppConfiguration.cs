@@ -3,4 +3,6 @@
 public interface IAppConfiguration
 {
     string? GetSqlServerConnectionString();
+    string? GetGoogleClientIdString();
+    JwtSettings GetJwtSettings();
 }

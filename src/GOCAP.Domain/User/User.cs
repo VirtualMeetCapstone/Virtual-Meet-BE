@@ -1,7 +1,7 @@
 ﻿namespace GOCAP.Domain;
 public class User : CreatedObjectBase, ISoftDelete
 {
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
     public Media? Picture { get; set; }
     public MediaUpload? PictureUpload { get; set; }
     public string? Locale { get; set; }
