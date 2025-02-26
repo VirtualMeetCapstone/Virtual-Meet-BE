@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace GOCAP.Services;
@@ -65,7 +66,7 @@ internal class AuthService(IAppConfiguration _appConfiguration,
         var result = _mapper.Map<User>(user);
         return result;
     }
-    public async Task<string> GenerateJwtToken(User user)
+    public async Task<string> GenerateJwtTokenAsync(User user)
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         var jwtSettings = _appConfiguration.GetJwtSettings();
@@ -92,5 +93,19 @@ internal class AuthService(IAppConfiguration _appConfiguration,
 
         var token = jwtTokenHandler.CreateToken(tokenDescriptor);
         return jwtTokenHandler.WriteToken(token);
+    }
+
+    public string GenerateRefreshTokenAsync(Guid userId)
+    {
+        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var tokenEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Token = refreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7).Ticks 
+        };
+        // Save to db
+        return refreshToken;
     }
 }
