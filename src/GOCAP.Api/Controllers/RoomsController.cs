@@ -37,6 +37,7 @@ public class RoomsController(IRoomService _service,
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
+    [ValidateModel]
     public async Task<RoomModel> Create([FromForm] RoomCreationModel model)
     {
         var room = _mapper.Map<Room>(model);
