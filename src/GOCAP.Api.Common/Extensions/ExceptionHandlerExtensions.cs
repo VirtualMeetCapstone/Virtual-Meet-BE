@@ -31,8 +31,7 @@ public static class ExceptionHandlerExtensions
                 var errorModel = new ErrorModel
                 {
                     ErrorMessage = "Unexpected error has occurred.",
-                    ErrorCode = (int)ErrorCode.InternalError,
-                    ErrorDetails = ["An internal server error occurred. Please try again later."]
+                    ErrorCode = (int)ErrorCode.InternalError
                 };
                 if (exception is not null && exception is ValidationException validationException)
                 {

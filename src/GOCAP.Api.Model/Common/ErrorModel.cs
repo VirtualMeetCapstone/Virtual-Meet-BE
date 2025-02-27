@@ -23,9 +23,9 @@ public class ErrorModel
     /// The error message of current exception
     /// </summary>
     public string ErrorMessage { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// The error details of current exception
     /// </summary>
-    public List<string>? ErrorDetails { get; set; }
+    public List<string> ErrorDetails { get; set; } = [];
 }
