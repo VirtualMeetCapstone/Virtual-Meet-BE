@@ -7,7 +7,7 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
     public async Task<QueryResult<CommentModel>> GetByPostIdWithPaging([FromRoute] Guid postId,
         [FromQuery] QueryInfo queryInfo)
     {
-        var comments = await _service.GetByPostId(postId, queryInfo);
+        var comments = await _service.GetByPostIdWithPagingAsync(postId, queryInfo);
         var result = _mapper.Map<QueryResult<CommentModel>>(comments);
         return result;
     }
@@ -32,7 +32,7 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
     public async Task<QueryResult<CommentModel>> GetReplies([FromRoute] Guid commentId, [FromQuery] QueryInfo queryInfo)
     {
         //use replyModel
-        var replies = await _service.GetReplies(commentId, queryInfo);
+        var replies = await _service.GetRepliesWithPagingAsync(commentId, queryInfo);
         var result = _mapper.Map<QueryResult<CommentModel>>(replies);
         return result;
     }

@@ -51,14 +51,14 @@ internal class CommentService(
         var result = await _repository.AddAsync(entity);
         return _mapper.Map<Comment>(result);
     }
-    public async Task<QueryResult<Comment>> GetByPostId(Guid postId, QueryInfo queryInfo)
+    public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
     {
-        var result = await _repository.GetByPostId(postId, queryInfo);
+        var result = await _repository.GetByPostIdWithPagingAsync(postId, queryInfo);
         return _mapper.Map<QueryResult<Comment>>(result);
     }
-    public async Task<QueryResult<Comment>> GetReplies(Guid commentId, QueryInfo queryInfo)
+    public async Task<QueryResult<Comment>> GetRepliesWithPagingAsync(Guid commentId, QueryInfo queryInfo)
     {
-        var result = await _repository.GetReplies(commentId, queryInfo);
+        var result = await _repository.GetRepliesWithPagingAsync(commentId, queryInfo);
         return _mapper.Map<QueryResult<Comment>>(result);
     }
     public async Task<OperationResult> ReactOrUnreactedAsync(CommentReaction commentReaction)
