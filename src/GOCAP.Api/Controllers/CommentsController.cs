@@ -32,9 +32,17 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
     public async Task<QueryResult<CommentModel>> GetReplies([FromRoute] Guid commentId, [FromQuery] QueryInfo queryInfo)
     {
         //use replyModel
-        var replies = await _service.GetRepliesAsyncWithPagingAsync(commentId, queryInfo);
+        var replies = await _service.GetRepliesWithPagingAsync(commentId, queryInfo);
         var result = _mapper.Map<QueryResult<CommentModel>>(replies);
         return result;
     }
 
+    [HttpPost("react")]
+    public async Task<IActionResult> ReactOrUnreacted([FromBody] CommentReactionModel reaction)
+    {
+        var domain = _mapper.Map<CommentReaction>(reaction);
+        var result = await _service.ReactOrUnreactedAsync(domain);
+       
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }

@@ -6,6 +6,7 @@ public class CommentModelMapperProfile : ModelMapperProfileBase
     {
         CreateMap<Comment, CommentModel>().ReverseMap();
         CreateMap<Comment, CommentCreationModel>().ReverseMap();
+        CreateMap<CommentReaction, CommentReactionModel>().ReverseMap();
         CreateMap<QueryResult<Comment>, QueryResult<CommentModel>>().ReverseMap();
     }
 }

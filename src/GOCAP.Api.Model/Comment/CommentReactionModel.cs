@@ -1,7 +1,8 @@
 ﻿namespace GOCAP.Api.Model;
-public class PostReactionCreationModel
+
+public class CommentReactionModel
 {
-    public Guid PostId { get; set; }
+    public Guid CommentId { get; set; }
     public Guid UserId { get; set; }
     public ReactionType Type { get; set; }
 }

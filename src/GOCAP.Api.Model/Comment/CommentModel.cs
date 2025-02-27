@@ -1,5 +1,4 @@
 ﻿namespace GOCAP.Api.Model;
-
 public class CommentModel
 {
     public Guid Id { get; set; }
@@ -11,4 +10,6 @@ public class CommentModel
     public long CreateTime { get; set; }
     public long LastModifyTime { get; set; }
     public int ReplyCount { get; set; }
+    public int TotalReactions { get; set; }
+    public Dictionary<int, int> ReactionCounts { get; set; } = [];
 }
