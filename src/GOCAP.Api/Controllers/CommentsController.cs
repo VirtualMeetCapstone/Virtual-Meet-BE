@@ -37,4 +37,12 @@ public class CommentsController(ICommentService _service, IMapper _mapper) : Api
         return result;
     }
 
+    [HttpPost("react")]
+    public async Task<IActionResult> ReactOrUnreacted([FromBody] CommentReactionModel reaction)
+    {
+        var domain = _mapper.Map<CommentReaction>(reaction);
+        var result = await _service.ReactOrUnreactedAsync(domain);
+       
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }

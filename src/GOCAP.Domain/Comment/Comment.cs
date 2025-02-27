@@ -8,4 +8,6 @@ public class Comment : DateTrackingBase
     public Guid? ParentId { get; set; }
     public List<Guid> ReplyIds { get; set; } = [];
     public int ReplyCount { get; set; }
+    public int TotalReactions { get; set; }
+    public Dictionary<int, int> ReactionCounts { get; set; } = [];
 }

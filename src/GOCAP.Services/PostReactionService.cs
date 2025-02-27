@@ -1,6 +1,4 @@
-﻿using GOCAP.Repository.Intention;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IPostReactionService))]
 internal class PostReactionService(

@@ -5,6 +5,7 @@ internal class CommentService(
     ICommentRepository _repository,
     IPostRepository _postRepository,
     IUserRepository _userRepository,
+    ICommentReactionRepository _commentReactionRepository,
     IMapper _mapper,
     ILogger<CommentService> _logger
     ) : ServiceBase<Comment, CommentEntity>(_repository, _mapper, _logger), ICommentService
@@ -31,7 +32,7 @@ internal class CommentService(
         }
 
         if (domain.ParentId.HasValue && domain.ParentId.Value != Guid.Empty)
-         {
+        {
             var parentCommentExists = await _repository.CheckExistAsync(domain.ParentId.Value);
             if (!parentCommentExists)
             {
@@ -55,10 +56,47 @@ internal class CommentService(
         var result = await _repository.GetByPostIdWithPagingAsync(postId, queryInfo);
         return _mapper.Map<QueryResult<Comment>>(result);
     }
-
-   public async Task<QueryResult<Comment>> GetRepliesAsyncWithPagingAsync(Guid commentId, QueryInfo queryInfo)
+    public async Task<QueryResult<Comment>> GetRepliesAsyncWithPagingAsync(Guid commentId, QueryInfo queryInfo)
     {
         var result = await _repository.GetRepliesAsyncWithPagingAsync(commentId, queryInfo);
         return _mapper.Map<QueryResult<Comment>>(result);
+    }
+    public async Task<OperationResult> ReactOrUnreactedAsync(CommentReaction commentReaction)
+    {
+        if (!Enum.IsDefined(typeof(ReactionType), commentReaction.Type) || (int)commentReaction.Type <= 0)
+        {
+            _logger.LogWarning("Invalid reaction type: {Type} for CommentId: {CommentId}, UserId: {UserId}",
+                commentReaction.Type, commentReaction.CommentId, commentReaction.UserId);
+            return new OperationResult(false, "Invalid reaction type.");
+        }
+
+        var existingReaction = await _commentReactionRepository.GetByCommentAndUserAsync(commentReaction.CommentId, commentReaction.UserId);
+
+        if (existingReaction != null)
+        {
+            if (existingReaction.Type == commentReaction.Type)
+            {
+                _logger.LogInformation("Start deleting reaction of type {Type}.", existingReaction.Type);
+                var resultDelete = await _commentReactionRepository.DeleteAsync(commentReaction.CommentId, commentReaction.UserId);
+
+                return new OperationResult(resultDelete > 0, resultDelete > 0 ? "Reaction removed." : "Failed to remove reaction.");
+            }
+            else
+            {
+                _logger.LogInformation("Updating reaction from {OldType} to {NewType}", existingReaction.Type, commentReaction.Type);
+                existingReaction.Type = commentReaction.Type;
+                await _commentReactionRepository.UpdateAsync(existingReaction);
+                return new OperationResult(true, "Reaction updated.");
+            }
+        }
+        else
+        {
+            _logger.LogInformation("Adding new reaction: {Type} for CommentId: {CommentId}, UserId: {UserId}",
+                commentReaction.Type, commentReaction.CommentId, commentReaction.UserId);
+
+            var entity = _mapper.Map<CommentReactionEntity>(commentReaction);
+            await _commentReactionRepository.AddAsync(entity);
+            return new OperationResult(true, "Reaction added.");
+        }
     }
 }
