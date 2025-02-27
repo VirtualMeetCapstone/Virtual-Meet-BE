@@ -5,7 +5,7 @@ internal class CommentRepository(AppMongoDbContext context)
     : MongoRepositoryBase<CommentEntity>(context), ICommentRepository
 {
     private readonly AppMongoDbContext _context = context;
-    public async Task<QueryResult<CommentEntity>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)
+    public async Task<QueryResult<CommentEntity>> GetByPostId(Guid postId, QueryInfo queryInfo)
     {
         var filter = Builders<CommentEntity>.Filter.Eq(c => c.PostId, postId);
 
@@ -63,7 +63,7 @@ internal class CommentRepository(AppMongoDbContext context)
             TotalCount = (int)totalComments
         };
     }
-    public async Task<QueryResult<CommentEntity>> GetRepliesAsyncWithPagingAsync(Guid commentId, QueryInfo queryInfo)
+    public async Task<QueryResult<CommentEntity>> GetReplies(Guid commentId, QueryInfo queryInfo)
     {
         var filter = Builders<CommentEntity>.Filter.Eq(c => c.ParentId, commentId);
 

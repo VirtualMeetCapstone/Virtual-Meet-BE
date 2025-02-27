@@ -26,10 +26,10 @@ public class PostsController(
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("{id}")]
-    public async Task<ActionResult<PostModel>> GetById([FromRoute] Guid id)
+    [HttpGet("{postId}")]
+    public async Task<ActionResult<PostModel>> GetById([FromRoute] Guid postId)
     {
-        var post = await _service.GetDetailByIdAsync(id);
+        var post = await _service.GetDetailByIdAsync(postId);
         var postModel = _mapper.Map<PostModel>(post);
         return Ok(postModel);
     }
@@ -42,10 +42,10 @@ public class PostsController(
         return _mapper.Map<PostModel>(result);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<OperationResult> Delete([FromRoute] Guid id)
+    [HttpDelete("{postId}")]
+    public async Task<OperationResult> Delete([FromRoute] Guid postId)
     {
-        return await _service.DeleteByIdAsync(id);
+        return await _service.DeleteByIdAsync(postId);
     }
 
     [HttpPost("react")]

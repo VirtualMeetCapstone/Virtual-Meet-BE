@@ -2,6 +2,6 @@
 
 public interface ICommentRepository : IMongoRepositoryBase<CommentEntity>
 {
-    Task<QueryResult<CommentEntity>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo);
-    Task<QueryResult<CommentEntity>> GetRepliesAsyncWithPagingAsync(Guid commentId, QueryInfo queryInfo);
+    Task<QueryResult<CommentEntity>> GetByPostId(Guid postId, QueryInfo queryInfo);
+    Task<QueryResult<CommentEntity>> GetReplies(Guid commentId, QueryInfo queryInfo);
 }
