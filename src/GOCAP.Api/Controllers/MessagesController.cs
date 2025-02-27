@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace GOCAP.Api.Controllers;
 
-[Route("messages")]
 public class MessagesController(IMessageService _service, IMapper _mapper, IHubContext<ChatHub> _chatHub)
 {
-    [HttpPost("send")]
-    public async Task<MessageModel> SendMessage([FromBody] MessageModel model)
+    [HttpPost("room-messages")]
+    public async Task<RoomMessageModel> SendMessage([FromBody] RoomMessageModel model)
     {
-        var domain = _mapper.Map<Message>(model);
-        await _service.AddAsync(domain);
+        var domain = _mapper.Map<RoomMessage>(model);
+        await _service.AddRoomMessageAsync(domain);
         await _chatHub.Clients.Groups(model.Id.ToString()).SendAsync(model.Content);
 
         return model;

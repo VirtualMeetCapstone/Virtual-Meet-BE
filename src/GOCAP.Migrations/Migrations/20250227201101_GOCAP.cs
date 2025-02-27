@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GOCAP.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class GOCAPDB : Migration
+    public partial class GOCAP : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -221,6 +221,7 @@ namespace GOCAP.Migrations.Migrations
                     MusicUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExpireTime = table.Column<long>(type: "bigint", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsViewed = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -440,6 +441,33 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostTags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TaggedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostTags_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PostTags_Users_TaggedUserId",
+                        column: x => x.TaggedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
@@ -448,6 +476,7 @@ namespace GOCAP.Migrations.Migrations
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     MaximumMembers = table.Column<int>(type: "int", nullable: false),
                     Medias = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Privacy = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: true),
                     OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ChannelId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -715,6 +744,33 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoomTags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TaggedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
+                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoomTags_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RoomTags_Users_TaggedUserId",
+                        column: x => x.TaggedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoomMemberRoles",
                 columns: table => new
                 {
@@ -764,6 +820,16 @@ namespace GOCAP.Migrations.Migrations
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostTags_PostId",
+                table: "PostTags",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostTags_TaggedUserId",
+                table: "PostTags",
+                column: "TaggedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleHierarchies_ChildRoleId",
@@ -854,6 +920,16 @@ namespace GOCAP.Migrations.Migrations
                 name: "IX_RoomSettings_RoomId",
                 table: "RoomSettings",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomTags_RoomId",
+                table: "RoomTags",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomTags_TaggedUserId",
+                table: "RoomTags",
+                column: "TaggedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stories_UserId",
@@ -960,6 +1036,9 @@ namespace GOCAP.Migrations.Migrations
                 name: "PostReactions");
 
             migrationBuilder.DropTable(
+                name: "PostTags");
+
+            migrationBuilder.DropTable(
                 name: "RoleHierarchies");
 
             migrationBuilder.DropTable(
@@ -982,6 +1061,9 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoomSettings");
+
+            migrationBuilder.DropTable(
+                name: "RoomTags");
 
             migrationBuilder.DropTable(
                 name: "StoryHightLights");

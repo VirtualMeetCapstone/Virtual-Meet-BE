@@ -1,11 +1,8 @@
 ﻿namespace GOCAP.Domain;
 
-public class Message : DateTrackingBase
+public abstract class Message : DateTrackingBase
 {
-    public Guid? RoomId { get; set; }
-    public Guid? GroupId { get; set; }
     public Guid SenderId { get; set; }
-    public Guid? ReceiverId { get; set; }
     public string Content { get; set; } = string.Empty;
     public MessageType Type { get; set; }
     public List<Media> Attachments { get; set; } = [];
