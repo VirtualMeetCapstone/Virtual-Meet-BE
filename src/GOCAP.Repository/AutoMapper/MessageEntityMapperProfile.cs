@@ -4,6 +4,8 @@ public class MessageEntityMapperProfile : EntityMapperProfileBase
 {
     public MessageEntityMapperProfile()
     {
-        CreateMap<Message, MessageEntity>().ReverseMap();
+        CreateMap<RoomMessage, RoomMessageEntity>().ReverseMap();
+        CreateMap<UserMessage, UserMessageEntity>().ReverseMap();
+        CreateMap<GroupMessage, GroupMessageEntity>().ReverseMap();
     }
 }

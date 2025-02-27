@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<GroupMemberEntity> GroupMembers { get; set; }
     public DbSet<RoomChannelEntity> RoomChannels { get; set; }
     public DbSet<RoomEntity> Rooms { get; set; }
+    public DbSet<RoomTagEntity> RoomTags { get; set; }
     public DbSet<RoomEventEntity> RoomEvents { get; set; }
     public DbSet<RoomFavouriteEntity> RoomFavourites { get; set; }
     public DbSet<RoomMemberEntity> RoomMembers { get; set; }
@@ -32,6 +33,7 @@ public class AppDbContext : DbContext
     public DbSet<UserFollowEntity> UserFollows { get; set; }
     public DbSet<UserNotificationEntity> UserNotifications { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
+    public DbSet<PostTagEntity> PostTags { get; set; }
     public DbSet<PostReactionEntity> PostReactions { get; set; }
     public DbSet<UserRewardEntity> UserRewards { get; set; }
     public DbSet<UserRoleEntity> UserRoles { get; set; }
@@ -139,6 +141,30 @@ public class AppDbContext : DbContext
                     .HasOne(rh => rh.ChildRole)
                     .WithMany(r => r.ParentRoles)
                     .HasForeignKey(rh => rh.ChildRoleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PostTagEntity>()
+                    .HasOne(pt => pt.Post)
+                    .WithMany(p => p.Tags)
+                    .HasForeignKey(pt => pt.PostId)
+                    .OnDelete(DeleteBehavior.Restrict); 
+
+        modelBuilder.Entity<PostTagEntity>()
+                    .HasOne(pt => pt.TaggedUser)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.TaggedUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoomTagEntity>()
+                    .HasOne(pt => pt.Room)
+                    .WithMany(p => p.Tags)
+                    .HasForeignKey(pt => pt.RoomId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoomTagEntity>()
+                    .HasOne(pt => pt.TaggedUser)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.TaggedUserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
         base.OnModelCreating(modelBuilder);

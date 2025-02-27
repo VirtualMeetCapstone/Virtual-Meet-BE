@@ -2,4 +2,5 @@
 
 public interface IMessageService : IServiceBase<Message>
 {
+    Task<RoomMessage> AddRoomMessageAsync(RoomMessage domain);
 }

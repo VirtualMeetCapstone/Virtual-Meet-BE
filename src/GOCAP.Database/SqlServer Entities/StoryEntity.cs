@@ -12,6 +12,7 @@ public class StoryEntity : EntitySqlBase
     public string? MusicUrl { get; set; }
     public long ExpireTime { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsViewed { get; set; } = false;
     public ICollection<StoryViewEntity> Views { get; set; } = [];
     public ICollection<StoryReactionEntity> Reactions { get; set; } = [];
 }
