@@ -8,7 +8,7 @@ public class SearchesController (ISearchHistoryService _service, IMapper _mapper
     /// </summary>
     /// <param name="model"></param>
     /// <returns>SearchHistoryModel</returns>
-    [HttpPost]
+    [HttpPost("history/save")]
     [ValidateModel]
     public async Task<SearchHistoryModel> SaveSearchHistory([FromBody] SearchHistoryCreationModel model)
     {

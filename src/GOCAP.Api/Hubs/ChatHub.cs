@@ -30,4 +30,16 @@ public class ChatHub(IMessageService _service) : Hub
             await Clients.Group(roomId.ToString() ?? string.Empty).SendAsync("ReceiveMessage", message);
         }
     }
+
+    public async Task JoinRoom(string roomId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+        await Clients.Group(roomId).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} đã tham gia room {roomId}.", DateTime.UtcNow);
+    }
+
+    public async Task LeaveRoom(string roomId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
+        await Clients.Group(roomId).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} đã rời khỏi room {roomId}.", DateTime.UtcNow);
+    }
 }
