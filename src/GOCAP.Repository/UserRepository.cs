@@ -87,15 +87,15 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
             var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
             await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
         }
-        if (!string.IsNullOrEmpty(userEntity.Name))
+        if (!string.IsNullOrEmpty(entity.Name))
         {
             userEntity.Name = entity.Name;
         }
-        if (!string.IsNullOrEmpty(userEntity.Picture))
+        if (!string.IsNullOrEmpty(entity.Picture))
         {
             userEntity.Picture = entity.Picture;
         }
-        if (userEntity.Bio != null)
+        if (entity.Bio != null)
         {
             userEntity.Bio = entity.Bio;
         }

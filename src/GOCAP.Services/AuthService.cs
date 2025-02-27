@@ -36,7 +36,10 @@ internal class AuthService(IAppConfiguration _appConfiguration,
                 Id = Guid.NewGuid(),
                 Email = payload.Email,
                 Name = payload.Name,
-                Picture = payload.Picture,
+                Picture = JsonHelper.Serialize(new Media
+                {
+                    Url = payload.Picture,
+                }),
             };
             user.InitCreation();
             // Get default role (user).
