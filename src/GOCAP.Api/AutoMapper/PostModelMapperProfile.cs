@@ -18,7 +18,6 @@ public class PostModelMapperProfile : ModelMapperProfileBase
 
 
         CreateMap<PostReaction, PostReactionCreationModel>().ReverseMap();
-        CreateMap<PostReaction, PostReactionModel>().ReverseMap();
         CreateMap<UserReactionPost, UserReactionPostModel>().ReverseMap();
         CreateMap<QueryResult<UserReactionPost>, QueryResult<UserReactionPostModel>>().ReverseMap();
     }

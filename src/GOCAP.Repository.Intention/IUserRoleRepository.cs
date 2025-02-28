@@ -2,5 +2,5 @@
 
 public interface IUserRoleRepository : ISqlRepositoryBase<UserRoleEntity>
 {
-    public Task<UserRoleEntity> AssignRoleToUser(UserRoleEntity entity);
+    public Task<UserRoleEntity> AssignRoleToUserAsync(UserRoleEntity entity);
 }

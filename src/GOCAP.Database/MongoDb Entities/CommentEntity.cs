@@ -12,6 +12,9 @@ public class CommentEntity : EntityMongoBase
     public List<CommentEntity>? Replies { get; set; }
     [BsonIgnore]
     public int ReplyCount { get; set; }
+    public int TotalReactions { get; set; }
+    public Dictionary<int, int> ReactionCounts { get; set; } = [];
+
 }
 
 public class CommentAuthorEntity

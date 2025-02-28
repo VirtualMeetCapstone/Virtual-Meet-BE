@@ -7,5 +7,6 @@ public class CommentEntityMapperProfile : EntityMapperProfileBase
         CreateMap<Comment, CommentEntity>().ReverseMap();
         CreateMap<CommentAuthor, CommentAuthorEntity>().ReverseMap();
         CreateMap<QueryResult<Comment>, QueryResult<CommentEntity>>().ReverseMap();
+        CreateMap<CommentReaction, CommentReactionEntity>().ReverseMap();
     }
 }

@@ -10,5 +10,6 @@ public class PostEntity : EntitySqlBase
     public Guid UserId { get; set; }
     public UserEntity? User { get; set; }
     public ICollection<PostReactionEntity> Reactions { get; set; } = [];
+    public ICollection<PostTagEntity> Tags { get; set; } = [];
 }
 

@@ -1,5 +1,4 @@
 ﻿namespace GOCAP.Api.Model;
-
 public class PostModel : EntityDateTrackingBase<Guid>
 {
     public override Guid Id { get; set; }

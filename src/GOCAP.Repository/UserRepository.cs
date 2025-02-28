@@ -1,18 +1,14 @@
-﻿using System.Globalization;
-using System.Text;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IUserRepository))]
-internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobStorageService _blobStorageService) : SqlRepositoryBase<UserEntity>(context), IUserRepository
+internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blobStorageService) : SqlRepositoryBase<UserEntity>(context), IUserRepository
 {
     private readonly AppSqlDbContext _context = context;
 
-    public async Task<User?> GetByEmailAsync(string email)
-    {
-        var entity = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-        return _mapper.Map<User>(entity);
-    }
+    public async Task<UserEntity?> GetByEmailAsync(string email)
+    => await _context.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Email == email);
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users
@@ -41,21 +37,21 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
         return await _context.Users.AnyAsync(user => user.Email == email);
     }
 
-	public async Task<User> GetUserProfileAsync(Guid id)
-	{
-		var result = await _context.Users
-									.AsNoTracking()
-									.Where(user => user.Id == id)
-									.Select(user => new User
-									{
-										Name = user.Name,
-										Picture = string.IsNullOrEmpty(user.Picture) ?
-												  null : JsonHelper.Deserialize<Media>(user.Picture),
-										Bio = user.Bio,
-										Status = user.Status
-									})
-									.FirstOrDefaultAsync()
-									?? throw new ResourceNotFoundException($"User {id} was not found.");
+    public async Task<User> GetUserProfileAsync(Guid id)
+    {
+        var result = await _context.Users
+                                    .AsNoTracking()
+                                    .Where(user => user.Id == id)
+                                    .Select(user => new User
+                                    {
+                                        Name = user.Name,
+                                        Picture = string.IsNullOrEmpty(user.Picture) ?
+                                                  null : JsonHelper.Deserialize<Media>(user.Picture),
+                                        Bio = user.Bio,
+                                        Status = user.Status
+                                    })
+                                    .FirstOrDefaultAsync()
+                                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
         var count = await _context.UserFollows
                                     .AsNoTracking()
@@ -83,47 +79,57 @@ internal class UserRepository(AppSqlDbContext context, IMapper _mapper, IBlobSto
         return result;
     }
 
-	public override async Task<bool> UpdateAsync(UserEntity entity)
-	{
-		var userEntity = await GetEntityByIdAsync(entity.Id);
-		if (!string.IsNullOrEmpty(userEntity.Picture))
-		{
-			var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
-			await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
-		}
-		userEntity.Name = entity.Name;
-		userEntity.Picture = entity.Picture;
-		userEntity.Bio = entity.Bio;
-		userEntity.LastModifyTime = entity.LastModifyTime;
-		_context.Entry(userEntity).State = EntityState.Modified;
-		return await _context.SaveChangesAsync() > 0;
-	}
+    public override async Task<bool> UpdateAsync(UserEntity entity)
+    {
+        var userEntity = await GetEntityByIdAsync(entity.Id);
+        if (!string.IsNullOrEmpty(userEntity.Picture))
+        {
+            var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
+            await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
+        }
+        if (!string.IsNullOrEmpty(entity.Name))
+        {
+            userEntity.Name = entity.Name;
+        }
+        if (!string.IsNullOrEmpty(entity.Picture))
+        {
+            userEntity.Picture = entity.Picture;
+        }
+        if (entity.Bio != null)
+        {
+            userEntity.Bio = entity.Bio;
+        }
+        userEntity.LastModifyTime = entity.LastModifyTime;
+        _context.Entry(userEntity).State = EntityState.Modified;
+        return await _context.SaveChangesAsync() > 0;
+    }
 
-	public override async Task<int> DeleteByIdAsync(Guid id)
-	{
-		var entity = await _context.Users.FindAsync(id)
-					?? throw new ResourceNotFoundException($"User {id} was not found.");
+    public override async Task<int> DeleteByIdAsync(Guid id)
+    {
+        var entity = await _context.Users.FindAsync(id)
+                    ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
-		entity.IsDeleted = true;
-		int rowsAffected = await _context.SaveChangesAsync();
+        entity.IsDeleted = true;
+        int rowsAffected = await _context.SaveChangesAsync();
 
-		return rowsAffected;
-	}
-	public async Task<List<User>> SearchUsersAsync(string userName, int limit)
-	{
-		return await _context.Users
-			.AsNoTracking()
-			.Where(u => EF.Functions.Collate(u.Name, "Latin1_General_CI_AI").Contains(userName)
-					&& !u.IsDeleted)
-			.OrderBy(u=> u.Name)
-			.Take(limit)
-			.Select(user => new User
-			{
-				Id = user.Id,
-				Name = user.Name,
-				Picture = string.IsNullOrEmpty(user.Picture) ? null
-						: JsonHelper.Deserialize<Media>(user.Picture)
-			})
-			.ToListAsync();
-	}
+        return rowsAffected;
+    }
+
+    public async Task<List<User>> SearchUsersAsync(string userName, int limit)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => EF.Functions.Collate(u.Name, "Latin1_General_CI_AI").Contains(userName)
+                    && !u.IsDeleted)
+            .OrderBy(u => u.Name)
+            .Take(limit)
+            .Select(user => new User
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Picture = string.IsNullOrEmpty(user.Picture) ? null
+                        : JsonHelper.Deserialize<Media>(user.Picture)
+            })
+            .ToListAsync();
+    }
 }
