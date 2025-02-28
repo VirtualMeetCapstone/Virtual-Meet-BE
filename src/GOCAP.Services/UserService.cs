@@ -32,11 +32,13 @@ internal class UserService(
 		}
 		catch (Exception ex)
 		{
-			if (domain.PictureUpload != null)
+            _logger.LogError(ex, "An error occurred: {Message}", ex.Message);
+            if (domain.PictureUpload != null)
 			{
+				_logger.LogInformation("Start deleting media files if occurring errors.");
 				await MediaHelper.DeleteMediaFilesIfError([domain.PictureUpload], _blobStorageService);
 			}
-			throw new InternalException(ex.Message);
+			throw new InternalException();
 		}
 
 	}
