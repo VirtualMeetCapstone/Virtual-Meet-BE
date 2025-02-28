@@ -95,12 +95,12 @@ internal class RoomService(
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Unexpected errors occur while updating room");
             if (domain.MediaUploads != null && domain.MediaUploads.Count > 0)
             {
                 await MediaHelper.DeleteMediaFilesIfError(domain.MediaUploads, _blobStorageService);
             }
-            
-            throw new InternalException(ex.Message);
+            throw new InternalException();
         }
     }
 

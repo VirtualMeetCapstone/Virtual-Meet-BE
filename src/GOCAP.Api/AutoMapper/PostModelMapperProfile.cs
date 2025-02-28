@@ -10,11 +10,11 @@ public class PostModelMapperProfile : ModelMapperProfileBase
 
         CreateMap<Post, PostCreationModel>()
             .ForMember(dest => dest.MediaUploads, opt => opt
-            .MapFrom(src => ConvertMediasToFormFiles(src.MediaUploads)));
+            .MapFrom(src => ConvertMediaHelper.ConvertMediasToFormFiles(src.MediaUploads)));
 
         CreateMap<PostCreationModel, Post>()
             .ForMember(dest => dest.MediaUploads, opt => opt
-            .MapFrom(src => ConvertFormFilesToMedias(src.MediaUploads)));
+            .MapFrom(src => ConvertMediaHelper.ConvertFormFilesToMedias(src.MediaUploads)));
 
 
         CreateMap<PostReaction, PostReactionCreationModel>().ReverseMap();

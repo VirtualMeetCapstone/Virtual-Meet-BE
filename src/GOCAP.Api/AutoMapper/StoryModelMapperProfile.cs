@@ -9,10 +9,10 @@ public class StoryModelMapperProfile : ModelMapperProfileBase
         CreateMap<Story, StoryCreationModel>().ReverseMap();
 
         CreateMap<Story, StoryCreationModel>()
-            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaToFormFile(src.MediaUpload)));
+            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaHelper.ConvertMediaToFormFile(src.MediaUpload)));
 
         CreateMap<StoryCreationModel, Story>()
-            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertFormFileToMedia(src.MediaUpload)));
+            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaHelper.ConvertFormFileToMedia(src.MediaUpload)));
 
         CreateMap<User, UserStoryModel>().ReverseMap();
         CreateMap<QueryResult<Story>, QueryResult<StoryModel>>().ReverseMap();
