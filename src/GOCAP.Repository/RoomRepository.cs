@@ -55,13 +55,14 @@ internal class RoomRepository(
     public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
     {
         var entity = await GetEntityByIdAsync(roomEntity.Id);
-        if (!string.IsNullOrEmpty(entity.Medias))
-        {
-            var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
-            await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
-        }
+        
         if (!string.IsNullOrEmpty(roomEntity.Medias))
         {
+            if (!string.IsNullOrEmpty(entity.Medias))
+            {
+                var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
+                await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
+            }
             entity.Medias = roomEntity.Medias;
         }
         entity.Topic = roomEntity.Topic;
