@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using GOCAP.Common;
 
 namespace GOCAP.ExternalServices;
 
@@ -127,7 +128,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         var deleteTasks = new List<Task<Response<bool>>>();
         foreach (var fileUrl in fileUrls)
         {
-            if (fileUrl is null)
+            if (fileUrl is null || !IsAzureBlobUrl(fileUrl))
             {
                 continue;
             }
@@ -144,14 +145,16 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
 
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
             var blobClient = blobContainerClient.GetBlobClient(blobName);
-
             deleteTasks.Add(blobClient.DeleteIfExistsAsync());
         }
 
         var results = await Task.WhenAll(deleteTasks);
         return results.All(result => result.Value);
     }
-
+    private static bool IsAzureBlobUrl(string? fileUrl)
+    {
+        return !string.IsNullOrWhiteSpace(fileUrl) && fileUrl.Contains("blob.core.windows.net");
+    }
     public async Task<bool> CheckFileExistsAsync(string containerName, string fileName)
     {
         ValidateInput(containerName, fileName);

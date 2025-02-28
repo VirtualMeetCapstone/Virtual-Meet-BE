@@ -4,7 +4,7 @@ public class StoryDetailModel
 {
     public string? Content { get; set; }
     public Guid UserId { get; set; }
-    public StoryUserModel? User { get; set; }
+    public UserStoryModel? User { get; set; }
     public Media? Media { get; set; }
     public string? TextContent { get; set; }
     public string? MusicUrl { get; set; }
