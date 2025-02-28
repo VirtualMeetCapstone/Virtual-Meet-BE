@@ -60,10 +60,13 @@ internal class RoomRepository(
             var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
             await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
         }
+        if (!string.IsNullOrEmpty(roomEntity.Medias))
+        {
+            entity.Medias = roomEntity.Medias;
+        }
         entity.Topic = roomEntity.Topic;
         entity.Description = roomEntity.Description;
         entity.MaximumMembers = roomEntity.MaximumMembers;
-        entity.Medias = roomEntity.Medias;
         entity.LastModifyTime = roomEntity.LastModifyTime;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;

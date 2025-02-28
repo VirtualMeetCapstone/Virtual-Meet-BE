@@ -82,6 +82,11 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
     public override async Task<bool> UpdateAsync(UserEntity entity)
     {
         var userEntity = await GetEntityByIdAsync(entity.Id);
+        if (!string.IsNullOrEmpty(userEntity.Picture))
+        {
+            var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
+            await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
+        }
         if (!string.IsNullOrEmpty(entity.Name))
         {
             userEntity.Name = entity.Name;

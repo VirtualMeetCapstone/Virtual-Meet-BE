@@ -47,4 +47,10 @@ internal class StoryService(
         var result = await _repository.GetFollowingStoriesWithPagingAsync(userId, queryInfo);
         return _mapper.Map<QueryResult<Story>>(result);
     }
+
+    public async Task<QueryResult<Story>> GetStoriesByUserIdWithPagingAsync(Guid userId, QueryInfo queryInfo)
+    {
+        var result = await _repository.GetStoriesByUserIdWithPagingAsync(userId, queryInfo);
+        return _mapper.Map<QueryResult<Story>>(result);
+    }
 }

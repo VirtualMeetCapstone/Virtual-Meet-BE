@@ -15,7 +15,7 @@ public class StoriesController(
     /// <returns>story model</returns>
     [HttpPost]
     [ValidateModel]
-    public async Task<StoryModel> Create([FromForm] StoryCreationModel model)
+    public async Task<StoryModel> CreateNewStory([FromForm] StoryCreationModel model)
     {
         var domain = _mapper.Map<Story>(model);
         var result = await _service.AddAsync(domain);
@@ -28,7 +28,7 @@ public class StoriesController(
     /// <param name="userId"></param>
     /// <param name="queryInfo"></param>
     /// <returns>QueryResult<StoryModel></returns>
-    [HttpGet("{userId}/friends")]
+    [HttpGet("{userId}/following")]
     public async Task<QueryResult<StoryModel>> GetFollowingStoriesWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
         var stories = await _service.GetFollowingStoriesWithPagingAsync(userId, queryInfo);
@@ -41,10 +41,17 @@ public class StoriesController(
     /// <param name="id"></param>
     /// <returns>StoryDetailModel</returns>
     [HttpGet("{id}")]
-    public async Task<StoryDetailModel> GetById([FromRoute] Guid id)
+    public async Task<StoryDetailModel> GetStoryById([FromRoute] Guid id)
     {
         var domain = await _service.GetByIdAsync(id);
         return _mapper.Map<StoryDetailModel>(domain);
+    }
+
+    [HttpGet("users/{userId}")]
+    public async Task<QueryResult<StoryUserModel>> GetStoriesByUserId([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    {
+        var domain = await _service.GetStoriesByUserIdWithPagingAsync(userId, queryInfo);
+        return _mapper.Map<QueryResult<StoryUserModel>>(domain);
     }
 
     /// <summary>
@@ -53,7 +60,7 @@ public class StoriesController(
     /// <param name="id"></param>
     /// <returns>OperationResult</returns>
     [HttpDelete("{id}")]
-    public async Task<OperationResult> Delete([FromRoute] Guid id)
+    public async Task<OperationResult> DeleteStory([FromRoute] Guid id)
     {
         return await _service.DeleteByIdAsync(id);
     }

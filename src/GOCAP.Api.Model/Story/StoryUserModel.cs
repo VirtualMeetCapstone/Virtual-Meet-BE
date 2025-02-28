@@ -1,7 +1,12 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class StoryUserModel
+public class StoryUserModel : EntityDateTrackingBase<Guid>
 {
-    public string Name { get; set; } = string.Empty;
-    public Media? Picture { get; set; } 
+    public override Guid Id { get; set; }
+    public string? Content { get; set; }
+    public Media? Media { get; set; }
+    public string? TextContent { get; set; }
+    public string? MusicUrl { get; set; }
+    public long ExpireTime { get; set; }
+    public bool IsActive { get; set; }
 }
