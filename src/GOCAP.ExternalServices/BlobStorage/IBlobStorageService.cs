@@ -55,6 +55,6 @@ public interface IBlobStorageService
     /// <param name="expiryTime">The expiration time for the URL.</param>
     /// <returns>A publicly accessible URL valid for the specified duration.</returns>
     Task<string> GenerateFileUrlAsync(string containerName, string fileName, TimeSpan expiryTime);
-    Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls);
+    Task<bool> DeleteFilesByUrlsAsync(List<string> fileUrls);
     Task<bool> UpdateFilesAsync(List<MediaUpload> mediaUploads);
 }

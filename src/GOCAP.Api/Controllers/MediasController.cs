@@ -9,4 +9,11 @@ public class MediasController(IMediaService _service) : ApiControllerBase
         var result = await _service.UploadMediaFilesAsync(ConvertMediaHelper.ConvertFormFilesToMedias(medias));
         return result;
     }
+
+    [HttpDelete]
+    public async Task<OperationResult> DeleteMediaFiles([FromQuery] List<string> urls)
+    {
+        var result = await _service.DeleteMediaFilesAsync(urls);
+        return result;
+    }
 }
