@@ -2,11 +2,11 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
-using GOCAP.Common;
+using Microsoft.Extensions.Logging;
 
 namespace GOCAP.ExternalServices;
 
-public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobStorageService
+public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<BlobStorageService> _logger) : IBlobStorageService
 {
     public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)
     {
@@ -118,49 +118,64 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return results.All(r => r);
     }
 
-    public async Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls)
+    public async Task<bool> DeleteFilesByUrlsAsync(List<string> fileUrls)
     {
         if (fileUrls == null || fileUrls.Count == 0)
         {
             throw new ParameterInvalidException("File URLs cannot be null or empty.");
         }
 
-        var deleteTasks = new List<Task<Response<bool>>>();
-        foreach (var fileUrl in fileUrls)
+        try
         {
-            if (fileUrl is null || !IsAzureBlobUrl(fileUrl))
+            var deleteTasks = new List<Task<Response<bool>>>();
+            foreach (var fileUrl in fileUrls)
             {
-                continue;
+                if (fileUrl is null)
+                {
+                    continue;
+                }
+                var uri = new Uri(fileUrl);
+                string[] segments = uri.AbsolutePath.Trim('/').Split('/');
+
+                if (segments.Length < 2)
+                {
+                    throw new ParameterInvalidException($"Invalid Azure Blob Storage URL format: {fileUrl}");
+                }
+
+                string containerName = segments[0];
+                string blobName = string.Join("/", segments.Skip(1));
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+                if (await blobClient.ExistsAsync())
+                {
+                    deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+                }
             }
-            var uri = new Uri(fileUrl);
-            string[] segments = uri.AbsolutePath.Trim('/').Split('/');
 
-            if (segments.Length < 2)
-            {
-                throw new ParameterInvalidException($"Invalid Azure Blob Storage URL format: {fileUrl}");
-            }
-
-            string containerName = segments[0];
-            string blobName = string.Join("/", segments.Skip(1));
-
-            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = blobContainerClient.GetBlobClient(blobName);
-            deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+            var results = await Task.WhenAll(deleteTasks);
+            return results.All(result => result.Value);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected errors occured while deleting.");
+            return false;
+        }
+    }
 
-        var results = await Task.WhenAll(deleteTasks);
-        return results.All(result => result.Value);
-    }
-    private static bool IsAzureBlobUrl(string? fileUrl)
-    {
-        return !string.IsNullOrWhiteSpace(fileUrl) && fileUrl.Contains("blob.core.windows.net");
-    }
     public async Task<bool> CheckFileExistsAsync(string containerName, string fileName)
     {
-        ValidateInput(containerName, fileName);
-        var blobContainerClient = await GetContainerClientAsync(containerName);
-        var blobClient = blobContainerClient.GetBlobClient(fileName);
-        return await blobClient.ExistsAsync();
+        try
+        {
+            ValidateInput(containerName, fileName);
+            var blobContainerClient = await GetContainerClientAsync(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(fileName);
+            return await blobClient.ExistsAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected errors occured while checking file exists or not.");
+            return false;
+        }
     }
 
     public async Task<IEnumerable<string>> GetListFilesAsync(string containerName)

@@ -25,4 +25,14 @@ internal class MediaService (ILogger<MediaService> _logger, IBlobStorageService 
             throw new InternalException();
         }
     }
+
+    public async Task<OperationResult> DeleteMediaFilesAsync(List<string> mediaUrls)
+    {
+        if (mediaUrls.Count == 0 || mediaUrls == null)
+        {
+            throw new ParameterInvalidException();
+        }
+        var result = await _blobStorageService.DeleteFilesByUrlsAsync(mediaUrls);
+        return new OperationResult(result);
+    }
 }
