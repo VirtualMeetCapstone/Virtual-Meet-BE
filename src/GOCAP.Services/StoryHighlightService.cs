@@ -1,18 +1,18 @@
 ﻿
 namespace GOCAP.Services;
 
-[RegisterService(typeof(IStoryHightLightService))]
-internal class StoryHightLightService(
-    IStoryHightLightRepository _repository,
+[RegisterService(typeof(IStoryHighlightService))]
+internal class StoryHighlightService(
+    IStoryHighlightRepository _repository,
     IStoryRepository _storyRepository,
     IUserRepository _userRepository,
     IUnitOfWork _unitOfWork,
     IMapper _mapper,
-    ILogger<StoryHightLightService> _logger
-    ) : ServiceBase<StoryHightLight, StoryHightLightEntity>(_repository, _mapper, _logger), IStoryHightLightService
+    ILogger<StoryHighlightService> _logger
+    ) : ServiceBase<StoryHighlight, StoryHightLightEntity>(_repository, _mapper, _logger), IStoryHighlightService
 {
     private readonly IMapper _mapper = _mapper;
-    public override async Task<StoryHightLight> AddAsync(StoryHightLight domain)
+    public override async Task<StoryHighlight> AddAsync(StoryHighlight domain)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Story).Name);
 
@@ -58,7 +58,7 @@ internal class StoryHightLightService(
 
             var entity = _mapper.Map<StoryHightLightEntity>(domain);
             var result = await _repository.AddAsync(entity);
-            var story = _mapper.Map<StoryHightLight>(result);
+            var story = _mapper.Map<StoryHighlight>(result);
 
             if (prevStory != null)
             {
@@ -78,7 +78,7 @@ internal class StoryHightLightService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(StoryHightLight).Name);
+            _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(StoryHighlight).Name);
             // Rollback the transaction if fail.
             await _unitOfWork.RollbackTransactionAsync();
             throw new InternalException(ex.Message);
@@ -88,7 +88,7 @@ internal class StoryHightLightService(
 
     public async Task<OperationResult> DeleteAsync(Guid storyId, Guid storyHighlightId)
     {
-        _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(StoryHightLight).Name);
+        _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(StoryHighlight).Name);
         var result = await _repository.DeleteAsync(storyId, storyHighlightId);
         return new OperationResult(result > 0);
     }

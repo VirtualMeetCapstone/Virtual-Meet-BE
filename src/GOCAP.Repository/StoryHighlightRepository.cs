@@ -1,10 +1,10 @@
 ﻿namespace GOCAP.Repository;
 
-[RegisterService(typeof(IStoryHightLightRepository))]
-internal class StoryHightLightRepository(
+[RegisterService(typeof(IStoryHighlightRepository))]
+internal class StoryHighlightRepository(
     AppSqlDbContext context,
     IMapper _mapper
-     ) : SqlRepositoryBase<StoryHightLightEntity>(context), IStoryHightLightRepository
+     ) : SqlRepositoryBase<StoryHightLightEntity>(context), IStoryHighlightRepository
 {
     private readonly AppSqlDbContext _context = context;
     private readonly IMapper _mapper = _mapper;
