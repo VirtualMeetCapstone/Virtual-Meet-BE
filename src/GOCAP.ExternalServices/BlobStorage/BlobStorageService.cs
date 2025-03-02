@@ -25,7 +25,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
         var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
         string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-        string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
+        string fileName = $"{Guid.NewGuid()}-{mediaUpload.Type}{timestamp}-{mediaUpload.FileName}";
         string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
         var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
 
@@ -65,7 +65,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
                 var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
+                string fileName = $"{Guid.NewGuid()}-{mediaUpload.Type}{timestamp}-{mediaUpload.FileName}";
                 string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
                 var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
 
@@ -284,6 +284,50 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
         {
             throw new ParameterInvalidException("File name cannot be null or empty.");
         }
+    }
+
+    public async Task<bool> CheckFilesExistByUrlsAsync(List<string> fileUrls)
+    {
+        if (fileUrls == null || fileUrls.Count == 0)
+        {
+            throw new ParameterInvalidException("File URLs cannot be null or empty.");
+        }
+
+        foreach (var fileUrl in fileUrls)
+        {
+            if (fileUrl is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var uri = new Uri(fileUrl);
+                string[] segments = uri.AbsolutePath.Trim('/').Split('/');
+
+                if (segments.Length < 2)
+                {
+                    return false;
+                }
+
+                string containerName = segments[0];
+                string blobName = string.Join("/", segments.Skip(1));
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                if (!await blobClient.ExistsAsync())
+                {
+                    return false; 
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking file existence: {message}", ex.Message);
+                return false; 
+            }
+        }
+
+        return true; 
     }
 
 }

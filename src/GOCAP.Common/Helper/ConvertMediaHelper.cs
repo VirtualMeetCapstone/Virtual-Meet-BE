@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Api;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace GOCAP.Common;
 
 public class ConvertMediaHelper
 {
@@ -69,5 +71,22 @@ public class ConvertMediaHelper
         if (contentType.StartsWith("audio/"))
             return MediaType.Audio;
         return MediaType.Text;
+    }
+
+    public static MediaType GetMediaTypeFromUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return MediaType.Text; 
+
+        var extension = Path.GetExtension(url)?.ToLower();
+
+        return extension switch
+        {
+            ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" or ".webp" => MediaType.Image,
+            ".mp4" or ".mkv" or ".mov" or ".avi" or ".wmv" or ".flv" => MediaType.Video,
+            ".mp3" or ".m4a" or ".wav" or ".aac" or ".flac" or ".ogg" => MediaType.Audio,
+            ".pdf" or ".doc" or ".docx" or ".xls" or ".xlsx" or ".ppt" or ".pptx" => MediaType.File,
+            _ => MediaType.Text // Nếu không xác định được thì trả về Text
+        };
     }
 }

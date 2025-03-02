@@ -7,7 +7,7 @@ public static class JsonHelper
     /// <summary>
     /// Parse object to JSON string.
     /// </summary>
-    public static string Serialize<T>(T? obj)
+    public static string? Serialize<T>(T? obj)
     {
         return obj is null ? string.Empty : JsonSerializer.Serialize(obj);
     }

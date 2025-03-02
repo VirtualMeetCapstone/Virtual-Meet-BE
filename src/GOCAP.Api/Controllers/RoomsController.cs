@@ -38,7 +38,7 @@ public class RoomsController(IRoomService _service,
     /// <returns></returns>
     [HttpPost]
     [ValidateModel]
-    public async Task<RoomModel> Create([FromForm] RoomCreationModel model)
+    public async Task<RoomModel> Create([FromBody] RoomCreationModel model)
     {
         var room = _mapper.Map<Room>(model);
         var result = await _service.AddAsync(room);
@@ -52,7 +52,7 @@ public class RoomsController(IRoomService _service,
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
-    public async Task<OperationResult> Update([FromRoute] Guid id, [FromForm] RoomUpdationModel model)
+    public async Task<OperationResult> Update([FromRoute] Guid id, [FromBody] RoomUpdationModel model)
     {
         var domain = _mapper.Map<Room>(model);
         domain.Id = id;

@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
@@ -55,20 +54,24 @@ internal class RoomRepository(
     public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
     {
         var entity = await GetEntityByIdAsync(roomEntity.Id);
-        
-        if (!string.IsNullOrEmpty(roomEntity.Medias))
+        if (!string.IsNullOrEmpty(entity.Medias))
         {
-            if (!string.IsNullOrEmpty(entity.Medias))
+            var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
+            if (medias != null && medias.Count > 0)
             {
-                var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
-                await _blobStorageService.DeleteFilesByUrlsAsync(medias?.Select(m => m.Url).ToList());
+                var urls = medias.Select(m => m.Url).ToList();
+                var deleteResult = await _blobStorageService.DeleteFilesByUrlsAsync(urls);
+                if (!deleteResult)
+                {
+                    return false;
+                }
             }
-            entity.Medias = roomEntity.Medias;
         }
         entity.Topic = roomEntity.Topic;
         entity.Description = roomEntity.Description;
         entity.MaximumMembers = roomEntity.MaximumMembers;
         entity.LastModifyTime = roomEntity.LastModifyTime;
+        entity.Medias = roomEntity.Medias;
         _context.Entry(entity).State = EntityState.Modified;
         return await _context.SaveChangesAsync() > 0;
     }

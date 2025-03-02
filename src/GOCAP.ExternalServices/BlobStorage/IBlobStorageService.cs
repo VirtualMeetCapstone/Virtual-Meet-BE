@@ -57,4 +57,5 @@ public interface IBlobStorageService
     Task<string> GenerateFileUrlAsync(string containerName, string fileName, TimeSpan expiryTime);
     Task<bool> DeleteFilesByUrlsAsync(List<string> fileUrls);
     Task<bool> UpdateFilesAsync(List<MediaUpload> mediaUploads);
+    Task<bool> CheckFilesExistByUrlsAsync(List<string> fileUrls);
 }

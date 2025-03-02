@@ -7,7 +7,7 @@ internal class MediaService (ILogger<MediaService> _logger, IBlobStorageService 
     {
         try
         {
-            _logger.LogInformation("Start upload an media of type {EntityType}.", typeof(MediaUpload).Name);
+            _logger.LogInformation("Start uploading an media of type {EntityType}.", typeof(MediaUpload).Name);
             if (mediaUploads.Count == 0)
             {
                 throw new ParameterInvalidException("Media upload must be not null.");
@@ -30,8 +30,9 @@ internal class MediaService (ILogger<MediaService> _logger, IBlobStorageService 
     {
         if (mediaUrls.Count == 0 || mediaUrls == null)
         {
-            throw new ParameterInvalidException();
+            throw new ParameterInvalidException("Media urls must be not null.");
         }
+        _logger.LogInformation("Start deleting an media of type {EntityType}.", typeof(MediaUpload).Name);
         var result = await _blobStorageService.DeleteFilesByUrlsAsync(mediaUrls);
         return new OperationResult(result);
     }
