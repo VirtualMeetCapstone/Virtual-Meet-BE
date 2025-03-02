@@ -1,12 +1,14 @@
-﻿namespace GOCAP.Services;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
     IRoomRepository _repository,
     IRoomMemberRepository _roomMemberRepository,
     IUserRepository _userRepository,
-    IUnitOfWork _unitOfWork,
     IBlobStorageService _blobStorageService,
+    IUnitOfWork _unitOfWork,
     IMapper _mapper,
     ILogger<RoomService> _logger
     ) : ServiceBase<Room, RoomEntity>(_repository, _mapper, _logger), IRoomService
@@ -25,29 +27,20 @@ internal class RoomService(
         {
             throw new ResourceNotFoundException($"User {room.OwnerId} was not found.");
         }
-
-        // Upload file to azure.
-        if (room.MediaUploads?.Count > 0)
+        if (room.Medias != null && room.Medias.Count > 0)
         {
-            var medias = await _blobStorageService.UploadFilesAsync(room.MediaUploads);
-            room.Medias = medias;
-        }
-
-        room.InitCreation();
-        try
-        {
-            var entity = _mapper.Map<RoomEntity>(room);
-            var result = await _repository.AddAsync(entity);
-            return _mapper.Map<Room>(result);
-        }
-        catch (Exception ex)
-        {
-            if (room.MediaUploads != null && room.MediaUploads.Count > 0)
+            var urls = room.Medias.Select(x => x.Url).ToList();
+            var isExists = await _blobStorageService.CheckFilesExistByUrlsAsync(urls);
+            if (!isExists)
             {
-                await MediaHelper.DeleteMediaFilesIfError(room.MediaUploads, _blobStorageService);
+                throw new ParameterInvalidException("At least one media file uploaded is invalid.");
             }
-            throw new InternalException(ex.Message);
+            room.Medias.ToList().ForEach(x => x.Type = ConvertMediaHelper.GetMediaTypeFromUrl(x.Url));
         }
+        room.InitCreation();
+        var entity = _mapper.Map<RoomEntity>(room);
+        var result = await _repository.AddAsync(entity);
+        return _mapper.Map<Room>(result);
     }
 
     /// <summary>
@@ -82,26 +75,9 @@ internal class RoomService(
     public override async Task<OperationResult> UpdateAsync(Guid id, Room domain)
     {
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
-        if (domain.MediaUploads?.Count > 0)
-        {
-            var medias = await _blobStorageService.UploadFilesAsync(domain.MediaUploads);
-            domain.Medias = medias;
-        }
         domain.UpdateModify();
-        try
-        {
-            var entity = _mapper.Map<RoomEntity>(domain);
-            return new OperationResult(await _repository.UpdateAsync(entity));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected errors occur while updating room");
-            if (domain.MediaUploads != null && domain.MediaUploads.Count > 0)
-            {
-                await MediaHelper.DeleteMediaFilesIfError(domain.MediaUploads, _blobStorageService);
-            }
-            throw new InternalException();
-        }
+        var entity = _mapper.Map<RoomEntity>(domain);
+        return new OperationResult(await _repository.UpdateAsync(entity));
     }
 
     public async Task<RoomCount> GetRoomCountsAsync()
