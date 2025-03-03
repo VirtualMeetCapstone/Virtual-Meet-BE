@@ -14,16 +14,18 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
 	{
+		// Configure email service.
 		var mailsettings = configuration.GetSection("MailSettings");
 		services.Configure<EmailSettings>(mailsettings);
 		services.AddTransient<IEmailService, EmailService>();
 
+		// Configure azure blob storage.
 		services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(AppConstants.AzureBlobStorage)));
 		services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
-		// Add for using sql server
-		services
-			.AddSingleton<IAppConfiguration, AppConfiguration>()
+        // Configure sql server.
+        services
+            .AddSingleton<IAppConfiguration, AppConfiguration>()
 			.AddDbContext<AppSqlDbContext>((serviceProvider, options) =>
 			{
 				var configuration = serviceProvider.GetRequiredService<IAppConfiguration>();
@@ -31,15 +33,15 @@ public static class ServiceCollectionExtensions
 				options.UseSqlServer(connectionString);
 			});
 
-		// Add for using MongoDB
-		services.AddSingleton(sp =>
+        // Configure mongodb.
+        services.AddSingleton(sp =>
 		{
 			var databaseName = AppConstants.DatabaseName;
 			var connectionString = configuration.GetConnectionString(AppConstants.MongoDbConnection) ?? string.Empty;
 			return new AppMongoDbContext(databaseName, connectionString);
 		});
 
-		// Add for using unit of work pattern
+		// Configure unit of work.
 		services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 		// Add for using Redis
