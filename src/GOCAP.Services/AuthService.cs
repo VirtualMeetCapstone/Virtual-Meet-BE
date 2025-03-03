@@ -39,7 +39,7 @@ internal class AuthService(IAppConfiguration _appConfiguration,
                 Picture = JsonHelper.Serialize(new Media
                 {
                     Url = payload.Picture,
-                }),
+                }) ?? "",
             };
             user.InitCreation();
             // Get default role (user).
@@ -82,7 +82,7 @@ internal class AuthService(IAppConfiguration _appConfiguration,
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
-                new Claim("Picture", JsonHelper.Serialize(user.Picture)),
+                new Claim("Picture", JsonHelper.Serialize(user.Picture) ?? ""),
                 new Claim(ClaimTypes.Name, user.Name ?? ""),
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
                 new Claim("Id", user.Id.ToString() ?? ""),

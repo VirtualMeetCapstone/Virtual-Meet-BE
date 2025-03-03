@@ -8,7 +8,7 @@ namespace GOCAP.ExternalServices;
 
 public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<BlobStorageService> _logger) : IBlobStorageService
 {
-    public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)
+    public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)   
     {
         if (mediaUpload?.FileStream == null || mediaUpload.FileStream.Length == 0)
         {
