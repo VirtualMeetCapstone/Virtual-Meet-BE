@@ -1,5 +1,6 @@
-﻿namespace GOCAP.Messaging.Interfaces;
+﻿namespace GOCAP.Messaging;
 
-public class IKafkaProducer
+public interface IKafkaProducer
 {
+    Task ProduceAsync<T>(string topic, T message, CancellationToken cancellationToken = default);
 }

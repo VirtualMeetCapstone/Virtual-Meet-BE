@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IStoryService))]
 internal class StoryService(

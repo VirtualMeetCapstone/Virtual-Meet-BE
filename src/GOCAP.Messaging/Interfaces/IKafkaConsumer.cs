@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Messaging.Interfaces;
+﻿namespace GOCAP.Messaging;
 
 public interface IKafkaConsumer
 {
