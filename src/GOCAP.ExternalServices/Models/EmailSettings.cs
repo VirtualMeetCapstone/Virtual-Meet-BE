@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Common;
+﻿namespace GOCAP.ExternalServices.Models;
 
 public class EmailSettings
 {

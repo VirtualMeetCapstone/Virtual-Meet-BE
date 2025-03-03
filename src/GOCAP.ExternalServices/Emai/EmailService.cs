@@ -1,4 +1,5 @@
-﻿using MailKit.Security;
+﻿using GOCAP.ExternalServices.Models;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 

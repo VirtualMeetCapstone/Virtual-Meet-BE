@@ -1,4 +1,6 @@
-﻿namespace GOCAP.ExternalServices;
+﻿using GOCAP.ExternalServices.Models;
+
+namespace GOCAP.ExternalServices;
 
 public interface IEmailService
 {
