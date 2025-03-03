@@ -20,17 +20,16 @@ internal class StoryHighlightService(
         {
             throw new ParameterInvalidException($"Story {domain.StoryId} existed in hight light stories.");
         }
-
-        if (!await _storyRepository.CheckExistAsync(domain.StoryId))
-        {
-            throw new ResourceNotFoundException($"Story {domain.StoryId} was not found.");
-        }
-
         if (!await _userRepository.CheckExistAsync(domain.UserId))
         {
             throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
         }
+        var storyById = await _storyRepository.GetByIdAsync(domain.StoryId) ?? throw new ResourceNotFoundException($"Story {domain.StoryId} was not found."); ;
 
+        if (storyById.UserId != domain.UserId)
+        {
+            throw new ParameterInvalidException($"Story {domain.StoryId} does not belong to user {domain.UserId}");
+        }
         if (await _repository.GetByStoryIdAsync(domain.StoryId) != null)
         {
             throw new ResourceDuplicatedException($"Story {domain.StoryId} existed in hightlight story list");

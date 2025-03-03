@@ -7,8 +7,6 @@ internal class RoomHashTagService(
     ILogger<RoomHashTagService> _logger
     ) : ServiceBase<RoomHashTag, RoomHashTagEntity>(_repository, _mapper, _logger), IRoomHashTagService
 {
-	private readonly IMapper _mapper = _mapper;
-
 	public async Task<QueryResult<Room>> GetRoomsByHashTagWithPagingAsync(string tag, QueryInfo queryInfo)
 		=> await _repository.GetRoomsByHashTagWithPagingAsync(tag, queryInfo);
 }
