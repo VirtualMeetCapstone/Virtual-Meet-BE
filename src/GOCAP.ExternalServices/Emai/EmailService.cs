@@ -1,45 +1,44 @@
-﻿using GOCAP.ExternalServices.Models;
-using MailKit.Security;
+﻿using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace GOCAP.ExternalServices;
 
-public class EmailService : IEmailService
+public class EmailService(IOptions<EmailSettings> mailSettings) : IEmailService
 {
-	EmailSettings _mailSettings;
-	public EmailService(IOptions<EmailSettings> mailSettings)
-	{
-		_mailSettings = mailSettings.Value;
-	}
-	public async Task<bool> SendMailAsync(MailContent mailContent)
-	{
-		var email = new MimeMessage();
-		email.Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail);
-		email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail));
+    private readonly EmailSettings _mailSettings = mailSettings.Value;
 
-		email.To.Add(new MailboxAddress(mailContent.To, mailContent.To));
-		email.Subject = mailContent.Subject;
+    public async Task<bool> SendMailAsync(MailContent mailContent)
+    {
+        var email = new MimeMessage
+        {
+            Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail)
+        };
+        email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Mail));
 
-		var builder = new BodyBuilder();
+        email.To.Add(new MailboxAddress(mailContent.To, mailContent.To));
+        email.Subject = mailContent.Subject;
 
-		builder.HtmlBody = mailContent.Body;
+        var builder = new BodyBuilder
+        {
+            HtmlBody = mailContent.Body
+        };
 
-		email.Body = builder.ToMessageBody();
-		using var smtp = new MailKit.Net.Smtp.SmtpClient();
+        email.Body = builder.ToMessageBody();
+        using var smtp = new MailKit.Net.Smtp.SmtpClient();
 
-		try
-		{
-			await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-			await smtp.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
-			await smtp.SendAsync(email);
-		}
-		catch
-		{
-			return false;
-		}
+        try
+        {
+            await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
+            await smtp.SendAsync(email);
+        }
+        catch
+        {
+            return false;
+        }
 
-		smtp.Disconnect(true);
-		return true;
-	}
+        smtp.Disconnect(true);
+        return true;
+    }
 }
