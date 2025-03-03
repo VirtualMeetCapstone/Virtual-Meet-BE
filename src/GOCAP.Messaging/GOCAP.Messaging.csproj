@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GOCAP.ExternalServices\GOCAP.ExternalServices.csproj" />
+  </ItemGroup>
+
 </Project>

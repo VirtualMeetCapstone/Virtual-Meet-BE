@@ -1,11 +1,10 @@
-﻿global using GOCAP.Common;
+﻿global using AutoMapper;
+global using GOCAP.Common;
+global using GOCAP.Database;
+global using GOCAP.Domain;
+global using GOCAP.ExternalServices;
+global using GOCAP.Repository;
 global using GOCAP.Repository.Intention;
 global using GOCAP.Services.Intention;
-global using GOCAP.Domain;
-global using GOCAP.Repository;
 global using Microsoft.Extensions.Logging;
 global using System.Linq.Expressions;
-global using GOCAP.ExternalServices;
-global using System.Text.Json;
-global using AutoMapper;
-global using GOCAP.Database;

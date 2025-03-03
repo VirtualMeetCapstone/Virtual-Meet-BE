@@ -1,5 +1,19 @@
-﻿namespace GOCAP.Messaging.Extensions;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-public class KafkaServiceCollectionExtensions
+namespace GOCAP.Messaging;
+
+public static class KafkaServiceCollectionExtensions
 {
+    public static IServiceCollection AddKafkaServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var kafkaSettingsSection = configuration.GetSection("KafkaSettings");
+        services.Configure<KafkaSettings>(kafkaSettingsSection);
+
+        // Register Producer and Consumer
+        services.AddSingleton<IKafkaProducer, KafkaProducer>();
+        //services.AddHostedService<UserLoginConsumer>();
+
+        return services;
+    }
 }
