@@ -8,13 +8,14 @@ public abstract class KafkaConsumerBase : BackgroundService, IAsyncDisposable
     private readonly ILogger<KafkaConsumerBase> _logger;
     private readonly string _topic;
 
-    protected KafkaConsumerBase(IOptions<KafkaSettings> kafkaSettings, ILogger<KafkaConsumerBase> logger, string topic)
+    public KafkaConsumerBase(IOptions<KafkaSettings> kafkaSettings, ILogger<KafkaConsumerBase> logger, string topic)
     {
         var config = new ConsumerConfig
         {
             BootstrapServers = kafkaSettings.Value.BootstrapServers,
             GroupId = kafkaSettings.Value.GroupId,
             AutoOffsetReset = AutoOffsetReset.Earliest,
+            EnableAutoCommit = true,
         };
 
         _consumer = new ConsumerBuilder<string, string>(config).Build();
@@ -40,7 +41,6 @@ public abstract class KafkaConsumerBase : BackgroundService, IAsyncDisposable
                             consumeResult.Message.Value, consumeResult.Offset);
 
                         await ProcessMessageAsync(consumeResult.Message.Value);
-                        _consumer.Commit();
                     }
                 }
                 catch (ConsumeException ex)
