@@ -106,4 +106,11 @@ internal class StoryHighlightRepository(
                         ).ToList();
         return _mapper.Map<List<List<Story>>>(result);
     }
+
+    public async Task<int> DeleteByStoryIdAsync(Guid storyId)
+    {
+        return await _context.StoryHightLights
+                                .Where(rm => rm.StoryId == storyId)
+                                .ExecuteDeleteAsync();
+    }
 }
