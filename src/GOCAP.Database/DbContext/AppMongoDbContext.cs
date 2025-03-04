@@ -2,6 +2,7 @@
 
 public class AppMongoDbContext
 {
+    private readonly MongoClient _client;
     private readonly IMongoDatabase _database;
     public IMongoCollection<CommentEntity> Comments { get; set; }
     public IMongoCollection<CommentReactionEntity> CommentReactions { get; set; }
@@ -9,7 +10,7 @@ public class AppMongoDbContext
     public IMongoCollection<MessageEntity> Messages { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
-        var _client = new MongoClient(connectionString);
+        _client = new MongoClient(connectionString);
         _database = _client.GetDatabase(databaseName);
         Comments = GetCollection<CommentEntity>();
         CommentReactions = GetCollection<CommentReactionEntity>();
@@ -17,6 +18,9 @@ public class AppMongoDbContext
         Messages = GetCollection<MessageEntity>();
     }
 
+    public IMongoDatabase GetDatabase() => _database;
+
+    public IMongoClient GetClient() => _client;
 
     /// <summary>
     /// Get collection base on BsonCollection attribute.

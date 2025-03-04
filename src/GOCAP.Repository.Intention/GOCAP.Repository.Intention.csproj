@@ -7,13 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
-    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
-    <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
+    <Compile Remove="Admin\**" />
+    <EmbeddedResource Remove="Admin\**" />
+    <None Remove="Admin\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Admin\DashBoard\" />
+    <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
+    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
+    <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
   </ItemGroup>
 
 </Project>
