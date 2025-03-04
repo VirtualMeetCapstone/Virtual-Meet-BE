@@ -6,6 +6,7 @@ internal class StoryReactionRepository(
      ) : SqlRepositoryBase<StoryReactionEntity>(context), IStoryReactionRepository
 {
     private readonly AppSqlDbContext _context = context;
+
     public async Task<StoryReactionEntity?> GetByStoryAndUserAsync(Guid storyId, Guid userId)
     {
         var entity = await _context.StoryReactions.FirstOrDefaultAsync
@@ -32,5 +33,12 @@ internal class StoryReactionRepository(
             TotalCount = totalItems
         };
 
+    }
+
+    public async Task<int> DeleteByStoryIdAsync(Guid storyId)
+    {
+        return await _context.StoryReactions
+                                .Where(rm => rm.StoryId == storyId)
+                                .ExecuteDeleteAsync();
     }
 }

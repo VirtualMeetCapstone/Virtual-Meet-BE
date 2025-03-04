@@ -4,4 +4,5 @@ public interface IStoryReactionRepository : ISqlRepositoryBase<StoryReactionEnti
 {
     Task<StoryReactionEntity?> GetByStoryAndUserAsync(Guid storyId, Guid userId);
     Task<QueryResult<StoryReactionEntity>> GetReactionDetailsWithPagingAsync(Guid storyId, QueryInfo queryInfo);
+    Task<int> DeleteByStoryIdAsync(Guid storyId);
 }
