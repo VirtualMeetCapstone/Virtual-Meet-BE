@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Services;
+﻿
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IStoryService))]
 internal class StoryService(
@@ -81,5 +82,10 @@ internal class StoryService(
             await _unitOfWork.RollbackTransactionAsync();
             return new OperationResult(false);
         }
+    }
+
+    public async Task<List<Story>> GetActiveStoriesByUserIdAsync(Guid userId)
+    {
+        return await _repository.GetActiveStoriesByUserIdAsync(userId);
     }
 }

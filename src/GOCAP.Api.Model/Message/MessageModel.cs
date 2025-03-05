@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Model;
 
-public abstract class MessageModel : DateTrackingBase
+public class MessageModel : DateTrackingBase
 {
     public Guid SenderId { get; set; }
     public string Content { get; set; } = string.Empty;

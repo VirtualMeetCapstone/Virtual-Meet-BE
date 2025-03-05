@@ -160,4 +160,11 @@ public class StoriesController(
         var result = await _storyHightLightService.GetStoryHighlightByUserIdAsync(userId);
         return _mapper.Map<List<List<StoryModel>>>(result);
     }
+
+    [HttpGet("users/{userId}/stories/active")]
+    public async Task<List<StoryModel>> GetActiveStoriesByUserId([FromRoute] Guid userId)
+    {
+        var domain = await _service.GetActiveStoriesByUserIdAsync(userId);
+        return _mapper.Map<List<StoryModel>>(domain);
+    }
 }

@@ -25,9 +25,8 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
         var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
         string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-        string fileName = $"{Guid.NewGuid()}-{mediaUpload.Type}{timestamp}-{mediaUpload.FileName}";
-        string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
-        var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+        string fileName = $"{mediaUpload.ContainerName}/{Guid.NewGuid()}-{timestamp}-{mediaUpload.Type}{Path.GetExtension(mediaUpload.FileName)}";
+        var blobClient = blobContainerClient.GetBlobClient(fileName);
 
         await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
 
@@ -65,9 +64,8 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
                 var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                string fileName = $"{Guid.NewGuid()}-{mediaUpload.Type}{timestamp}-{mediaUpload.FileName}";
-                string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
-                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+                string fileName = $"{mediaUpload.ContainerName}/{Guid.NewGuid()}-{timestamp}-{mediaUpload.Type}{Path.GetExtension(mediaUpload.FileName)}";
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
 
                 await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
 
@@ -149,6 +147,10 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
                 if (await blobClient.ExistsAsync())
                 {
                     deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+                }
+                else
+                {
+                    return false;
                 }
             }
 

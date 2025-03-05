@@ -1,10 +1,10 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryRepository))]
-internal class StoryRepository(AppSqlDbContext context) : SqlRepositoryBase<StoryEntity>(context), IStoryRepository
+internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRepositoryBase<StoryEntity>(context), IStoryRepository
 {
     private readonly AppSqlDbContext _context = context;
+    private readonly IMapper _mapper = _mapper;
     public async Task<QueryResult<StoryEntity>> GetFollowingStoriesWithPagingAsync(Guid userId, QueryInfo queryInfo)
     {
         var followingIds = await _context.UserFollows
@@ -55,9 +55,7 @@ internal class StoryRepository(AppSqlDbContext context) : SqlRepositoryBase<Stor
         var currentTime = DateTimeOffset.UtcNow.Ticks;
         var storiesQuery = _context.Stories
                                         .AsNoTracking()
-                                        .Where(s => s.UserId == userId
-                                            && s.CreateTime >= currentTime - TimeSpan.FromHours(24).Ticks
-                                            && s.ExpireTime > currentTime)
+                                        .Where(s => s.UserId == userId)
                                         .OrderByDescending(s => s.CreateTime);
 
         var stories = await storiesQuery.Skip(queryInfo.Skip)
@@ -77,5 +75,18 @@ internal class StoryRepository(AppSqlDbContext context) : SqlRepositoryBase<Stor
             Data = stories,
             TotalCount = totalItems
         };
+    }
+
+    public async Task<List<Story>> GetActiveStoriesByUserIdAsync(Guid userId)
+    {
+        var currentTime = DateTimeOffset.UtcNow.Ticks;
+        var stories = await _context.Stories
+                                        .AsNoTracking()
+                                        .Where(s => s.UserId == userId
+                                            && s.CreateTime >= currentTime - TimeSpan.FromHours                             (24).Ticks
+                                            && s.ExpireTime > currentTime)
+                                        .OrderByDescending(s => s.CreateTime)
+                                        .ToListAsync();
+        return _mapper.Map<List<Story>>(stories);
     }
 }

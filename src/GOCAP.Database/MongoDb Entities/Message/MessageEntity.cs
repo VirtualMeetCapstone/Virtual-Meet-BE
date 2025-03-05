@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Database;
 
-public abstract class MessageEntity : EntityMongoBase
+public class MessageEntity : EntityMongoBase, IMessageEntity
 {
     public Guid SenderId { get; set; }
     public string Content { get; set; } = string.Empty;
@@ -9,3 +9,5 @@ public abstract class MessageEntity : EntityMongoBase
     public bool IsPinned { get; set; }
     public Guid ParentId { get; set; }
 }
+
+public interface IMessageEntity { }
