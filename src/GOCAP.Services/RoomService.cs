@@ -49,13 +49,23 @@ internal class RoomService(
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
+        var room = await _repository.GetByIdAsync(id);
+        var medias = JsonHelper.Deserialize<List<Media>>(room.Medias);
+        if (medias != null && medias.Count > 0)
+        {
+            var isFileDeleted = await _blobStorageService.DeleteFilesByUrlsAsync(medias.Select(x => x.Url).ToList());
+            if (!isFileDeleted)
+            {
+                return new OperationResult(isFileDeleted, "Unexpected error occurs while deleting media file.");
+            }
+        }
         try
         {
             // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
             await _roomMemberRepository.DeleteByRoomIdAsync(id);
-            var result = await _repository.DeleteByIdAsync(id);
+            var result = await _repository.DeleteByEntityAsync(room);
 
             // Commit if success
             await _unitOfWork.CommitTransactionAsync();

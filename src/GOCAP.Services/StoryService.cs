@@ -61,6 +61,16 @@ internal class StoryService(
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Story).Name);
+        var story = await _repository.GetByIdAsync(id);
+        var media = JsonHelper.Deserialize<Media>(story.Media);
+        if (media != null)
+        {
+            var isFileDeleted = await _blobStorageService.DeleteFilesByUrlsAsync([media.Url]);
+            if (!isFileDeleted)
+            {
+                return new OperationResult(isFileDeleted, "Unexpected error occurs while deleting media file.");
+            }
+        }
         try
         {
             // Begin transaction by unit of work to make sure the consistency
@@ -69,7 +79,7 @@ internal class StoryService(
             await _storyReactionRepository.DeleteByStoryIdAsync(id);
             await _storyViewRepository.DeleteByStoryIdAsync(id);
             await _storyHighlightRepository.DeleteByStoryIdAsync(id);
-            var result = await _repository.DeleteByIdAsync(id);
+            var result = await _repository.DeleteByEntityAsync(story);
 
             // Commit if success
             await _unitOfWork.CommitTransactionAsync();

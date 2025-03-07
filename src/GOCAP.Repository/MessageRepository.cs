@@ -1,8 +1,7 @@
 ﻿namespace GOCAP.Repository;
 
-[RegisterService(typeof(IMessageRepository<>))]
-internal class MessageRepository<T>
-    (AppMongoDbContext context)
-    : MongoRepositoryBase<T>(context), IMessageRepository<T> where T : MessageEntity
+[RegisterService(typeof(IMessageRepository))]
+internal class MessageRepository(AppMongoDbContext context)
+    : MongoRepositoryBase<MessageEntity>(context), IMessageRepository
 {
 }

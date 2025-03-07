@@ -1,5 +1,5 @@
 ﻿namespace GOCAP.Repository.Intention;
 
-public interface IMessageRepository<T> : IMongoRepositoryBase<T> where T : MessageEntity
+public interface IMessageRepository : IMongoRepositoryBase<MessageEntity>
 {
 }

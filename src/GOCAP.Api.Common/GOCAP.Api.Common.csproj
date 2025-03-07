@@ -13,6 +13,7 @@
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.8" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="8.0.8" />
 	<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+	 <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

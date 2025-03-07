@@ -2,6 +2,7 @@
 
 public class MessageCreationModel
 {
+    public MessageType Type { get; set; }
     public Guid SenderId { get; set; }
     public string Content { get; set; } = string.Empty;
     public List<Media>? Attachments { get; set; }

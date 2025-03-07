@@ -109,6 +109,12 @@ internal abstract class SqlRepositoryBase<TEntity>
         return await _context.SaveChangesAsync();
     }
 
+    public virtual async Task<int> DeleteByEntityAsync(TEntity entity)
+    {
+        _context.Set<TEntity>().Remove(entity);
+        return await _context.SaveChangesAsync();
+    }
+
     public virtual async Task<bool> CheckExistAsync(Guid id, string name)
     {
         var exists = await _context.Set<TEntity>().AnyAsync(
@@ -132,4 +138,5 @@ internal abstract class SqlRepositoryBase<TEntity>
     }
 
     protected virtual IQueryable<TEntity> GenerateWhereString(IQueryable<TEntity> query, QueryInfo queryInfo) => query;
+
 }

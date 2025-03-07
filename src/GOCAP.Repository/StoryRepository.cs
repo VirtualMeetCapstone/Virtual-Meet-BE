@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Repository;
+﻿using System.Xml.Linq;
+
+namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryRepository))]
 internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRepositoryBase<StoryEntity>(context), IStoryRepository

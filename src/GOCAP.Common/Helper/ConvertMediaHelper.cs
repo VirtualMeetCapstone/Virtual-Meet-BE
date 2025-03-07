@@ -86,7 +86,7 @@ public class ConvertMediaHelper
             ".mp4" or ".mkv" or ".mov" or ".avi" or ".wmv" or ".flv" => MediaType.Video,
             ".mp3" or ".m4a" or ".wav" or ".aac" or ".flac" or ".ogg" => MediaType.Audio,
             ".pdf" or ".doc" or ".docx" or ".xls" or ".xlsx" or ".ppt" or ".pptx" => MediaType.File,
-            _ => MediaType.Text // Nếu không xác định được thì trả về Text
+            _ => MediaType.Text 
         };
     }
 }
