@@ -1,4 +1,5 @@
 ﻿#if DEBUG
+using AspNetCoreRateLimit;
 using GOCAP.Api.Hubs;
 
 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development", EnvironmentVariableTarget.Process);
@@ -12,6 +13,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+
+// IP Rate Limiting
+builder.Services.AddIpRateLimiting(builder.Configuration);
 
 // SignalR
 builder.Services.AddSignalR();
@@ -31,26 +35,34 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
+if (!app.Environment.IsProduction())
+{
+    app.UseMiddleware<RequestResponseLoggingMiddleware>();
+}
 app.UseCustomExceptionHandler();
+if (app.Environment.IsProduction())
+{
+    app.UseHsts(); 
+}
 app.UseHttpsRedirection();
+if (app.Environment.IsProduction())
+{
+    app.UseResponseCompression();
+}
 app.UseRouting();
+app.UseCors();
+app.UseIpRateLimiting();
 
 app.UseAuthentication();
-app.UseMiddleware<PermissionsControlMiddleware>();
 app.UseAuthorization();
-app.UseCors();
-app.MapHub<ChatHub>("/chatHub");
+app.UseMiddleware<PermissionsControlMiddleware>();
 
 // Configure the HTTP request pipeline.
 
 app.UseSwagger();
 app.UseSwaggerUI();
-if (app.Environment.IsProduction())
-{
-    app.UseResponseCompression();
-}
 
+app.MapHub<ChatHub>("/chatHub");
 app.MapControllers();
 
 await app.RunAsync();

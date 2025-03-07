@@ -8,7 +8,7 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
     /// <summary>
     /// Get sql server connection string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>string</returns>
     public string GetSqlServerConnectionString()
     {
         return _configuration.GetConnectionString(AppConstants.SqlServerConnection)
@@ -18,7 +18,7 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
     /// <summary>
     /// Get google client id string.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>string</returns>
     public string? GetGoogleClientIdString()
     {
         return _configuration["Authentication:Google:ClientId"];
@@ -37,6 +37,21 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
         return jwtSettings;
     }
 
+    /// <summary>
+    /// Get file settings.
+    /// </summary>
+    /// <returns></returns>
+    public FileSettings GetFileSettings()
+    {
+        var fileSettings = new FileSettings();
+        _configuration.GetSection("FileSettings").Bind(fileSettings);
+        return fileSettings;
+    }
+
+    /// <summary>
+    /// Get defaut domain.
+    /// </summary>
+    /// <returns>string</returns>
     public string GetDefaultDomain()
     => _configuration.GetSection("Domain").Value ?? "";
 }

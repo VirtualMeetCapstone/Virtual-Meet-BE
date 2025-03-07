@@ -10,6 +10,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
 {
     public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)   
     {
+        _logger.LogInformation("Start uploading a new media file.");
         if (mediaUpload?.FileStream == null || mediaUpload.FileStream.Length == 0)
         {
             throw new ParameterInvalidException("File stream cannot be null or empty.");
@@ -29,6 +30,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
         var blobClient = blobContainerClient.GetBlobClient(fileName);
 
         await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
+        _logger.LogInformation("Complete uploading a new media file.");
 
         return new Media
         {
@@ -39,6 +41,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
 
     public async Task<List<Media>> UploadFilesAsync(List<MediaUpload> mediaUploads)
     {
+        _logger.LogInformation("Start uploading new media files.");
         if (mediaUploads == null || mediaUploads.Count == 0)
         {
             throw new ParameterInvalidException("File stream cannot be null or empty.");
@@ -78,6 +81,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
         }
 
         var uploadedFiles = await Task.WhenAll(result);
+        _logger.LogInformation("Complete uploading a new media file.");
         return [.. uploadedFiles];
     }
 
@@ -118,6 +122,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
 
     public async Task<bool> DeleteFilesByUrlsAsync(List<string> fileUrls)
     {
+        _logger.LogInformation("Start deleting media files by urls.");
         if (fileUrls == null || fileUrls.Count == 0)
         {
             throw new ParameterInvalidException("File URLs cannot be null or empty.");
@@ -150,11 +155,12 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<Bl
                 }
                 else
                 {
-                    return false;
+                    continue;
                 }
             }
 
             var results = await Task.WhenAll(deleteTasks);
+            _logger.LogInformation("Complete deleting media files by urls.");
             return results.All(result => result.Value);
         }
         catch (Exception ex)

@@ -7,7 +7,7 @@ public class OperationResult
 
     public OperationResult(bool success, string message = "")
     {
-        if (!success)
+        if (!success && string.IsNullOrEmpty(message))
         {
             message = "Operation Failed";
         }
