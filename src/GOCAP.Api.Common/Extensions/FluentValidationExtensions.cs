@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -16,8 +15,8 @@ public static class FluentValidationExtensions
             })
             .AddFluentValidationClientsideAdapters()
             .AddValidatorsFromAssembly(assembly);
-        ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
-        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+        ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Continue;
+        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
         return services;
     }
 }

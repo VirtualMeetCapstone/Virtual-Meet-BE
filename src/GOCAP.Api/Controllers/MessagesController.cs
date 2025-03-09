@@ -1,9 +1,10 @@
-﻿using GOCAP.Api.Hubs;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace GOCAP.Api.Controllers;
 
-public class MessagesController(IMessageService _service, IMapper _mapper, IHubContext<ChatHub> _chatHub)
+public class MessagesController(IMessageService _service,
+    IMapper _mapper, 
+    IHubContext<ChatHub> _chatHub)
 {
     [HttpPost("messages")]
     [ValidateModel]
@@ -11,7 +12,18 @@ public class MessagesController(IMessageService _service, IMapper _mapper, IHubC
     {
         var domain = _mapper.Map<Message>(model);
         var result = await _service.AddAsync(domain);
-        await _chatHub.Clients.Groups(domain.Id.ToString()).SendAsync(model.Content);
+        switch (model.Type)
+        {
+            case MessageType.Direct:
+                await _chatHub.Clients.Groups(model.ReceiverId.ToString() ?? "").SendAsync(model.Content);
+                break;
+            case MessageType.Room:
+                await _chatHub.Clients.Groups(model.RoomId.ToString() ?? "").SendAsync(model.Content);
+                break;
+            case MessageType.Group:
+                await _chatHub.Clients.Groups(model.GroupId.ToString() ?? "").SendAsync(model.Content);
+                break;
+        }
         return _mapper.Map<MessageModel>(result);
     }
 

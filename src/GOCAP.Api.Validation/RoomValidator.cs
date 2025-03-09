@@ -5,7 +5,7 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
 	public RoomValidator()
 	{
 		RuleFor(x => x.Topic)
-			.NotEmpty().WithMessage(ValidationMessage.Required)
+			.NotEmpty().WithMessage("Topic must not be empty.")
 			.MaximumLength(256).WithMessage(ValidationMessage.MaxLength);
 
 		RuleFor(x => x.Description)
@@ -13,7 +13,8 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
 			.WithMessage(ValidationMessage.MaxLength);
 
 		RuleFor(x => x.MaximumMembers)
-			.NotEmpty().WithMessage(ValidationMessage.Required)
+			.NotNull()
+			.NotEmpty().WithMessage("Maximum member must be greate than 0.")
 			.GreaterThan(0).WithMessage(ValidationMessage.GreaterThan);
 	}
 }

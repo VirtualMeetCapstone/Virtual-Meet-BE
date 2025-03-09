@@ -1,8 +1,6 @@
-﻿using StackExchange.Redis;
+﻿namespace GOCAP.ExternalServices;
 
-namespace GOCAP.Repository.Intention;
-
-public interface IRedisRepository
+public interface IRedisService
 {
     // Set a string value in Redis with a specified key
     Task SetAsync(string key, string value);
