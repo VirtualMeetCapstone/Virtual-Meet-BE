@@ -13,6 +13,7 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
 			.WithMessage(ValidationMessage.MaxLength);
 
 		RuleFor(x => x.MaximumMembers)
+			.NotNull()
 			.NotEmpty().WithMessage(ValidationMessage.Required)
 			.GreaterThan(0).WithMessage(ValidationMessage.GreaterThan);
 	}

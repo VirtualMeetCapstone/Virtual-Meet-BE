@@ -32,8 +32,6 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
     {
         var jwtSettings = new JwtSettings();
         _configuration.GetSection("Jwt").Bind(jwtSettings);
-        jwtSettings.Issuer = GetDefaultDomain();
-        jwtSettings.Audience = GetDefaultDomain();
         return jwtSettings;
     }
 

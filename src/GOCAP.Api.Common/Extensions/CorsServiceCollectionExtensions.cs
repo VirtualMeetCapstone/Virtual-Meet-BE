@@ -1,6 +1,4 @@
-﻿﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace GOCAP.Api.Common;
+﻿namespace GOCAP.Api.Common;
 
 public static class CorsServiceCollectionExtensions
 {

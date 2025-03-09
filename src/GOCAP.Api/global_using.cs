@@ -10,3 +10,5 @@ global using GOCAP.Services.Intention;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using System.Reflection;
+global using AspNetCoreRateLimit;
+global using GOCAP.Api.Hubs;

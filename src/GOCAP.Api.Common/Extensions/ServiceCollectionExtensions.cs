@@ -4,8 +4,6 @@ using GOCAP.Messaging;
 using GOCAP.Repository;
 using GOCAP.Repository.Intention;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -22,6 +20,9 @@ public static class ServiceCollectionExtensions
 
         // Configure kafka service.
         services.AddKafkaServices(configuration);
+
+        // Configure cache service.
+        services.AddCacheService(configuration);
 
         // Configure sql server.
         services
@@ -43,10 +44,6 @@ public static class ServiceCollectionExtensions
 
         // Configure unit of work.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        // Add for using Redis
-        // services.AddDistributedMemoryCache();
-        // services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
 
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),

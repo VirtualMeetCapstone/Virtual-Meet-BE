@@ -1,7 +1,4 @@
 ﻿#if DEBUG
-using AspNetCoreRateLimit;
-using GOCAP.Api.Hubs;
-
 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development", EnvironmentVariableTarget.Process);
 #endif
 
@@ -14,7 +11,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-// IP Rate Limiting
+// Ip Rate Limiting
 builder.Services.AddIpRateLimiting(builder.Configuration);
 
 // SignalR
@@ -23,14 +20,15 @@ builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddCorsPolicy()
                 .AddJwtAuthentication(builder.Configuration)
+                .AddHttpContextAccessor()
                 .AddServices(builder.Configuration)
                 .AddResponseCompression(options => options.EnableForHttps = true)
                 .AddAutoMapper(typeof(ModelMapperProfileBase),
                                typeof(EntityMapperProfileBase))
                 .AddFluentValidation(Assembly.Load("gocap.api.validation"))
+                .AddControllers()
                 ;
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -49,8 +47,8 @@ if (app.Environment.IsProduction())
 {
     app.UseResponseCompression();
 }
-app.UseRouting();
 app.UseCors();
+app.UseRouting();
 app.UseIpRateLimiting();
 
 app.UseAuthentication();

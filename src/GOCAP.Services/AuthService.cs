@@ -73,7 +73,7 @@ internal class AuthService(IAppConfiguration _appConfiguration,
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         var jwtSettings = _appConfiguration.GetJwtSettings();
-        var secretKeyBytes = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+        var secretKeyBytes = Convert.FromBase64String(jwtSettings.SecretKey);
 
         // Get role list of user.
         var roles = await _roleRepository.GetRolesByUserIdAsync(user.Id);
@@ -82,10 +82,10 @@ internal class AuthService(IAppConfiguration _appConfiguration,
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
-                new Claim("Picture", JsonHelper.Serialize(user.Picture) ?? ""),
+                new Claim("picture", JsonHelper.Serialize(user.Picture) ?? ""),
                 new Claim(ClaimTypes.Name, user.Name ?? ""),
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim("Id", user.Id.ToString() ?? ""),
+                new Claim("id", user.Id.ToString() ?? ""),
                 new Claim(ClaimTypes.Role, defaultRole?.Name ?? "")
             ]),
             Expires = DateTime.UtcNow.AddMinutes(jwtSettings.AccessTokenExpiration),

@@ -1,10 +1,8 @@
 ﻿using FluentValidation;
 using GOCAP.Api.Model;
-using GOCAP.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System.Net;

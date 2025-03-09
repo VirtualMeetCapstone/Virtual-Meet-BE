@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace GOCAP.Api.Common;
 
@@ -10,8 +7,9 @@ public static class JwtBearerAuthenticationExtensions
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration _configuration)
     {
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"] ?? "");
-        var domain = _configuration.GetSection("Domain").Value;
+        var keyBytes = Convert.FromBase64String(_configuration["Jwt:SecretKey"] ?? "");
+        var issuer = _configuration["Jwt:Issuer"];
+        var audience = _configuration["Jwt:Audience"];
 
         // Configure jwt authentication
         services
@@ -28,9 +26,10 @@ public static class JwtBearerAuthenticationExtensions
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidIssuer = domain,
-                    ValidAudience = domain,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+                    ClockSkew = TimeSpan.Zero
                 };
             })
             ;
