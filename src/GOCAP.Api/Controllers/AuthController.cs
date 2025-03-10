@@ -3,7 +3,7 @@
 [Route("signin")]
 public class AuthController(IAuthService _service) : ApiControllerBase
 {
-    [HttpPost("google")]
+    [HttpGet("google")]
     public async Task<TokenResponse> SignInGoogle([FromQuery] string idToken)
     {
         var payload = await _service.VerifyGoogleTokenAsync(idToken);

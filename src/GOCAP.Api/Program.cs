@@ -30,10 +30,6 @@ builder.Services.AddCorsPolicy()
                 ;
 
 builder.Services.AddControllers();
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -67,6 +63,7 @@ app.UseSwaggerUI();
 
 app.MapHub<ChatHub>("/chatHub");
 app.MapHub<VideoHub>("/videoHub");
+app.MapHub<RoomHub>("/roomHub");
 app.MapControllers();
 
 await app.RunAsync();
