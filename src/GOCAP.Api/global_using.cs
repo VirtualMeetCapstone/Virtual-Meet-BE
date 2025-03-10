@@ -12,3 +12,4 @@ global using Microsoft.AspNetCore.Mvc;
 global using System.Reflection;
 global using AspNetCoreRateLimit;
 global using GOCAP.Api.Hubs;
+global using Microsoft.AspNetCore.SignalR;
