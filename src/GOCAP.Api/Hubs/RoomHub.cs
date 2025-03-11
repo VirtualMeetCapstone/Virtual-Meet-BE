@@ -2,53 +2,66 @@
 
 namespace GOCAP.Api.Hubs
 {
+    public class UserInfo
+    {
+        public string Name { get; set; }
+        public string RoomId { get; set; }
+    }
+
     public class RoomHub : Hub
     {
-        private static readonly ConcurrentDictionary<string, HashSet<string>> RoomUsers = new();
+        private static readonly ConcurrentDictionary<string, UserInfo> _users = new();
 
-        public async Task JoinRoom(string roomId)
+
+        public async Task JoinRoom(string username, string roomId)
         {
-            string connectionId = Context.ConnectionId;
+            // Lưu thông tin người dùng
+            _users[Context.ConnectionId] = new UserInfo
+            {
+                Name = username,
+                RoomId = roomId
+            };
 
-            if (!RoomUsers.ContainsKey(roomId))
-                RoomUsers[roomId] = new HashSet<string>();
+  
+                Console.WriteLine($"👤 {username} vào phòng {roomId} - ConnectionId: {Context.ConnectionId}");
 
-            RoomUsers[roomId].Add(connectionId);
+            // Kiểm tra client có thực sự trong Group không
+            Constant._userGroups[Context.ConnectionId] = roomId; // Lưu Room của client
 
-            Console.WriteLine($"📢 {connectionId} joined Room {roomId}");
+            Console.WriteLine($"🚀 {username} đã tham gia Room {roomId}");
 
-            //Gửi danh sách user trong room cho tất cả client trong room
-            await Clients.Group(roomId).SendAsync("ReceiveUserList", RoomUsers[roomId].ToList());
+            // Thêm vào group
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
 
-            await Groups.AddToGroupAsync(connectionId, roomId);
+            //// Thông báo cho phòng
+            //await Clients.Group(roomId).SendAsync("UserJoined", username);
+
+            // Nếu room đã có trạng thái video trước đó, gửi lại cho client mới
+
+        }
+
+        public async Task SendLike()
+        {
+            if (_users.TryGetValue(Context.ConnectionId, out UserInfo user))
+            {
+                // Gửi thông báo kèm tên
+                await Clients.OthersInGroup(user.RoomId).SendAsync("ReceiveLike", user.Name);
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            string disconnectedRoom = null;
-
-            foreach (var room in RoomUsers)
-            {
-                if (room.Value.Contains(Context.ConnectionId))
-                {
-                    room.Value.Remove(Context.ConnectionId);
-                    disconnectedRoom = room.Key;
-
-                    if (!room.Value.Any())
-                        RoomUsers.TryRemove(room.Key, out _);
-
-                    break;
-                }
-            }
-
-            if (disconnectedRoom != null)
-            {
-                Console.WriteLine($"❌ {Context.ConnectionId} left Room {disconnectedRoom}");
-                await Clients.Group(disconnectedRoom).SendAsync("ReceiveUserList", RoomUsers[disconnectedRoom]?.ToList() ?? new List<string>());
-            }
-
+            // Xóa thông tin khi ngắt kết nối
+            _users.TryRemove(Context.ConnectionId, out _);
             await base.OnDisconnectedAsync(exception);
+        }
+        public async Task SendShare()
+        {
+            if (_users.TryGetValue(Context.ConnectionId, out UserInfo user))
+            {
+                // Gửi thông báo đến tất cả mọi người trong phòng, bao gồm cả người gửi
+                await Clients.Group(user.RoomId).SendAsync("ReceiveShare", user.Name);
+            }
         }
     }
 }
-
