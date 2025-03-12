@@ -62,8 +62,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapHub<ChatHub>("/chatHub");
-app.MapHub<VideoHub>("/videoHub");
 app.MapHub<RoomHub>("/roomHub");
+app.MapHub<VideoHub>("/videoHub");
 app.MapControllers();
 
 await app.RunAsync();

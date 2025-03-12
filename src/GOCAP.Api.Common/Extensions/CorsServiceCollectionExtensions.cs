@@ -12,6 +12,7 @@ public static class CorsServiceCollectionExtensions
                        .AllowAnyMethod()
                        .SetPreflightMaxAge(TimeSpan.FromDays(1))
                        .SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
                        .AllowAnyHeader()
                         ;
             });
