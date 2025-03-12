@@ -12,7 +12,8 @@ public static class KafkaServiceCollectionExtensions
 
         // Register Producer and Consumer
         services.AddSingleton<IKafkaProducer, KafkaProducer>();
-        //services.AddHostedService<UserLoginConsumer>();
+        services.AddSingleton<UserLoginConsumer>();
+        services.AddHostedService<KafkaConsumerService>();
 
         return services;
     }

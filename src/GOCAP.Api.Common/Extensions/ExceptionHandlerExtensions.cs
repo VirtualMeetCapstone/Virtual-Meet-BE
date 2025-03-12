@@ -73,15 +73,15 @@ public static class ExceptionHandlerExtensions
         response.Headers["Referrer-Policy"] = new StringValues("strict-origin-when-cross-origin");
 
         // Enforce HTTPS and prevent downgrade attacks
-        response.Headers["Strict-Transport-Security"] = new StringValues("max-age=31536000; includeSubDomains; preload");
+        response.Headers.StrictTransportSecurity = new StringValues("max-age=31536000; includeSubDomains; preload");
 
         // XSS Protection for older browsers
-        response.Headers["X-XSS-Protection"] = new StringValues("1; mode=block");
+        response.Headers.XXSSProtection = new StringValues("1; mode=block");
 
         // Prevent caching of sensitive data
-        response.Headers["Cache-Control"] = new StringValues("no-store, no-cache, must-revalidate, max-age=0");
-        response.Headers["Pragma"] = new StringValues("no-cache");
-        response.Headers["Expires"] = new StringValues("0");
+        response.Headers.CacheControl = new StringValues("no-store, no-cache, must-revalidate, max-age=0");
+        response.Headers.Pragma = new StringValues("no-cache");
+        response.Headers.Expires = new StringValues("0");
 
         await Task.CompletedTask;
     }

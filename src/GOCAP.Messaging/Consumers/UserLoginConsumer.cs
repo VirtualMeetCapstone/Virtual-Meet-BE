@@ -6,8 +6,9 @@ public class UserLoginConsumer(
     IOptions<KafkaSettings> _kafkaSettings,
     ILogger<UserLoginConsumer> _logger, IEmailService _emailService) : KafkaConsumerBase(_kafkaSettings, _logger, KafkaConstants.Topics.UserLogin)
 {
-    protected override async Task ProcessMessageAsync(string message)
+    protected override async Task ProcessMessageAsync(object message)
     {
+        var userLoginEvent = (UserLoginEvent)message;
         var mailContent = new MailContent
         {
             To = "brightsuntnc2003@gmail.com", 

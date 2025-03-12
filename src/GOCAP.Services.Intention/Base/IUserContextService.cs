@@ -7,4 +7,5 @@ public interface IUserContextService
     string Email { get; }
     string Picture { get; }
     string Role {  get; }
+    bool ValidateUser(Guid userId);
 }

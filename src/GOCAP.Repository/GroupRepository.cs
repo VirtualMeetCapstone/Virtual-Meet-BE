@@ -64,7 +64,7 @@ internal class GroupRepository(AppSqlDbContext context, IMapper _mapper)
 
     public override async Task<bool> UpdateAsync(GroupEntity groupEntity)
     {
-        var entity = await GetEntityByIdAsync(groupEntity.Id);
+        var entity = await GetByIdAsync(groupEntity.Id, false);
         entity.Name = groupEntity.Name;
         entity.Picture = groupEntity.Picture;
         if (groupEntity.OwnerId != Guid.Empty)

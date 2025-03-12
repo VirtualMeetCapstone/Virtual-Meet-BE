@@ -1,4 +1,9 @@
-﻿namespace GOCAP.Messaging;
+﻿using Confluent.Kafka;
+using GOCAP.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace GOCAP.Messaging.Producer;
 
 public class KafkaProducer : IKafkaProducer, IAsyncDisposable
 {

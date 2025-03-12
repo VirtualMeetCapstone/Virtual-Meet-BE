@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace GOCAP.Api.Controllers;
+﻿namespace GOCAP.Api.Controllers;
 
 public class MessagesController(IMessageService _service,
-    IMapper _mapper, 
+    IMapper _mapper,
     IHubContext<ChatHub> _chatHub)
 {
     [HttpPost("messages")]

@@ -33,7 +33,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Admin.Api", "GOCAP.Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.ExternalServices", "GOCAP.ExternalServices\GOCAP.ExternalServices.csproj", "{4DD87135-D808-48FE-BB49-D984251F24AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging", "GOCAP.Messaging\GOCAP.Messaging.csproj", "{DE6D1D2F-B683-4CDA-8DC0-4FF3C0B357CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Producer", "GOCAP.Messaging.Producer\GOCAP.Messaging.Producer.csproj", "{5F5C914F-C956-41AB-AA52-F754780DD67E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Consumer", "GOCAP.Messaging.Consumer\GOCAP.Messaging.Consumer.csproj", "{18C4D141-686E-412C-8D8E-899535BD7A89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,10 +103,14 @@ Global
 		{4DD87135-D808-48FE-BB49-D984251F24AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DD87135-D808-48FE-BB49-D984251F24AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DD87135-D808-48FE-BB49-D984251F24AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE6D1D2F-B683-4CDA-8DC0-4FF3C0B357CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE6D1D2F-B683-4CDA-8DC0-4FF3C0B357CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE6D1D2F-B683-4CDA-8DC0-4FF3C0B357CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE6D1D2F-B683-4CDA-8DC0-4FF3C0B357CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F5C914F-C956-41AB-AA52-F754780DD67E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F5C914F-C956-41AB-AA52-F754780DD67E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F5C914F-C956-41AB-AA52-F754780DD67E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F5C914F-C956-41AB-AA52-F754780DD67E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18C4D141-686E-412C-8D8E-899535BD7A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18C4D141-686E-412C-8D8E-899535BD7A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
