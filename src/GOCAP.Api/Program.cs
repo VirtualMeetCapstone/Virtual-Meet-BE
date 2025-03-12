@@ -28,8 +28,6 @@ builder.Services.AddCorsPolicy()
                 .AddFluentValidation(Assembly.Load("gocap.api.validation"))
                 .AddControllers()
                 ;
-
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -55,9 +53,6 @@ app.UseIpRateLimiting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<PermissionsControlMiddleware>();
-
-// Configure the HTTP request pipeline.
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
