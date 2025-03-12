@@ -1,25 +1,62 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace GOCAP.Api.Hubs;
+﻿namespace GOCAP.Api.Hubs;
 
 public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
 {
-    public async Task SendRoomMessage(MessageCreationModel model)
+    public async Task SendMessage([FromBody] MessageCreationModel model)
     {
         var domain = _mapper.Map<Message>(model);
-        await _service.AddAsync(domain);
-        await Clients.Group(model.RoomId.ToString() ?? string.Empty).SendAsync("ReceiveMessage", domain);
+        var result = await _service.AddAsync(domain);
+        if (result != null)
+        {
+            await BroadcastMessage(model, "ReceiveMessage", result);
+        }
     }
 
-    public async Task JoinRoom(string roomId)
+    public async Task EditMessage([FromRoute] Guid id, [FromBody] MessageCreationModel model)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-        await Clients.Group(roomId).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} joined room {roomId}.", DateTime.UtcNow);
+        var domain = _mapper.Map<Message>(model);
+        var result = await _service.UpdateAsync(id, domain);
+        if (result != null && result.Success)
+        {
+            await BroadcastMessage(model, "EditMessage", result);
+        }
     }
 
-    public async Task LeaveRoom(string roomId)
+    public async Task DeleteMessage([FromBody] MessageDeletionModel model)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
-        await Clients.Group(roomId).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} left room {roomId}.", DateTime.UtcNow);
+        var result = await _service.DeleteByIdAsync(model.Id);
+        if (result!= null && result.Success) 
+        {
+            await BroadcastMessage(model, "RemoveMessage", model.Id);
+        }
     }
+
+    public async Task JoinRoom(Guid roomId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
+        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} joined room {roomId}.", DateTime.UtcNow);
+    }
+
+    public async Task LeaveRoom(Guid roomId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
+        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} left room {roomId}.", DateTime.UtcNow);
+    }
+
+    private async Task BroadcastMessage(MessageBaseModel model, string action, object response)
+    {
+        var groupId = model.Type switch
+        {
+            MessageType.Direct => model.ReceiverId?.ToString(),
+            MessageType.Room => model.RoomId?.ToString(),
+            MessageType.Group => model.GroupId?.ToString(),
+            _ => null
+        };
+
+        if (!string.IsNullOrEmpty(groupId))
+        {
+            await Clients.Groups(groupId).SendAsync(action, response);
+        }
+    }
+
 }

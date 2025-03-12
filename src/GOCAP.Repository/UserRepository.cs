@@ -81,7 +81,7 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
 
     public override async Task<bool> UpdateAsync(UserEntity entity)
     {
-        var userEntity = await GetEntityByIdAsync(entity.Id);
+        var userEntity = await GetByIdAsync(entity.Id, false);
         
         if (!string.IsNullOrEmpty(entity.Name))
         {

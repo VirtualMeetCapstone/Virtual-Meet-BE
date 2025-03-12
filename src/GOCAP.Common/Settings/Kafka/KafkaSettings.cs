@@ -1,5 +1,4 @@
-﻿namespace GOCAP.Messaging;
-
+﻿namespace GOCAP.Common;
 public class KafkaSettings
 {
     public string BootstrapServers { get; set; } = string.Empty;

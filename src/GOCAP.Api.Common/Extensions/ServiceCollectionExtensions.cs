@@ -1,6 +1,7 @@
 ﻿using GOCAP.Database;
 using GOCAP.ExternalServices;
-using GOCAP.Messaging;
+using GOCAP.Messaging.Consumer;
+using GOCAP.Messaging.Producer;
 using GOCAP.Repository;
 using GOCAP.Repository.Intention;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,8 @@ public static class ServiceCollectionExtensions
         services.AddBlobStorageService(configuration);
 
         // Configure kafka service.
-        services.AddKafkaServices(configuration);
+        services.AddKafkaProducerServices(configuration);
+        services.AddKafkaConsumerServices();
 
         // Configure cache service.
         services.AddCacheService(configuration);

@@ -2,8 +2,7 @@
 
 [RegisterService(typeof(IRoomRepository))]
 internal class RoomRepository(
-    AppSqlDbContext context,
-     IBlobStorageService _blobStorageService
+    AppSqlDbContext context
      ) : SqlRepositoryBase<RoomEntity>(context), IRoomRepository
 {
     private readonly AppSqlDbContext _context = context;
@@ -49,31 +48,6 @@ internal class RoomRepository(
             Data = rooms,
             TotalCount = totalItems
         };
-    }
-
-    public override async Task<bool> UpdateAsync(RoomEntity roomEntity)
-    {
-        var entity = await GetEntityByIdAsync(roomEntity.Id);
-        if (!string.IsNullOrEmpty(entity.Medias))
-        {
-            var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
-            if (medias != null && medias.Count > 0)
-            {
-                var urls = medias.Select(m => m.Url).ToList();
-                var deleteResult = await _blobStorageService.DeleteFilesByUrlsAsync(urls);
-                if (!deleteResult)
-                {
-                    return false;
-                }
-            }
-        }
-        entity.Topic = roomEntity.Topic;
-        entity.Description = roomEntity.Description;
-        entity.MaximumMembers = roomEntity.MaximumMembers;
-        entity.LastModifyTime = roomEntity.LastModifyTime;
-        entity.Medias = roomEntity.Medias;
-        _context.Entry(entity).State = EntityState.Modified;
-        return await _context.SaveChangesAsync() > 0;
     }
 
     public async Task<RoomCount> GetRoomCountsAsync()

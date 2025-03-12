@@ -1,15 +1,16 @@
-﻿using Google.Apis.Auth;
+﻿using GOCAP.Messaging.Producer;
+using Google.Apis.Auth;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace GOCAP.Services;
 
 [RegisterService(typeof(IAuthService))]
 internal class AuthService(IAppConfiguration _appConfiguration,
     IUserRoleRepository _userRoleRepository,
+    IKafkaProducer _kafkaProducer,
     IRoleRepository _roleRepository,
     IUnitOfWork _unitOfWork,
     IUserRepository _userRepository,
@@ -58,6 +59,13 @@ internal class AuthService(IAppConfiguration _appConfiguration,
                     });
                 }
                 await _unitOfWork.CommitTransactionAsync();
+                await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.UserLogin, 
+                    new UserLoginEvent{
+                        Email = newUser.Email,
+                        Username = newUser.Name,
+                        LoginTime = newUser.CreateTime
+                    }
+                );
             }
             catch (Exception ex)
             {
@@ -106,7 +114,7 @@ internal class AuthService(IAppConfiguration _appConfiguration,
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddDays(7).Ticks 
+            ExpiresAt = DateTime.UtcNow.AddDays(7).Ticks
         };
         // Save to db
         return refreshToken;
