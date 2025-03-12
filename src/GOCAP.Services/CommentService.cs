@@ -44,7 +44,7 @@ internal class CommentService(
         {
             Id = author.Id,
             Name = author.Name,
-            Picture = author.Picture
+            Picture = JsonHelper.Deserialize<Media>(author.Picture)
         };
 
         var entity = _mapper.Map<CommentEntity>(domain);
