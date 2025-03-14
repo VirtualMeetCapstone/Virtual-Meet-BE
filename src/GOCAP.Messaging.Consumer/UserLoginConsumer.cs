@@ -120,7 +120,7 @@ public class UserLoginConsumer(
                     <p>
                         Ready to get started? Click the button below to begin your journey!
                     </p>
-                    <a href='https://gocap.com/welcome' class='button'>Start Exploring 🚀</a>
+                    <a href='https://fe.dev-vmeet.site' class='button'>Start Exploring 🚀</a>
                 </div>
                 <div class='footer'>
                     <p>
