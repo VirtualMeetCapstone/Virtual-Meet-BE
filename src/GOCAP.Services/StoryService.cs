@@ -73,12 +73,16 @@ internal class StoryService(
         }
         try
         {
+            var storyHighLight = await _storyHighlightRepository.GetByStoryIdAsync(story.Id, false);
             // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
             await _storyReactionRepository.DeleteByStoryIdAsync(id);
             await _storyViewRepository.DeleteByStoryIdAsync(id);
-            await _storyHighlightRepository.DeleteByStoryIdAsync(id);
+            if (storyHighLight != null)
+            {
+                await _storyHighlightRepository.DeleteAsync(id, storyHighLight.Id);
+            }
             var result = await _repository.DeleteByEntityAsync(story);
 
             // Commit if success
