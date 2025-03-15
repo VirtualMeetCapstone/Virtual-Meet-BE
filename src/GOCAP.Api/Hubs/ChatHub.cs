@@ -2,14 +2,13 @@
 
 public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
 {
+    private static readonly string ReceiveMessage = "ReceiveMessage";
     public async Task SendMessage([FromBody] MessageCreationModel model)
     {
         var domain = _mapper.Map<Message>(model);
-        var result = await _service.AddAsync(domain);
-        if (result != null)
-        {
-            await BroadcastMessage(model, "ReceiveMessage", result);
-        }
+        domain.InitCreation();
+        await BroadcastMessage(model, ReceiveMessage, domain);
+        _ = Task.Run(() => _service.AddAsync(domain));
     }
 
     public async Task EditMessage([FromRoute] Guid id, [FromBody] MessageCreationModel model)
@@ -34,13 +33,13 @@ public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
     public async Task JoinRoom(Guid roomId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
-        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} joined room {roomId}.", DateTime.UtcNow);
+        await Clients.Group(roomId.ToString()).SendAsync(ReceiveMessage, "System", $"User {Context.ConnectionId} joined room {roomId}.", DateTime.UtcNow);
     }
 
     public async Task LeaveRoom(Guid roomId)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
-        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", "System", $"User {Context.ConnectionId} left room {roomId}.", DateTime.UtcNow);
+        await Clients.Group(roomId.ToString()).SendAsync(ReceiveMessage, "System", $"User {Context.ConnectionId} left room {roomId}.", DateTime.UtcNow);
     }
 
     private async Task BroadcastMessage(MessageBaseModel model, string action, object response)
