@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GOCAP.Api.Validation\GOCAP.Api.Validation.csproj" />
+    <ProjectReference Include="..\GOCAP.Messaging.Consumer\GOCAP.Messaging.Consumer.csproj" />
     <ProjectReference Include="..\GOCAP.Services\GOCAP.Services.csproj" />
   </ItemGroup>
 

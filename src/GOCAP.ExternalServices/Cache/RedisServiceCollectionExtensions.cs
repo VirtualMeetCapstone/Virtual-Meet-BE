@@ -6,19 +6,12 @@ public static class RedisServiceCollectionExtensions
     {
         var redisConnectionString = configuration.GetConnectionString(AppConstants.RedisConnection)
             ?? throw new ParameterInvalidException();
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = redisConnectionString;
-            options.InstanceName = AppConstants.DatabaseName;
-        });
 
-        services.AddSingleton<IConnectionMultiplexer>(sp => LazyConnection.Value);
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(redisConnectionString));
         services.AddScoped<IRedisService, RedisService>();
 
         return services;
     }
-
-    private static readonly Lazy<ConnectionMultiplexer> LazyConnection =
-        new(() => ConnectionMultiplexer.Connect(AppConstants.RedisConnection));
 }
 

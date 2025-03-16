@@ -22,4 +22,6 @@ internal class UserContextService (IHttpContextAccessor _httpContextAccessor) : 
     public string Picture => _httpContextAccessor.HttpContext?.User?.FindFirst("picture")?.Value ?? string.Empty;
 
     public string Role => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+
+    public bool ValidateUser(Guid userId) => Id == userId;
 }

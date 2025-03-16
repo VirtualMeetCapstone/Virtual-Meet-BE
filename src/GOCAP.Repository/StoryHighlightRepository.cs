@@ -51,14 +51,14 @@ internal class StoryHighlightRepository(
         return await _context.SaveChangesAsync();
     }
 
-    public async Task<StoryHightLightEntity?> GetByStoryIdAsync(Guid storyId)
+    public async Task<StoryHightLightEntity?> GetByStoryIdAsync(Guid storyId, bool isAsNoTracking = false)
     {
-        var result = await _context.StoryHightLights.Where(x => x.StoryId == storyId).ToListAsync();
-        if (result.Count > 1)
+        if (!isAsNoTracking)
         {
-            throw new InternalException();
+            return await _context.StoryHightLights.AsNoTracking()
+                                              .FirstOrDefaultAsync(x => x.StoryId == storyId);
         }
-        return result.FirstOrDefault();
+        return await _context.StoryHightLights.FirstOrDefaultAsync(x => x.StoryId == storyId);   
     }
 
     public async Task<List<List<Story>>> GetStoryHighlightByUserIdAsync(Guid userId)

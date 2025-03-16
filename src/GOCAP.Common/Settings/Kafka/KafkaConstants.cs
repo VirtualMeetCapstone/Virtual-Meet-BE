@@ -1,5 +1,4 @@
-﻿namespace GOCAP.Messaging;
-
+﻿namespace GOCAP.Common;
 public static class KafkaConstants
 {
     public const string GroupId = "gocap-consumers";

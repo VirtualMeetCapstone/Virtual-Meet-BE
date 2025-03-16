@@ -1,4 +1,9 @@
-﻿namespace GOCAP.Messaging;
+﻿using Confluent.Kafka;
+using GOCAP.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace GOCAP.Messaging.Producer;
 
 public class KafkaProducer : IKafkaProducer, IAsyncDisposable
 {
@@ -10,7 +15,12 @@ public class KafkaProducer : IKafkaProducer, IAsyncDisposable
 
         var config = new ProducerConfig
         {
-            BootstrapServers = kafkaSettings.Value.BootstrapServers
+            BootstrapServers = kafkaSettings.Value.BootstrapServers,
+            SecurityProtocol = SecurityProtocol.SaslSsl, 
+            SaslMechanism = SaslMechanism.ScramSha256,   
+            SaslUsername = kafkaSettings.Value.SaslUsername, 
+            SaslPassword = kafkaSettings.Value.SaslPassword, 
+            Acks = Acks.All 
         };
 
         _producer = new ProducerBuilder<string, string>(config).Build();

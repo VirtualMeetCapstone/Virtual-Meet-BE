@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IStoryRepository))]
 internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRepositoryBase<StoryEntity>(context), IStoryRepository
@@ -85,7 +83,7 @@ internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRe
         var stories = await _context.Stories
                                         .AsNoTracking()
                                         .Where(s => s.UserId == userId
-                                            && s.CreateTime >= currentTime - TimeSpan.FromHours                             (24).Ticks
+                                            && s.CreateTime >= currentTime - TimeSpan.FromHours(24).Ticks
                                             && s.ExpireTime > currentTime)
                                         .OrderByDescending(s => s.CreateTime)
                                         .ToListAsync();

@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Confluent.Kafka;
+using GOCAP.Common;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace GOCAP.Messaging;
+namespace GOCAP.Messaging.Consumer;
 
 public abstract class KafkaConsumerBase : BackgroundService, IAsyncDisposable
 {
@@ -13,6 +17,10 @@ public abstract class KafkaConsumerBase : BackgroundService, IAsyncDisposable
         var config = new ConsumerConfig
         {
             BootstrapServers = kafkaSettings.Value.BootstrapServers,
+            SecurityProtocol = SecurityProtocol.SaslSsl,
+            SaslMechanism = SaslMechanism.ScramSha256,
+            SaslUsername = kafkaSettings.Value.SaslUsername,
+            SaslPassword = kafkaSettings.Value.SaslPassword,
             GroupId = kafkaSettings.Value.GroupId,
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = true,

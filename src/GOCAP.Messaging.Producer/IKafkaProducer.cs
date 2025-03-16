@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Messaging;
+﻿namespace GOCAP.Messaging.Producer;
 
 public interface IKafkaProducer
 {
