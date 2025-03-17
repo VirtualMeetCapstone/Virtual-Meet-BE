@@ -20,7 +20,8 @@ public class KafkaProducer : IKafkaProducer, IAsyncDisposable
             SaslMechanism = SaslMechanism.ScramSha256,   
             SaslUsername = kafkaSettings.Value.SaslUsername, 
             SaslPassword = kafkaSettings.Value.SaslPassword, 
-            Acks = Acks.All 
+            Acks = Acks.All,
+            EnableSslCertificateVerification = false
         };
 
         _producer = new ProducerBuilder<string, string>(config).Build();
