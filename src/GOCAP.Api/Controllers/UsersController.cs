@@ -104,8 +104,8 @@ public class UsersController(IUserService _userService,
 	[HttpGet("search")]
 	public async Task<List<UserSearchModel>> SearchUsers([FromQuery] string userName, [FromQuery] int limit = 10)
 	{
-		var uses = await _userService.SearchUsersAsync(userName, limit);
-		var results = _mapper.Map<List<UserSearchModel>>(uses);
+		var users = await _userService.SearchUsersAsync(userName, limit);
+		var results = _mapper.Map<List<UserSearchModel>>(users);
 		return results;
 	}
 }
