@@ -11,47 +11,38 @@ public class RoomHub : Hub
 
     public async Task JoinRoom(string username, string roomId)
     {
-        _logger.LogInformation($"[INFO] User '{{username}}' joined Room '{{roomId}}'", username, roomId);
+        _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", username, roomId);
 
-        Users[Context.ConnectionId] = new UserInfo { Name = username, RoomId = roomId };
+        RoomStateManager.Users[Context.ConnectionId] = new UserInfo
+        {
+            Name = username,
+            RoomId = roomId
+        };
 
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
         await Clients.Group(roomId).SendAsync("ReceiveJoinNotification", username);
     }
 
-    public async Task SendLike()
-    {
-        if (Users.TryGetValue(Context.ConnectionId, out UserInfo user))
-        {
-            _logger.LogInformation("❤️ [LIKE] {User} sent a like in Room {RoomId}", user.Name, user.RoomId);
-            await Clients.OthersInGroup(user.RoomId).SendAsync("ReceiveLike", user.Name);
-        }
-        else
-        {
-            _logger.LogError("❌ [ERROR] SendLike failed - User not found for ConnectionId {ConnectionId}", Context.ConnectionId);
-        }
-    }
+    //public override async Task OnDisconnectedAsync(Exception? exception)
+    //{
+    //    if (Users.TryRemove(Context.ConnectionId, out UserInfo user))
+    //    {
+    //        _logger.LogWarning("❌ [DISCONNECTED] {User} left Room {RoomId}", user.Name, user.RoomId);
+    //    }
+    //    else
+    //    {
+    //        _logger.LogWarning("⚠️ [WARNING] Unknown user disconnected - ConnectionId: {ConnectionId}", Context.ConnectionId);
+    //    }
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        if (Users.TryRemove(Context.ConnectionId, out UserInfo user))
-        {
-            _logger.LogWarning("❌ [DISCONNECTED] {User} left Room {RoomId}", user.Name, user.RoomId);
-        }
-        else
-        {
-            _logger.LogWarning("⚠️ [WARNING] Unknown user disconnected - ConnectionId: {ConnectionId}", Context.ConnectionId);
-        }
-
-        await base.OnDisconnectedAsync(exception);
-    }
+    //    await base.OnDisconnectedAsync(exception);
+    //}
 
     public async Task SendShare()
     {
-        if (Users.TryGetValue(Context.ConnectionId, out UserInfo user))
+        if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
         {
             _logger.LogInformation("🔁 [SHARE] {User} shared in Room {RoomId}", user.Name, user.RoomId);
-            SharingUsers.Add(user.RoomId);
+            RoomStateManager.SharingUsers.Add(user.RoomId);
             await Clients.Group(user.RoomId).SendAsync("ReceiveShare", user.Name);
         }
         else
@@ -62,34 +53,60 @@ public class RoomHub : Hub
 
     public async Task SelectVideo(string roomId, string videoId)
     {
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+        state.VideoId = videoId;
+        state.Timestamp = 0;
+        state.IsPaused = true;
+
         _logger.LogInformation("🎬 Room {RoomId} - Video selected: {VideoId}", roomId, videoId);
-        VideoState = (videoId, 0, VideoState.IsPaused);
-        await Clients.Group(roomId).SendAsync("ReceiveSelectedVideo", roomId, videoId, 0, VideoState.IsPaused);
+        await Clients.Group(roomId).SendAsync("ReceiveSelectedVideo", roomId, videoId, 0, true);
     }
 
     public async Task UpdatePlayerStatus(string roomId, int status, double time)
     {
-        VideoState = (VideoState.VideoId, time, status == 2);
-        _logger.LogInformation("⏯️ Room {RoomId} - Video: {VideoId} | Status: {Status} | Time: {Time}", roomId, VideoState.VideoId, status, time);
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+        state.Timestamp = time;
+        state.IsPaused = (status == 2);
+
+        _logger.LogInformation("⏯️ Room {RoomId} - Status: {Status} | Time: {Time}s", roomId, status, time);
         await Clients.Group(roomId).SendAsync("receiveplayerstatus", roomId, status, time);
     }
 
     public async Task GetRoomState()
     {
-        if (Users.TryGetValue(Context.ConnectionId, out UserInfo user))
+        if (!RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
         {
-            string roomId = user.RoomId;
-            _logger.LogInformation("📡 [SYNC] Sending room state to {User} - Room {RoomId}", user.Name, roomId);
-
-            if (!string.IsNullOrEmpty(VideoState.VideoId))
-            {
-                await Clients.Client(Context.ConnectionId).SendAsync("ReceiveSelectedVideo", roomId, VideoState.VideoId, VideoState.Timestamp, VideoState.IsPaused);
-            }
-
-            if (SharingUsers.Contains(roomId))
-            {
-                await Clients.Client(Context.ConnectionId).SendAsync("ReceiveShare", user.Name);
-            }
+            _logger.LogError("❌ [ERROR] GetRoomState failed - User not found");
+            return;
         }
+
+        string roomId = user.RoomId;
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+
+        var roomState = new RoomState
+        {
+            VideoId = state.VideoId,
+            Time = state.Timestamp,
+            IsPaused = state.IsPaused,
+            Sharing = RoomStateManager.SharingUsers.Contains(roomId)
+        };
+
+        _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
+        await Clients.Caller.SendAsync("ReceiveRoomState", roomState);
     }
+
+
+    public class RoomState
+    {
+        [JsonProperty("videoId")]
+        public string VideoId { get; set; } = "";
+        [JsonProperty("time")]
+        public double Time { get; set; }
+        [JsonProperty("isPaused")]
+        public bool IsPaused { get; set; } = true;
+        [JsonProperty("sharing")]
+        public bool Sharing { get; set; } = false;
+    }
+
 }
+
