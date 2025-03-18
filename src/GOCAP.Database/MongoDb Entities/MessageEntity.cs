@@ -1,5 +1,6 @@
 ﻿namespace GOCAP.Database;
 
+[BsonCollection("Messages")]
 public class MessageEntity : EntityMongoBase
 {
     public Guid SenderId { get; set; }

@@ -8,6 +8,7 @@ public class AppMongoDbContext
     public IMongoCollection<CommentReactionEntity> CommentReactions { get; set; }
     public IMongoCollection<SearchHistoryEntity> SearchHistories { get; set; }
     public IMongoCollection<MessageEntity> Messages { get; set; }
+    public IMongoCollection<NotificationEntity> Notifications { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
         _client = new MongoClient(connectionString);
@@ -16,6 +17,7 @@ public class AppMongoDbContext
         CommentReactions = GetCollection<CommentReactionEntity>();
         SearchHistories = GetCollection<SearchHistoryEntity>();
         Messages = GetCollection<MessageEntity>();
+        Notifications = GetCollection<NotificationEntity>();
     }
 
     public IMongoDatabase GetDatabase() => _database;

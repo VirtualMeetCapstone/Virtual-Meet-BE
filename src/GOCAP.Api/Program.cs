@@ -11,11 +11,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-// Ip Rate Limiting
-builder.Services.AddIpRateLimiting(builder.Configuration);
-
-// SignalR
-builder.Services.AddSignalR();
+builder.Services
+            .AddIpRateLimiting(builder.Configuration)
+            .AddSignalR();
 
 // Add services to the container.
 builder.Services.AddCorsPolicy()
@@ -32,17 +30,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-if (!app.Environment.IsProduction())
+var isProductionEnviroment = app.Environment.IsProduction();
+if (!isProductionEnviroment)
 {
     app.UseMiddleware<RequestResponseLoggingMiddleware>();
 }
 app.UseCustomExceptionHandler();
-if (app.Environment.IsProduction())
+if (isProductionEnviroment)
 {
     app.UseHsts(); 
 }
 app.UseHttpsRedirection();
-if (app.Environment.IsProduction())
+if (isProductionEnviroment)
 {
     app.UseResponseCompression();
 }

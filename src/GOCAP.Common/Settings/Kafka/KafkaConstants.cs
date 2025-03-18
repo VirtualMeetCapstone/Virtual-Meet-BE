@@ -5,5 +5,6 @@ public static class KafkaConstants
     public static class Topics
     {
         public const string UserLogin = "user-login-events";
+        public const string Notification = "notification-events";
     }
 }

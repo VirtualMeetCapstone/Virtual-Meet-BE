@@ -2,7 +2,10 @@
 
 public enum NotificationType
 {
-    Like = 0,
+    Reaction = 0,
     Follow = 1,
     Comment = 2,
+    Story = 3,
+    Room = 4,
+    Post = 5
 }

@@ -8,7 +8,7 @@ public class EmailService(IOptions<EmailSettings> mailSettings) : IEmailService
 {
     private readonly EmailSettings _mailSettings = mailSettings.Value;
 
-    public async Task<bool> SendMailAsync(MailContent mailContent)
+    public async Task<bool> SendMailAsync(EmailContent mailContent)
     {
         var email = new MimeMessage
         {
