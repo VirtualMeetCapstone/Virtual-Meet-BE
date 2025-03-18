@@ -16,6 +16,7 @@ public class UserInfo
 public class VideoState
 {
     public string VideoId { get; set; } = "dQw4w9WgXcQ";
-    public double Timestamp { get; set; }
-    public bool IsPaused { get; set; } = true;
+    public double Timestamp { get; set; } = 0; // Lưu thời gian video dừng/chạy
+    public bool IsPaused { get; set; } = true; // Trạng thái pause/play
+    public DateTime LastUpdated { get; set; } = DateTime.UtcNow; // 🔥 Lưu thời điểm cuối cùng cập nhật
 }
