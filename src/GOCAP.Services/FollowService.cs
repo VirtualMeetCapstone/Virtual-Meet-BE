@@ -4,7 +4,6 @@
 internal class FollowService(
     IUnitOfWork _unitOfWork,
     IUserRepository _userRepository,
-    IUserNotificationRepository _userNotificationRepository,
     IFollowRepository _repository,
     IMapper _mapper,
     ILogger<FollowService> _logger
@@ -61,19 +60,6 @@ internal class FollowService(
                 domain.InitCreation();
                 var entity = _mapper.Map<UserFollowEntity>(domain);
                 await _repository.AddAsync(entity);
-
-                // Insert the notification into db.
-                var notification = new UserNotification
-                {
-                    UserId = domain.FollowingId,
-                    Sender = _mapper.Map<User>(sender),
-                    Content = string.Format(NotificationMessage.Follow, sender.Name),
-                    Type = NotificationType.Follow,
-                    ReferenceId = domain.FollowerId,
-                };
-                notification.InitCreation();
-                var notificationEntity = _mapper.Map<UserNotificationEntity>(notification);
-                await _userNotificationRepository.AddAsync(notificationEntity);
 
                 // Complete the transaction.
                 await _unitOfWork.CommitTransactionAsync();

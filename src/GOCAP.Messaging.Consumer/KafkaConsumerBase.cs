@@ -23,7 +23,6 @@ public abstract class KafkaConsumerBase : BackgroundService, IAsyncDisposable
             SaslPassword = kafkaSettings.Value.SaslPassword,
             GroupId = kafkaSettings.Value.GroupId,
             AutoOffsetReset = AutoOffsetReset.Earliest,
-            EnableAutoCommit = true,
         };
 
         _consumer = new ConsumerBuilder<string, string>(config).Build();

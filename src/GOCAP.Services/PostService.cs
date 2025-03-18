@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Services;
+﻿using GOCAP.Messaging.Producer;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IPostService))]
 internal class PostService(
@@ -7,6 +9,7 @@ internal class PostService(
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
     IUnitOfWork _unitOfWork,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<PostService> _logger
     ) : ServiceBase<Post, PostEntity>(_repository, _mapper, _logger), IPostService
@@ -45,8 +48,18 @@ internal class PostService(
         try
         {
             var entity = _mapper.Map<PostEntity>(post);
-            var PostDomain = await _repository.AddAsync(entity);
-            return _mapper.Map<Post>(PostDomain);
+            var postEntity = await _repository.AddAsync(entity);
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Post,
+                ActionType = ActionType.Add,
+                Source = new NotificationSource
+                {
+                    Id = postEntity.Id
+                },
+                ActorId = postEntity.UserId
+            });
+            return _mapper.Map<Post>(postEntity);
         }
         catch (Exception ex)
         {

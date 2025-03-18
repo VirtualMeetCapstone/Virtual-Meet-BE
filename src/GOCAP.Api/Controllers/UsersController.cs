@@ -51,11 +51,11 @@ public class UsersController(IUserService _userService,
 	/// </summary>
 	/// <param name="userId"></param>
 	/// <returns></returns>
-	[HttpGet("notifications/{userId}")]
-	public async Task<List<UserNotificationModel>> GetNotificationsByUserId([FromRoute] Guid userId)
+	[HttpGet("{userId}/notifications")]
+	public async Task<List<NotificationModel>> GetNotificationsByUserId([FromRoute] Guid userId)
 	{
 		var userNotifications = await _userService.GetNotificationsByUserIdAsync(userId);
-		return _mapper.Map<List<UserNotificationModel>>(userNotifications);
+		return _mapper.Map<List<NotificationModel>>(userNotifications);
 	}
 
 	/// <summary>

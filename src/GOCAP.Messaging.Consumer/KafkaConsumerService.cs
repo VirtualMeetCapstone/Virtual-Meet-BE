@@ -13,35 +13,39 @@ public class KafkaConsumerService(
     private readonly ILogger<KafkaConsumerService> _logger = logger;
     private readonly IHostApplicationLifetime _appLifetime = appLifetime;
     private CancellationTokenSource? _cts;
+    private IServiceScope? _scope;
+    private Task? _userLoginTask;
+    private Task? _notificationTask;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("⏳ Waiting for API to fully start...");
 
-        // Waiting for api completing starting.
         _appLifetime.ApplicationStarted.Register(() =>
         {
             _logger.LogInformation("🚀 API started! Starting Kafka Consumers...");
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-            _ = Task.Run(() => StartConsumersAsync(_cts.Token), _cts.Token);
+            _scope = _serviceProvider.CreateScope();
+            var userLoginConsumer = _scope.ServiceProvider.GetRequiredService<UserLoginConsumer>();
+            var notificationConsumer = _scope.ServiceProvider.GetRequiredService<NotificationConsumer>();
+
+            _userLoginTask = Task.Run(() => userLoginConsumer.StartAsync(_cts.Token), _cts.Token);
+            _notificationTask = Task.Run(() => notificationConsumer.StartAsync(_cts.Token), _cts.Token);
         });
 
         return Task.CompletedTask;
     }
 
-    private async Task StartConsumersAsync(CancellationToken cancellationToken)
-    {
-        using var scope = _serviceProvider.CreateScope();
-        var userLoginConsumer = scope.ServiceProvider.GetRequiredService<UserLoginConsumer>();
-
-        await userLoginConsumer.StartAsync(cancellationToken);
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("🛑 Stopping Kafka Consumers...");
         _cts?.Cancel();
-        return Task.CompletedTask;
+
+        // Đợi các consumer dừng lại
+        if (_userLoginTask != null) await _userLoginTask;
+        if (_notificationTask != null) await _notificationTask;
+
+        _scope?.Dispose();
     }
 }

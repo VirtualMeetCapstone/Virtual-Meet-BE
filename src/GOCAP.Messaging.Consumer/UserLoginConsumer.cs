@@ -8,6 +8,7 @@ namespace GOCAP.Messaging.Consumer;
 
 public class UserLoginConsumer(
     IOptions<KafkaSettings> _kafkaSettings,
+    IAppConfiguration _appConfiguration,
     ILogger<UserLoginConsumer> _logger, IEmailService _emailService) : KafkaConsumerBase(_kafkaSettings, _logger, KafkaConstants.Topics.UserLogin)
 {
 
@@ -16,7 +17,7 @@ public class UserLoginConsumer(
         var userLoginEvent = JsonHelper.Deserialize<UserLoginEvent>(message);
         if (userLoginEvent != null)
         {
-            var mailContent = new MailContent
+            var mailContent = new EmailContent
             {
                 To = userLoginEvent.Email,
                 Subject = "🌟 Welcome to GOCAP - Connect and Explore! 🎉",
@@ -28,7 +29,7 @@ public class UserLoginConsumer(
         await Task.CompletedTask;
     }
 
-    private static string WelcomeEmailBody(string username)
+    private string WelcomeEmailBody(string username)
     => $@"
         <html>
         <head>
@@ -120,7 +121,7 @@ public class UserLoginConsumer(
                     <p>
                         Ready to get started? Click the button below to begin your journey!
                     </p>
-                    <a href='https://fe.dev-vmeet.site' class='button'>Start Exploring 🚀</a>
+                    <a href='{_appConfiguration.GetDefaultDomain()}' class='button'>Start Exploring 🚀</a>
                 </div>
                 <div class='footer'>
                     <p>

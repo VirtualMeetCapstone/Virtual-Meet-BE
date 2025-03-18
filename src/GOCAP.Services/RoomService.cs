@@ -1,4 +1,4 @@
-﻿using GOCAP.Database;
+﻿using GOCAP.Messaging.Producer;
 
 namespace GOCAP.Services;
 
@@ -9,6 +9,7 @@ internal class RoomService(
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
     IUnitOfWork _unitOfWork,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<RoomService> _logger
     ) : ServiceBase<Room, RoomEntity>(_repository, _mapper, _logger), IRoomService
@@ -40,6 +41,16 @@ internal class RoomService(
         room.InitCreation();
         var entity = _mapper.Map<RoomEntity>(room);
         var result = await _repository.AddAsync(entity);
+        await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+        {
+            Type = NotificationType.Room,
+            ActionType = ActionType.Add,
+            Source = new NotificationSource
+            {
+                Id = result.Id
+            },
+            ActorId = result.OwnerId
+        });
         return _mapper.Map<Room>(result);
     }
 
@@ -100,7 +111,7 @@ internal class RoomService(
         entity.Description = domain.Description;
         entity.MaximumMembers = domain.MaximumMembers;
         entity.LastModifyTime = domain.LastModifyTime;
-        entity.Medias = JsonHelper.Serialize(domain.Medias);        
+        entity.Medias = JsonHelper.Serialize(domain.Medias);
         return new OperationResult(await _repository.UpdateAsync(entity));
     }
 

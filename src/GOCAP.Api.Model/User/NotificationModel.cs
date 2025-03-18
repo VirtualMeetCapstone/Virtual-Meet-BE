@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class UserNotificationModel : EntityDateTrackingBase<Guid>
+public class NotificationModel : EntityDateTrackingBase<Guid>
 {
     public override Guid Id { get; set; }
     public ReferenceNotificationModel? Sender { get; set; }

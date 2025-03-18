@@ -32,7 +32,6 @@ public class UserEntity : EntitySqlBase, ISoftDelete
     public ICollection<UserActivityEntity> Activities { get; set; } = [];
     public ICollection<UserFollowEntity> Follows { get; set; } = [];
     public ICollection<PostEntity> Posts { get; set; } = [];
-    public ICollection<UserNotificationEntity> Notifications { get; set; } = [];
     public ICollection<UserRewardEntity> Rewards { get; set; } = [];
     public ICollection<UserBlockEntity> Blocks { get; set; } = [];
     public ICollection<StoryEntity> Stories { get; set; } = [];

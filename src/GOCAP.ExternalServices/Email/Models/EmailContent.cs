@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.ExternalServices;
 
-public class MailContent
+public class EmailContent
 {
 	public string? To { get; set; }
 	public string? Subject { get; set; }
