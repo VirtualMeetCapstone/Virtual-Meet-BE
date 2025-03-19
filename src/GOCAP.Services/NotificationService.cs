@@ -1,16 +1,16 @@
-﻿
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(INotificationService))]
 internal class NotificationService(
     INotificationRepository _repository,
     IUserRepository _userRepository,
     IFollowRepository _followRepository,
+    IPostRepository _postRepository,
     IMapper _mapper,
     ILogger<NotificationService> _logger
     ) : ServiceBase<Notification, NotificationEntity>(_repository, _mapper, _logger), INotificationService
 {
-    private readonly IMapper _mapper = _mapper; 
+    private readonly IMapper _mapper = _mapper;
     public async Task HandleNotificationEvent(NotificationEvent notificationEvent)
     {
         var actor = await _userRepository.GetByIdAsync(notificationEvent.ActorId);
@@ -26,6 +26,11 @@ internal class NotificationService(
             },
             Source = notificationEvent.Source
         };
+        var notificationMessage = new NotificationMessageBuilder()
+                                                        .SetActor(actor.Name)
+                                                        .SetAction(GetAction(notificationEvent.Type))
+                                                        .SetTarget(GetTarget(notificationEvent.Type, notificationEvent.Source))
+                                                        .Build();
         switch (notificationEvent.Type)
         {
             case NotificationType.Story:
@@ -35,22 +40,25 @@ internal class NotificationService(
                 var recipientIds = await _followRepository.GetFollowersByUserIdAsync(notificationEvent.ActorId);
                 foreach (var recipientId in recipientIds)
                 {
-                    var notificationMessage = new NotificationMessageBuilder()
-                                                        .SetActor(actor.Name)
-                                                        .SetAction(GetAction(notificationEvent.Type))
-                                                        .SetTarget(GetTarget(notificationEvent.Type,                                                        notificationEvent.Source))
-                                                        .Build();
                     notification.Content = notificationMessage;
                     notification.UserId = recipientId;
                     notification.InitCreation();
-                    var entity = _mapper.Map<NotificationEntity>(notification);
-                    listNotification.Add(entity);
+                    listNotification.Add(_mapper.Map<NotificationEntity>(notification));
                 }
                 await _repository.AddRangeAsync(listNotification);
                 break;
             case NotificationType.Follow:
+                notification.Content = notificationMessage;
+                notification.UserId = notificationEvent.UserId;
+                notification.InitCreation();
+                await _repository.AddAsync(_mapper.Map<NotificationEntity>(notification));
                 break;
             case NotificationType.Comment:
+                var post = await _postRepository.GetByIdAsync(notificationEvent.Source?.Id ?? throw new InternalException());
+                notification.UserId = post.UserId;
+                notification.Content = notificationMessage;
+                notification.InitCreation();
+                await _repository.AddAsync(_mapper.Map<NotificationEntity>(notification));
                 break;
             default: return;
         }
@@ -80,5 +88,14 @@ internal class NotificationService(
             NotificationType.Comment => "your post",
             _ => "something"
         };
+    }
+
+    public async Task<QueryResult<Notification>> GetNotificationsByUserIdAsync(Guid userId, QueryInfo queryInfo)
+    => await _repository.GetNotificationsByUserIdAsync(userId, queryInfo);
+
+    public async Task<OperationResult> MarkAsReadAsync(Guid userId, Guid notificationId)
+    {
+        _logger.LogInformation("Start marking a notification as read.");
+        return new OperationResult(await _repository.MarkAsReadAsync(userId, notificationId));
     }
 }
