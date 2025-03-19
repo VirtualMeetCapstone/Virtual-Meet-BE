@@ -9,6 +9,7 @@ public class KafkaSettings
     public Dictionary<string, string> Topics { get; set; } = new()
     {
         { nameof(KafkaConstants.Topics.UserLogin), KafkaConstants.Topics.UserLogin },
+        { nameof(KafkaConstants.Topics.Notification), KafkaConstants.Topics.Notification },
     };
     public string GroupId { get; set; } = KafkaConstants.GroupId;
     public int ReplicationFactor { get; set; } = 1;

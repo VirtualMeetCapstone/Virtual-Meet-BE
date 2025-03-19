@@ -19,9 +19,8 @@ public static class ServiceCollectionExtensions
         // Configure azure blob storage.
         services.AddBlobStorageService(configuration);
 
-        // Configure kafka service.
+        // Configure kafka producer service.
         services.AddKafkaProducerServices(configuration);
-        services.AddKafkaConsumerServices();
 
         // Configure cache service.
         services.AddCacheService(configuration);
@@ -52,6 +51,10 @@ public static class ServiceCollectionExtensions
             Assembly.Load("gocap.services"),
             Assembly.Load("gocap.repository")
         ]);
+
+        // Configure kafka consumer service.
+        services.AddKafkaConsumerServices();
+
         return services;
     }
 

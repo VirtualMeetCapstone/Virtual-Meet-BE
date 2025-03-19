@@ -1,4 +1,5 @@
-﻿
+﻿using GOCAP.Messaging.Producer;
+
 namespace GOCAP.Services;
 
 [RegisterService(typeof(IStoryService))]
@@ -10,11 +11,13 @@ internal class StoryService(
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
     IUnitOfWork _unitOfWork,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<StoryService> _logger
     ) : ServiceBase<Story, StoryEntity>(_repository, _mapper, _logger), IStoryService
 {
     private readonly IMapper _mapper = _mapper;
+
     public override async Task<Story> AddAsync(Story story)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Story).Name);
@@ -37,6 +40,16 @@ internal class StoryService(
         {
             var entity = _mapper.Map<StoryEntity>(story);
             var result = await _repository.AddAsync(entity);
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Story,
+                ActionType = ActionType.Add,
+                Source = new NotificationSource
+                {
+                    Id = result.Id
+                },
+                ActorId = result.UserId
+            });
             return _mapper.Map<Story>(result);
         }
         catch (Exception ex)

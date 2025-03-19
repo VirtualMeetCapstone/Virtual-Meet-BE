@@ -47,18 +47,6 @@ public class UsersController(IUserService _userService,
 	}
 
 	/// <summary>
-	/// Get notifications by user id.
-	/// </summary>
-	/// <param name="userId"></param>
-	/// <returns></returns>
-	[HttpGet("notifications/{userId}")]
-	public async Task<List<UserNotificationModel>> GetNotificationsByUserId([FromRoute] Guid userId)
-	{
-		var userNotifications = await _userService.GetNotificationsByUserIdAsync(userId);
-		return _mapper.Map<List<UserNotificationModel>>(userNotifications);
-	}
-
-	/// <summary>
 	/// Follow or unfollow another user.
 	/// </summary>
 	/// <param name="model"></param>

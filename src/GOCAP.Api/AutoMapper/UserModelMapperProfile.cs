@@ -14,14 +14,7 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 			.ForMember(dest => dest.PictureUpload, opt => opt.MapFrom(src => ConvertMediaHelper.ConvertFormFileToMedia(src.PictureUpload)));
 
 		CreateMap<QueryResult<User>, QueryResult<UserModel>>().ReverseMap();
-		CreateMap<User, ReferenceNotificationModel>().ReverseMap();
-		CreateMap<UserNotification, UserNotificationModel>().ReverseMap();
 
-		CreateMap<GoogleUser, User>();
-		CreateMap<User, GoogleUser>();
-
-		CreateMap<FacebookUser, User>();
-		CreateMap<User, FacebookUser>();
 		CreateMap<UserBlockCreationModel, UserBlock>().ReverseMap();
 		CreateMap<UserBlock, UserBlockModel>().ReverseMap();
 		CreateMap<User, UserSearchModel>().ReverseMap();

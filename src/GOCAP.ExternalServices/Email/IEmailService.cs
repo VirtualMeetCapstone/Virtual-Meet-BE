@@ -2,5 +2,5 @@
 
 public interface IEmailService
 {
-    Task<bool> SendMailAsync(MailContent mailContent);
+    Task<bool> SendMailAsync(EmailContent mailContent);
 }
