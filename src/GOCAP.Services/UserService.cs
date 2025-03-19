@@ -4,7 +4,6 @@
 internal class UserService(
 	IUserRepository _repository,
 	IBlobStorageService _blobStorageService,
-	INotificationRepository _userNotificationRepository,
 	IMapper _mapper,
 	ILogger<UserService> _logger
 	) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
@@ -53,12 +52,6 @@ internal class UserService(
 		var entity = await _repository.GetByEmailAsync(email);
 		return _mapper.Map<User?>(entity);
     }
-
-	public async Task<List<Notification>> GetNotificationsByUserIdAsync(Guid userId)
-	{
-		return await _userNotificationRepository.GetNotificationsByUserIdAsync(userId);
-	}
-
 	public async Task<UserCount> GetUserCountsAsync()
 	{
 		return await _repository.GetUserCountsAsync() ?? new UserCount();

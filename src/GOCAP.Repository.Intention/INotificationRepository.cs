@@ -2,5 +2,6 @@
 
 public interface INotificationRepository : IMongoRepositoryBase<NotificationEntity>
 {
-    Task<List<Notification>> GetNotificationsByUserIdAsync(Guid userId);
+    Task<QueryResult<Notification>> GetNotificationsByUserIdAsync(Guid userId, QueryInfo queryInfo);
+    Task<bool> MarkAsReadAsync(Guid userId, Guid notificationId);
 }

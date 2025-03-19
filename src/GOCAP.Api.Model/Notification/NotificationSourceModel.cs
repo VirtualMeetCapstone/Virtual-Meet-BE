@@ -1,6 +1,6 @@
-﻿namespace GOCAP.Domain;
+﻿namespace GOCAP.Api.Model;
 
-public class NotificationSource
+public class NotificationSourceModel
 {
     public Guid Id { get; set; }
     public SourceType Type { get; set; }
