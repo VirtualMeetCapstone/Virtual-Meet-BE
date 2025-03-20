@@ -98,20 +98,25 @@ internal class RoomService(
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
         domain.UpdateModify();
         var entity = await _repository.GetByIdAsync(domain.Id, false);
-        if (!string.IsNullOrEmpty(entity.Medias))
+        if (domain.Medias != null && domain.Medias.Count > 0)
         {
-            var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
-            if (medias != null && medias.Count > 0)
+            if (!string.IsNullOrEmpty(entity.Medias))
             {
-                var urls = medias.Select(m => m.Url).ToList();
-                await _blobStorageService.DeleteFilesByUrlsAsync(urls);
+                var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
+                if (medias != null && medias.Count > 0)
+                {
+                    var urls = medias.Select(m => m.Url).ToList();
+                    await _blobStorageService.DeleteFilesByUrlsAsync(urls);
+                }
             }
+            entity.Medias = JsonHelper.Serialize(domain.Medias);
         }
+        
         entity.Topic = domain.Topic;
         entity.Description = domain.Description;
         entity.MaximumMembers = domain.MaximumMembers;
         entity.LastModifyTime = domain.LastModifyTime;
-        entity.Medias = JsonHelper.Serialize(domain.Medias);
+        
         return new OperationResult(await _repository.UpdateAsync(entity));
     }
 
