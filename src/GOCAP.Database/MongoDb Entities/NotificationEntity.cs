@@ -25,7 +25,7 @@ public class NotificationEntity : EntityMongoBase
 public class NotificationSourceEntity
 {
     public Guid Id { get; set; }
-    public NotificationType Type { get; set; }
+    public SourceType Type { get; set; }
 }
 
 public class NotificationActorEntity
