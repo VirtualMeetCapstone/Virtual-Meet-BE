@@ -22,14 +22,14 @@ internal class NotificationService(
             {
                 Id = actor.Id,
                 Name = actor.Name,
-                Picture = actor.Picture,
+                Picture = JsonHelper.Deserialize<Media>(actor.Picture),
             },
             Source = notificationEvent.Source
         };
         var notificationMessage = new NotificationMessageBuilder()
                                                         .SetActor(actor.Name)
                                                         .SetAction(GetAction(notificationEvent.Type))
-                                                        .SetTarget(GetTarget(notificationEvent.Type, notificationEvent.Source))
+                                                        .SetTarget(GetTarget(notificationEvent.Type))
                                                         .Build();
         switch (notificationEvent.Type)
         {
@@ -77,7 +77,7 @@ internal class NotificationService(
         };
     }
 
-    private static string GetTarget(NotificationType type, NotificationSource? source)
+    private static string GetTarget(NotificationType type)
     {
         return type switch
         {
