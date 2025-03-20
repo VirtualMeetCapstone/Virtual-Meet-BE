@@ -13,22 +13,93 @@ public class RoomHub : Hub
     {
         _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", username, roomId);
 
+        if (string.IsNullOrEmpty(roomId))
+            throw new HubException("Room ID cannot be empty");
+
+        // Initialize room if it doesn't exist
+        if (!RoomStateManager.roomPeers.ContainsKey(roomId))
+            RoomStateManager.roomPeers[roomId] = new List<PeerInfo>();
+
         RoomStateManager.Users[Context.ConnectionId] = new UserInfo
         {
             Name = username,
             RoomId = roomId
         };
+        // Create peer info object
+        var peerInfo = new PeerInfo
+        {
+            PeerId = Context.ConnectionId,
+            UserName = string.IsNullOrEmpty(username) ? "Anonymous" : username
+        };
+
+        // Send existing peers list to new participant
+        await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.roomPeers[roomId]);
+        // Add new peer to room
+        RoomStateManager.roomPeers[roomId].Add(peerInfo);
+
+        // Add connection to SignalR group
+
 
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
         await Clients.Group(roomId).SendAsync("ReceiveJoinNotification", username);
         await SendRoomState(roomId, Context.ConnectionId);
+
+
+        // Notify existing peers about the new participant
+        foreach (var peer in RoomStateManager.roomPeers[roomId])
+        {
+            if (peer.PeerId != Context.ConnectionId)
+            {
+                await Clients.Client(peer.PeerId).SendAsync(
+                    "NewPeer",
+                    Context.ConnectionId,
+                    peerInfo.UserName,
+                    RoomStateManager.roomPeers[roomId].Count
+                );
+            }
+        }
     }
+
+    public async Task LeaveRoom(string roomId)
+    {
+        if (RoomStateManager.roomPeers.ContainsKey(roomId))
+        {
+            var peer = RoomStateManager.roomPeers[roomId]
+                .FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+
+            if (peer != null)
+            {
+                RoomStateManager.roomPeers[roomId].Remove(peer);
+
+                await Clients.Group(roomId).SendAsync(
+                    "PeerDisconnected",
+                    Context.ConnectionId,
+                    RoomStateManager.roomPeers[roomId].Count
+                );
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
+
+                if (RoomStateManager.roomPeers[roomId].Count == 0)
+                {
+                    RoomStateManager.roomPeers.TryRemove(roomId, out _);
+
+                    // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
+                    RoomStateManager.SharingUsers.TryRemove(roomId, out _);
+
+                    await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
+                }
+            }
+        }
+    }
+
+
+
     public async Task SendShare()
     {
         if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
         {
             _logger.LogInformation("🔁 [SHARE] {User} shared in Room {RoomId}", user.Name, user.RoomId);
-            RoomStateManager.SharingUsers.Add(user.RoomId);
+            RoomStateManager.SharingUsers.TryAdd(user.RoomId,true);
             await Clients.Group(user.RoomId).SendAsync("ReceiveShare", user.Name);
         }
         else
@@ -54,7 +125,7 @@ public class RoomHub : Hub
 
         state.Timestamp = time;
         state.IsPaused = (status == 2);
-        state.LastUpdated = DateTime.UtcNow; // 🔥 Lưu thời gian cập nhật trạng thái
+        state.LastUpdated = DateTime.UtcNow; 
 
         _logger.LogInformation("⏯️ Room {RoomId} - Status: {Status} | Time: {Time}s", roomId, status, time);
         await Clients.Group(roomId).SendAsync("receiveplayerstatus", roomId, status, time);
@@ -88,11 +159,64 @@ public class RoomHub : Hub
             VideoId = state.VideoId,
             Time = actualTime, // 🔥 Thời gian thực tế
             IsPaused = state.IsPaused,
-            Sharing = RoomStateManager.SharingUsers.Contains(roomId)
+            Sharing = RoomStateManager.SharingUsers.ContainsKey(roomId)
         };
 
         _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
         await Clients.Client(connectionId).SendAsync("ReceiveRoomState", roomState);
+    }
+
+    //wRTC
+    public async Task SendOffer(string targetPeerId, string offer)
+    {
+        // Find the sender's room and username
+        string senderName = "Anonymous";
+        foreach (var room in RoomStateManager.roomPeers)
+        {
+            var peer = room.Value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+            if (peer != null)
+            {
+                senderName = peer.UserName;
+                break;
+            }
+        }
+
+        await Clients.Client(targetPeerId).SendAsync(
+            "ReceiveOffer",
+            Context.ConnectionId,
+            senderName,
+            offer
+        );
+    }
+
+    public async Task SendAnswer(string targetPeerId, string answer)
+    {
+        await Clients.Client(targetPeerId).SendAsync(
+            "ReceiveAnswer",
+            Context.ConnectionId,
+            answer
+        );
+    }
+
+    public async Task SendCandidate(string targetPeerId, string candidate)
+    {
+        await Clients.Client(targetPeerId).SendAsync(
+            "ReceiveCandidate",
+            Context.ConnectionId,
+            candidate
+        );
+    }
+
+    // Handle disconnections
+    public override async Task OnDisconnectedAsync(Exception exception)
+    {
+        // Find which rooms the user is in
+        foreach (var room in RoomStateManager.roomPeers)
+        {
+            await LeaveRoom(room.Key);
+        }
+
+        await base.OnDisconnectedAsync(exception);
     }
 
 
