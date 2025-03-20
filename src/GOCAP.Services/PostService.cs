@@ -6,6 +6,7 @@ namespace GOCAP.Services;
 internal class PostService(
     IPostRepository _repository,
     IPostReactionRepository _postReactionRepository,
+        ICommentRepository _commentRepository,
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
     IUnitOfWork _unitOfWork,
@@ -17,7 +18,28 @@ internal class PostService(
     private readonly IMapper _mapper = _mapper;
 
     public async Task<QueryResult<Post>> GetWithPagingAsync(QueryInfo queryInfo)
-    => await _repository.GetWithPagingAsync(queryInfo);
+    {
+        var queryResult = await _repository.GetWithPagingAsync(queryInfo);
+        var posts = queryResult.Data;
+
+        var postIds = posts.Select(p => p.Id).ToList();
+
+        // 🔥 Gọi CommentRepository để lấy comment count 1 lần cho tất cả bài viết
+        var commentCounts = await _commentRepository.GetCommentCountsByPostIdsAsync(postIds);
+
+        // Gán số lượng comment vào từng bài viết
+        var updatedPosts = posts.Select(p =>
+        {
+            p.CommentCount = commentCounts.TryGetValue(p.Id, out var count) ? count : 0;
+            return p;
+        }).ToList();
+
+        return new QueryResult<Post>
+        {
+            Data = updatedPosts,
+            TotalCount = queryResult.TotalCount
+        };
+    }
 
 
     public async Task<Post> GetDetailByIdAsync(Guid id)

@@ -10,5 +10,6 @@ public class Post : DateTrackingBase
     public PrivacyType? Privacy { get; set; }
     public ICollection<PostReaction> Reactions { get; set; } = [];
     public int TotalReactions { get; set; }
+    public int CommentCount { get; set; }
     public Dictionary<int, int> ReactionCounts { get; set; } = [];
 }
