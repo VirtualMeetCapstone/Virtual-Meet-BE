@@ -64,36 +64,42 @@ public class RoomHub : Hub
     {
         if (RoomStateManager.roomPeers.ContainsKey(roomId))
         {
-            // Find and remove the peer
-            var peer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+            var peer = RoomStateManager.roomPeers[roomId]
+                .FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+
             if (peer != null)
             {
                 RoomStateManager.roomPeers[roomId].Remove(peer);
 
-                // Notify other peers
                 await Clients.Group(roomId).SendAsync(
                     "PeerDisconnected",
                     Context.ConnectionId,
                     RoomStateManager.roomPeers[roomId].Count
                 );
 
-                // Remove from SignalR group
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
 
-                // Remove the room if empty
                 if (RoomStateManager.roomPeers[roomId].Count == 0)
                 {
                     RoomStateManager.roomPeers.TryRemove(roomId, out _);
+
+                    // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
+                    RoomStateManager.SharingUsers.TryRemove(roomId, out _);
+
+                    await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
                 }
             }
         }
     }
+
+
+
     public async Task SendShare()
     {
         if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
         {
             _logger.LogInformation("🔁 [SHARE] {User} shared in Room {RoomId}", user.Name, user.RoomId);
-            RoomStateManager.SharingUsers.Add(user.RoomId);
+            RoomStateManager.SharingUsers.TryAdd(user.RoomId,true);
             await Clients.Group(user.RoomId).SendAsync("ReceiveShare", user.Name);
         }
         else
@@ -119,7 +125,7 @@ public class RoomHub : Hub
 
         state.Timestamp = time;
         state.IsPaused = (status == 2);
-        state.LastUpdated = DateTime.UtcNow; // 🔥 Lưu thời gian cập nhật trạng thái
+        state.LastUpdated = DateTime.UtcNow; 
 
         _logger.LogInformation("⏯️ Room {RoomId} - Status: {Status} | Time: {Time}s", roomId, status, time);
         await Clients.Group(roomId).SendAsync("receiveplayerstatus", roomId, status, time);
@@ -153,7 +159,7 @@ public class RoomHub : Hub
             VideoId = state.VideoId,
             Time = actualTime, // 🔥 Thời gian thực tế
             IsPaused = state.IsPaused,
-            Sharing = RoomStateManager.SharingUsers.Contains(roomId)
+            Sharing = RoomStateManager.SharingUsers.ContainsKey(roomId)
         };
 
         _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
