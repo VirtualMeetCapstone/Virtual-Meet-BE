@@ -9,7 +9,7 @@ public class NotificationsController (INotificationService _service, IMapper _ma
     /// <param name="userId"></param>
     /// <returns></returns>
     [HttpGet("users/{userId}/notifications")]
-    public async Task<QueryResult<NotificationModel>> GetReadNotificationsByUserId([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    public async Task<QueryResult<NotificationModel>> GetNotificationsByUserId([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
         var result = await _service.GetNotificationsByUserIdAsync(userId, queryInfo);
         return _mapper.Map<QueryResult<NotificationModel>>(result);
