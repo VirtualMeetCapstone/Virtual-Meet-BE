@@ -1,6 +1,4 @@
-﻿using GOCAP.Messaging.Producer;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
@@ -111,12 +109,12 @@ internal class RoomService(
             }
             entity.Medias = JsonHelper.Serialize(domain.Medias);
         }
-        
+
         entity.Topic = domain.Topic;
         entity.Description = domain.Description;
         entity.MaximumMembers = domain.MaximumMembers;
         entity.LastModifyTime = domain.LastModifyTime;
-        
+
         return new OperationResult(await _repository.UpdateAsync(entity));
     }
 

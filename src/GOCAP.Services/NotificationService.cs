@@ -27,9 +27,8 @@ internal class NotificationService(
             Source = notificationEvent.Source
         };
         var notificationMessage = new NotificationMessageBuilder()
-                                                        .SetActor(actor.Name)
                                                         .SetAction(GetAction(notificationEvent.Type))
-                                                        .SetTarget(GetTarget(notificationEvent.Type))
+                                                        .SetTarget(GetTarget(notificationEvent.Type,          notificationEvent.Source))
                                                         .Build();
         notification.Content = notificationMessage;
         notification.InitCreation();
@@ -41,11 +40,24 @@ internal class NotificationService(
                 notification.UserIds = await _followRepository.GetFollowersByUserIdAsync(notificationEvent.ActorId);
                 break;
             case NotificationType.Follow:
-                notification.UserIds?.Add(notificationEvent.UserId);
+                notification.UserIds = [notificationEvent.UserId];
                 break;
             case NotificationType.Comment:
                 var post = await _postRepository.GetByIdAsync(notificationEvent.Source?.Id ?? throw new InternalException());
                 notification.UserIds = [post.UserId];
+                break;
+            case NotificationType.Reaction:
+                switch (notificationEvent.Source?.Type)
+                {
+                    case SourceType.Story:
+                        break;
+                    case SourceType.Room:
+                        break;
+                    case SourceType.Post:
+                        break;
+                    case SourceType.Comment:
+                        break;
+                }
                 break;
             default: throw new ParameterInvalidException();
         }
@@ -58,6 +70,7 @@ internal class NotificationService(
     {
         return type switch
         {
+            NotificationType.Reaction => "reacted on",
             NotificationType.Story => "posted",
             NotificationType.Post => "created",
             NotificationType.Room => "created",
@@ -67,7 +80,7 @@ internal class NotificationService(
         };
     }
 
-    private static string GetTarget(NotificationType type)
+    private static string GetTarget(NotificationType type, NotificationSource? source)
     {
         return type switch
         {
@@ -76,7 +89,19 @@ internal class NotificationService(
             NotificationType.Room => "a new room",
             NotificationType.Follow => "you",
             NotificationType.Comment => "your post",
+            NotificationType.Reaction => GetReactionTarget(source),
             _ => "something"
+        };
+    }
+
+    private static string GetReactionTarget(NotificationSource? source)
+    {
+        return source?.Type switch
+        {
+            SourceType.Post => "your post",
+            SourceType.Comment => "your comment",
+            SourceType.Story => "your story",
+            _ => "your content"
         };
     }
 
