@@ -147,6 +147,15 @@ public class RoomHub : Hub
     {
         var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
 
+        // 🔥 Kiểm tra nếu phòng chỉ có 1 người và chưa có video
+        if (GetRoomUserCount(roomId) == 1 && string.IsNullOrEmpty(state.VideoId))
+        {
+            state.VideoId = "dQw4w9WgXcQ"; // 🎵 Video mặc định (ví dụ: Rickroll 😆)
+            state.Timestamp = 0;
+            state.IsPaused = true;
+            state.LastUpdated = DateTime.UtcNow;
+        }
+
         double actualTime = state.Timestamp; // Mặc định lấy timestamp đã lưu
         if (!state.IsPaused)
         {
@@ -165,6 +174,17 @@ public class RoomHub : Hub
         _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
         await Clients.Client(connectionId).SendAsync("ReceiveRoomState", roomState);
     }
+
+
+    public static int GetRoomUserCount(string roomId)
+    {
+        if (RoomStateManager.roomPeers.TryGetValue(roomId, out var peers))
+        {
+            return peers.Count;
+        }
+        return 0;
+    }
+
 
     //wRTC
     public async Task SendOffer(string targetPeerId, string offer)
@@ -188,6 +208,11 @@ public class RoomHub : Hub
             offer
         );
     }
+    public async Task RequestStream(string targetPeerId)
+    {
+        await Clients.Client(targetPeerId).SendAsync("ReceiveStreamRequest", Context.ConnectionId);
+    }
+
 
     public async Task SendAnswer(string targetPeerId, string answer)
     {
