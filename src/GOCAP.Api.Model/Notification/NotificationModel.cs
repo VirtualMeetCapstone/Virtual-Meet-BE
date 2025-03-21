@@ -5,7 +5,6 @@ namespace GOCAP.Api.Model;
 public class NotificationModel
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; }
     public NotificationType Type { get; set; }
     public string Content { get; set; } = string.Empty;
     public ActionType? ActionType { get; set; }

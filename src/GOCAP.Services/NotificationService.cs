@@ -11,7 +11,7 @@ internal class NotificationService(
     ) : ServiceBase<Notification, NotificationEntity>(_repository, _mapper, _logger), INotificationService
 {
     private readonly IMapper _mapper = _mapper;
-    public async Task HandleNotificationEvent(NotificationEvent notificationEvent)
+    public async Task<Notification> HandleNotificationEvent(NotificationEvent notificationEvent)
     {
         var actor = await _userRepository.GetByIdAsync(notificationEvent.ActorId);
         var notification = new Notification
@@ -31,37 +31,27 @@ internal class NotificationService(
                                                         .SetAction(GetAction(notificationEvent.Type))
                                                         .SetTarget(GetTarget(notificationEvent.Type))
                                                         .Build();
+        notification.Content = notificationMessage;
+        notification.InitCreation();
         switch (notificationEvent.Type)
         {
             case NotificationType.Story:
             case NotificationType.Post:
             case NotificationType.Room:
-                var listNotification = new List<NotificationEntity>();
-                var recipientIds = await _followRepository.GetFollowersByUserIdAsync(notificationEvent.ActorId);
-                foreach (var recipientId in recipientIds)
-                {
-                    notification.Content = notificationMessage;
-                    notification.UserId = recipientId;
-                    notification.InitCreation();
-                    listNotification.Add(_mapper.Map<NotificationEntity>(notification));
-                }
-                await _repository.AddRangeAsync(listNotification);
+                notification.UserIds = await _followRepository.GetFollowersByUserIdAsync(notificationEvent.ActorId);
                 break;
             case NotificationType.Follow:
-                notification.Content = notificationMessage;
-                notification.UserId = notificationEvent.UserId;
-                notification.InitCreation();
-                await _repository.AddAsync(_mapper.Map<NotificationEntity>(notification));
+                notification.UserIds?.Add(notificationEvent.UserId);
                 break;
             case NotificationType.Comment:
                 var post = await _postRepository.GetByIdAsync(notificationEvent.Source?.Id ?? throw new InternalException());
-                notification.UserId = post.UserId;
-                notification.Content = notificationMessage;
-                notification.InitCreation();
-                await _repository.AddAsync(_mapper.Map<NotificationEntity>(notification));
+                notification.UserIds = [post.UserId];
                 break;
-            default: return;
+            default: throw new ParameterInvalidException();
         }
+        var entity = _mapper.Map<NotificationEntity>(notification);
+        var result = await _repository.AddAsync(entity);
+        return _mapper.Map<Notification>(result);
     }
 
     private static string GetAction(NotificationType type)
