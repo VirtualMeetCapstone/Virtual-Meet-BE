@@ -31,7 +31,6 @@ public class AppDbContext : DbContext
     public DbSet<UserBlockEntity> UserBlocks { get; set; }
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<UserFollowEntity> UserFollows { get; set; }
-    public DbSet<UserNotificationEntity> UserNotifications { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
     public DbSet<PostTagEntity> PostTags { get; set; }
     public DbSet<PostReactionEntity> PostReactions { get; set; }

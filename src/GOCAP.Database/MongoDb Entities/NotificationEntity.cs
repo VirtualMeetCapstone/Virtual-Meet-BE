@@ -6,7 +6,7 @@ namespace GOCAP.Database;
 public class NotificationEntity : EntityMongoBase
 {
     [BsonRequired]
-    public Guid UserId { get; set; }
+    public List<Guid>? UserIds { get; set; }
     public NotificationType Type { get; set; }
     [MaxLength(AppConstants.MaxLengthDescription)]
     [BsonRequired]
