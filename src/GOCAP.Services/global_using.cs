@@ -8,3 +8,4 @@ global using GOCAP.Repository.Intention;
 global using GOCAP.Services.Intention;
 global using Microsoft.Extensions.Logging;
 global using System.Linq.Expressions;
+global using GOCAP.Messaging.Producer;

@@ -5,6 +5,7 @@ internal class StoryReactionService(
     IStoryReactionRepository _repository,
     IStoryRepository _storyRepository,
     IUserRepository _userRepository,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<StoryReactionService> _logger
     ) : ServiceBase<StoryReaction, StoryReactionEntity>(_repository, _mapper, _logger), IStoryReactionService
@@ -26,16 +27,27 @@ internal class StoryReactionService(
         var roomFavourite = await _repository.GetByStoryAndUserAsync(domain.StoryId, domain.UserId);
         if (roomFavourite != null)
         {
-            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(RoomFavourite).Name);
+            _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(StoryReaction).Name);
             var resultDelete = await _repository.DeleteByIdAsync(roomFavourite.Id);
             result = new OperationResult(resultDelete > 0);
         }
         else
         {
-            _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(RoomFavourite).Name);
+            _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(StoryReaction).Name);
             domain.InitCreation();
             var entity = _mapper.Map<StoryReactionEntity>(domain);
             await _repository.AddAsync(entity);
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Reaction,
+                ActionType = ActionType.Add,
+                ActorId = entity.UserId,
+                Source = new NotificationSource
+                {
+                    Id = entity.StoryId,
+                    Type = SourceType.Story,
+                }
+            });
         }
         return result;
     }

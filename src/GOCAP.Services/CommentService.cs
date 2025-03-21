@@ -1,6 +1,4 @@
-﻿using GOCAP.Messaging.Producer;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(ICommentService))]
 internal class CommentService(
