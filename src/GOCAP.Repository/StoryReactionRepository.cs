@@ -9,9 +9,9 @@ internal class StoryReactionRepository(
 
     public async Task<StoryReactionEntity?> GetByStoryAndUserAsync(Guid storyId, Guid userId)
     {
-        var entity = await _context.StoryReactions.FirstOrDefaultAsync
-                                                (sr => sr.StoryId == storyId
-                                                 && sr.UserId == userId);
+        var entity = await _context.StoryReactions.AsNoTracking()
+                                                  .FirstOrDefaultAsync(sr => sr.StoryId == storyId
+                                                    && sr.UserId == userId);
         return entity;
     }
 

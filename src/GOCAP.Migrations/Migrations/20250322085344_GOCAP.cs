@@ -313,30 +313,6 @@ namespace GOCAP.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserNotifications",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    ReferenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false),
-                    CreateTime = table.Column<long>(type: "bigint", nullable: false),
-                    LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserNotifications", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserNotifications_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserRewards",
                 columns: table => new
                 {
@@ -479,6 +455,9 @@ namespace GOCAP.Migrations.Migrations
                     Privacy = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: true),
                     OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RequireApproval = table.Column<bool>(type: "bit", nullable: false),
+                    WelcomeMessage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ChannelId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreateTime = table.Column<long>(type: "bigint", nullable: false),
                     LastModifyTime = table.Column<long>(type: "bigint", nullable: false)
@@ -1006,11 +985,6 @@ namespace GOCAP.Migrations.Migrations
                 column: "FollowingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserNotifications_UserId",
-                table: "UserNotifications",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserRewards_UserId",
                 table: "UserRewards",
                 column: "UserId");
@@ -1082,9 +1056,6 @@ namespace GOCAP.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserFollows");
-
-            migrationBuilder.DropTable(
-                name: "UserNotifications");
 
             migrationBuilder.DropTable(
                 name: "UserRewards");
