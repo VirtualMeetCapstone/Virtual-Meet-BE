@@ -24,11 +24,11 @@ internal class StoryReactionService(
         }
 
         var result = new OperationResult(true);
-        var roomFavourite = await _repository.GetByStoryAndUserAsync(domain.StoryId, domain.UserId);
-        if (roomFavourite != null)
+        var storyReaction = await _repository.GetByStoryAndUserAsync(domain.StoryId, domain.UserId);
+        if (storyReaction != null)
         {
             _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(StoryReaction).Name);
-            var resultDelete = await _repository.DeleteByIdAsync(roomFavourite.Id);
+            var resultDelete = await _repository.DeleteByIdAsync(storyReaction.Id);
             result = new OperationResult(resultDelete > 0);
         }
         else

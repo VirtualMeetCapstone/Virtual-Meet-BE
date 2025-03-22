@@ -89,4 +89,10 @@ internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRe
                                         .ToListAsync();
         return _mapper.Map<List<Story>>(stories);
     }
+
+    public async Task<Guid> GetUserIdByStoryIdAsync(Guid storyId)
+    => await _context.Stories.AsNoTracking()
+                             .Where(s => s.Id == storyId)
+                             .Select(s => s.UserId)
+                             .FirstOrDefaultAsync();
 }

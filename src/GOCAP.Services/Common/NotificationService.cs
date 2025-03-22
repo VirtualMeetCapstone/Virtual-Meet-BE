@@ -3,6 +3,7 @@
 [RegisterService(typeof(INotificationService))]
 internal class NotificationService(
     INotificationRepository _repository,
+    IStoryRepository _storyRepository,
     IUserRepository _userRepository,
     IFollowRepository _followRepository,
     IPostRepository _postRepository,
@@ -50,6 +51,7 @@ internal class NotificationService(
                 switch (notificationEvent.Source?.Type)
                 {
                     case SourceType.Story:
+                        notification.UserIds = [await _storyRepository.GetUserIdByStoryIdAsync(notificationEvent.Source.Id)];
                         break;
                     case SourceType.Room:
                         break;

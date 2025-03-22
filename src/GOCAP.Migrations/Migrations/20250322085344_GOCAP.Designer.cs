@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GOCAP.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250227201101_GOCAP")]
+    [Migration("20250322085344_GOCAP")]
     partial class GOCAP
     {
         /// <inheritdoc />
@@ -377,8 +377,14 @@ namespace GOCAP.Migrations.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Privacy")
                         .HasColumnType("int");
+
+                    b.Property<bool>("RequireApproval")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("Status")
                         .HasColumnType("int");
@@ -387,6 +393,10 @@ namespace GOCAP.Migrations.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("WelcomeMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("Id");
 
@@ -899,42 +909,6 @@ namespace GOCAP.Migrations.Migrations
                     b.ToTable("UserFollows");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserNotificationEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long>("CreateTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("LastModifyTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("ReferenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserNotifications");
-                });
-
             modelBuilder.Entity("GOCAP.Database.UserRewardEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1390,17 +1364,6 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("Following");
                 });
 
-            modelBuilder.Entity("GOCAP.Database.UserNotificationEntity", b =>
-                {
-                    b.HasOne("GOCAP.Database.UserEntity", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GOCAP.Database.UserRewardEntity", b =>
                 {
                     b.HasOne("GOCAP.Database.UserEntity", "User")
@@ -1505,8 +1468,6 @@ namespace GOCAP.Migrations.Migrations
                     b.Navigation("GroupMembers");
 
                     b.Navigation("Groups");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Posts");
 
