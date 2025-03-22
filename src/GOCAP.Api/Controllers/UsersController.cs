@@ -59,6 +59,12 @@ public class UsersController(IUserService _userService,
 		return result;
 	}
 
+    [HttpGet("is-following/{followingId}")]
+    public async Task<bool> IsFollowing([FromRoute] Guid followingId)
+    {
+		return await _followService.IsFollowingAsync(followingId);
+    }
+
     /// <summary>
     /// Block or unblock another user.
     /// </summary>
