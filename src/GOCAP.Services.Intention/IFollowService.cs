@@ -3,4 +3,5 @@
 public interface IFollowService : IServiceBase<Follow>
 {
     Task<OperationResult> FollowOrUnfollowAsync(Follow domain);
+    Task<bool> IsFollowingAsync(Guid followingId);
 }

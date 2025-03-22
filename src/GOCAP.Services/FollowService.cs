@@ -2,6 +2,7 @@
 
 [RegisterService(typeof(IFollowService))]
 internal class FollowService(
+    IUserContextService _userContextService,
     IUserRepository _userRepository,
     IFollowRepository _repository,
     IKafkaProducer _kafkaProducer,
@@ -62,4 +63,13 @@ internal class FollowService(
         return result;
     }
 
+    public async Task<bool> IsFollowingAsync(Guid followingId)
+    {
+        var domain = new Follow
+        {
+            FollowerId = _userContextService.Id,
+            FollowingId = followingId
+        };
+        return await _repository.IsFollowingAsync(domain);
+    }
 }

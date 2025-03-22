@@ -1,4 +1,5 @@
 ﻿
+
 namespace GOCAP.Repository;
 
 [RegisterService(typeof(IFollowRepository))]
@@ -23,4 +24,9 @@ internal class FollowRepository
                         .Where(f => f.FollowingId == userId)
                         .Select(f => f.FollowerId)
                         .ToListAsync();
+
+    public async Task<bool> IsFollowingAsync(Follow domain)
+    => await _context.UserFollows
+        .AsNoTracking()
+        .AnyAsync(f => f.FollowerId == domain.FollowerId && f.FollowingId == domain.FollowingId);
 }
