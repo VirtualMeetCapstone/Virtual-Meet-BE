@@ -78,34 +78,41 @@ internal class RoomRepository(
 
     }
 
-    public async Task<Room> GetDetailIdAsync(Guid id)
-    => await (from r in _context.Rooms.AsNoTracking()
-              join m in _context.RoomMembers.AsNoTracking() on r.Id equals m.RoomId
-              join u in _context.Users.AsNoTracking() on m.UserId equals u.Id
-              where r.Id == id
-              select new Room
-              {
-                  Id = r.Id,
-                  OwnerId = r.OwnerId,
-                  Owner = new User
-                  {
-                      Name = u.Name,
-                      Picture = JsonHelper.Deserialize<Media>(u.Picture),
-                  },
-                  Topic = r.Topic,
-                  Description = r.Description,
-                  MaximumMembers = r.MaximumMembers,
-                  Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
-                  Status = r.Status,
-                  CreateTime = r.CreateTime,
-                  Members = _context.RoomMembers
-                      .AsNoTracking()
-                      .Where(rm => rm.RoomId == r.Id)
-                      .Join(_context.Users.AsNoTracking(), rm => rm.UserId, u => u.Id, (rm, u) => new User
-                      {
-                          Name = u.Name,
-                          Picture = JsonHelper.Deserialize<Media>(u.Picture)
-                      }).ToList()
-              }).FirstOrDefaultAsync()
-        ?? throw new ResourceNotFoundException($"Room {id} was not found.");
+    public async Task<Room> GetDetailByIdAsync(Guid id)
+    {
+        var room = await _context.Rooms
+            .AsNoTracking()
+            .Where(r => r.Id == id)
+            .Select(r => new Room
+            {
+                Id = r.Id,
+                OwnerId = r.OwnerId,
+                Owner = _context.Users
+                    .AsNoTracking()
+                    .Where(u => u.Id == r.OwnerId)
+                    .Select(u => new User
+                    {
+                        Name = u.Name,
+                        Picture = JsonHelper.Deserialize<Media>(u.Picture),
+                    })
+                    .FirstOrDefault(),
+                Topic = r.Topic,
+                Description = r.Description,
+                MaximumMembers = r.MaximumMembers,
+                Medias = JsonHelper.Deserialize<List<Media>>(r.Medias),
+                Status = r.Status,
+                CreateTime = r.CreateTime,
+                Members = _context.RoomMembers
+                    .Where(rm => rm.RoomId == r.Id)
+                    .Join(_context.Users, rm => rm.UserId, u => u.Id, (rm, u) => new User
+                    {
+                        Name = u.Name,
+                        Picture = JsonHelper.Deserialize<Media>(u.Picture)
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        return room ?? throw new ResourceNotFoundException($"Room {id} was not found.");
+    }
 }
