@@ -27,7 +27,7 @@ public class RoomsController(IRoomService _service,
     [HttpGet("{id}")]
     public async Task<RoomModel> GetById([FromRoute] Guid id)
     {
-        var domain = await _service.GetByIdAsync(id);
+        var domain = await _service.GetDetailByIdAsync(id);
         return _mapper.Map<RoomModel>(domain);
     }
 
