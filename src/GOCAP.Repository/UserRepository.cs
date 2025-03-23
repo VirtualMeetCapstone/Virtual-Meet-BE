@@ -133,4 +133,8 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
             })
             .ToListAsync();
     }
+
+    protected override IQueryable<UserEntity> GenerateWhereString(IQueryable<UserEntity> query, QueryInfo queryInfo)
+    => query.AsNoTracking().Where(u => EF.Functions.Collate(u.Name, "Latin1_General_CI_AI").Contains(queryInfo.SearchText.Trim())
+                    && !u.IsDeleted);
 }

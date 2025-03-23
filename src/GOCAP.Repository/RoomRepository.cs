@@ -13,7 +13,7 @@ internal class RoomRepository(
 
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
-            query = query.Where(r => EF.Functions.Collate(r.Topic, "Latin1_General_CI_AI").Contains(queryInfo.SearchText));
+            query = query.Where(r => EF.Functions.Collate(r.Topic, "Latin1_General_CI_AI").Contains(queryInfo.SearchText.Trim()));
         }
 
         var totalItems = queryInfo.NeedTotalCount ? await query.CountAsync() : 0;

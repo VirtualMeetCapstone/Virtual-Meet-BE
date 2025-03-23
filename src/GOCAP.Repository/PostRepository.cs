@@ -8,12 +8,16 @@ internal class PostRepository(AppSqlDbContext _context, IMapper _mapper) : SqlRe
     private readonly AppSqlDbContext _context = _context;
     public async Task<QueryResult<Post>> GetWithPagingAsync(QueryInfo queryInfo)
     {
-        var totalItems = queryInfo.NeedTotalCount
-            ? await _context.Posts.AsNoTracking().CountAsync()
-            : 0;
+        var query = _context.Posts.AsNoTracking().AsQueryable();
 
-        var postsResult = await _context.Posts
-            .AsNoTracking()
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            query = query.Where(r => EF.Functions.Collate(r.Content, "Latin1_General_CI_AI").Contains(queryInfo.SearchText.Trim()));
+        }
+
+        var totalItems = queryInfo.NeedTotalCount ? await query.CountAsync() : 0;
+
+        var postsResult = await query
             .OrderByDescending(r => r.CreateTime)
             .Skip(queryInfo.Skip)
             .Take(queryInfo.Top)
