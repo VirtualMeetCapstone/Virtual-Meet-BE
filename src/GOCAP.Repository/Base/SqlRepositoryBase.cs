@@ -67,9 +67,12 @@ internal abstract class SqlRepositoryBase<TEntity>
 
     public virtual async Task<QueryResult<TEntity>> GetByPageAsync(QueryInfo queryInfo)
     {
-        var query = _context.Set<TEntity>().AsQueryable();
+        var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
 
-        GenerateWhereString(query, queryInfo);
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            query = GenerateWhereString(query, queryInfo);
+        }
 
         if (!string.IsNullOrWhiteSpace(queryInfo.OrderBy))
         {
