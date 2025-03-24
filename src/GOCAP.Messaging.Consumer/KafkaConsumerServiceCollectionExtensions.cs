@@ -9,6 +9,7 @@ public static class KafkaConsumerServiceCollectionExtensions
         // Register Consumer
         services.AddSingleton<UserLoginConsumer>();
         services.AddSingleton<NotificationConsumer>();
+        services.AddSingleton<SearchHistoryConsumer>();
         services.AddHostedService<KafkaConsumerService>();
 
         return services;

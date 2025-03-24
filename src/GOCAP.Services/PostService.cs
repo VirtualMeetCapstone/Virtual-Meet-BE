@@ -1,12 +1,15 @@
-﻿namespace GOCAP.Services;
+﻿using GOCAP.Services.Intention;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IPostService))]
 internal class PostService(
     IPostRepository _repository,
     IPostReactionRepository _postReactionRepository,
-        ICommentRepository _commentRepository,
+    ICommentRepository _commentRepository,
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
+    IUserContextService _userContextService,
     IUnitOfWork _unitOfWork,
     IKafkaProducer _kafkaProducer,
     IMapper _mapper,
@@ -17,15 +20,21 @@ internal class PostService(
 
     public async Task<QueryResult<Post>> GetWithPagingAsync(QueryInfo queryInfo)
     {
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
         var queryResult = await _repository.GetWithPagingAsync(queryInfo);
         var posts = queryResult.Data;
 
         var postIds = posts.Select(p => p.Id).ToList();
 
-        // 🔥 Gọi CommentRepository để lấy comment count 1 lần cho tất cả bài viết
         var commentCounts = await _commentRepository.GetCommentCountsByPostIdsAsync(postIds);
 
-        // Gán số lượng comment vào từng bài viết
         var updatedPosts = posts.Select(p =>
         {
             p.CommentCount = commentCounts.TryGetValue(p.Id, out var count) ? count : 0;

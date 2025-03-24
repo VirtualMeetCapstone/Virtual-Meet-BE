@@ -9,6 +9,7 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
     => await _context.Users
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.Email == email);
+
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users

@@ -5,6 +5,13 @@ namespace GOCAP.Repository;
 internal class SearchHistoryRepository(AppMongoDbContext context) : MongoRepositoryBase<SearchHistoryEntity>(context), ISearchHistoryRepository
 {
     private readonly AppMongoDbContext _context = context;
+
+    public async Task<SearchHistoryEntity> GetByQueryAsync(string query)
+    {
+        var filter = Builders<SearchHistoryEntity>.Filter.Eq(x => x.Query, query);
+        return await _context.SearchHistories.Find(filter).FirstOrDefaultAsync();
+    }
+
     public async Task<List<string>> GetPopularSearchSuggestionsAsync(string prefix, int limit)
     {
         var filter = Builders<SearchHistoryEntity>
