@@ -9,9 +9,9 @@ public class RoomHub : Hub
         _logger = logger;
     }
 
-    public async Task JoinRoom(string username, string roomId)
+    public async Task JoinRoom(string userId, string roomId)
     {
-        _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", username, roomId);
+        _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", userId, roomId);
 
         if (string.IsNullOrEmpty(roomId))
             throw new HubException("Room ID cannot be empty");
@@ -20,32 +20,47 @@ public class RoomHub : Hub
         if (!RoomStateManager.roomPeers.ContainsKey(roomId))
             RoomStateManager.roomPeers[roomId] = new List<PeerInfo>();
 
+        // Kiểm tra nếu user đã tồn tại trong phòng
+        var existingPeer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.UserName == userId);
+        if (existingPeer != null)
+        {
+            // Xóa kết nối cũ
+            _logger.LogInformation("[INFO] Removing old connection for user '{Username}'", userId);
+            await Clients.Client(existingPeer.PeerId).SendAsync("Disconnect");
+            await Clients.Group(roomId).SendAsync(
+               "PeerDisconnected",
+               Context.ConnectionId,
+               RoomStateManager.roomPeers[roomId].Count
+           );
+            RoomStateManager.roomPeers[roomId].Remove(existingPeer);
+        }
+
+        // Cập nhật danh sách kết nối mới của user
         RoomStateManager.Users[Context.ConnectionId] = new UserInfo
         {
-            Name = username,
+            Name = userId,
             RoomId = roomId
         };
-        // Create peer info object
+
+        // Tạo thông tin peer mới
         var peerInfo = new PeerInfo
         {
             PeerId = Context.ConnectionId,
-            UserName = string.IsNullOrEmpty(username) ? "Anonymous" : username
+            UserName = string.IsNullOrEmpty(userId) ? "Anonymous" : userId
         };
 
-        // Send existing peers list to new participant
+        // Gửi danh sách peers hiện tại cho người mới
         await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.roomPeers[roomId]);
-        // Add new peer to room
+
+        // Thêm peer mới vào room
         RoomStateManager.roomPeers[roomId].Add(peerInfo);
 
-        // Add connection to SignalR group
-
-
+        // Thêm kết nối mới vào nhóm SignalR
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-        await Clients.Group(roomId).SendAsync("ReceiveJoinNotification", username);
+        await Clients.Group(roomId).SendAsync("ReceiveJoinNotification", userId);
         await SendRoomState(roomId, Context.ConnectionId);
 
-
-        // Notify existing peers about the new participant
+        // Thông báo cho các peer khác về user mới
         foreach (var peer in RoomStateManager.roomPeers[roomId])
         {
             if (peer.PeerId != Context.ConnectionId)
@@ -58,7 +73,15 @@ public class RoomHub : Hub
                 );
             }
         }
+
+        _logger.LogInformation("[ROOM STATE] Danh sách peers trong Room '{RoomId}':", roomId);
+        foreach (var peer in RoomStateManager.roomPeers[roomId])
+        {
+            _logger.LogInformation("- PeerId: {PeerId}, UserName: {UserName}", peer.PeerId, peer.UserName);
+        }
+
     }
+
 
     public async Task LeaveRoom(string roomId)
     {
@@ -91,7 +114,6 @@ public class RoomHub : Hub
             }
         }
     }
-
 
 
     public async Task SendShare()
@@ -156,7 +178,7 @@ public class RoomHub : Hub
             state.LastUpdated = DateTime.UtcNow;
         }
 
-        double actualTime = state.Timestamp; // Mặc định lấy timestamp đã lưu
+        double actualTime = state.Timestamp;
         if (!state.IsPaused)
         {
             // 🔥 Nếu video đang chạy, tính thời gian thực tế
