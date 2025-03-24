@@ -3,60 +3,67 @@
 public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
 {
     private static readonly string ReceiveMessage = "ReceiveMessage";
+    private static readonly string DeleteMessage = "DeleteMessage";
+    private static readonly string UpdateMessage = "UpdateMessage";
 
-    [ValidateModel]
-    public async Task SendMessage([FromBody] MessageCreationModel model)
+    public async Task Send(Guid targetId, MessageType messageType, MessageCreationModel model)
     {
         var domain = _mapper.Map<Message>(model);
         domain.InitCreation();
-        await BroadcastMessage(model, ReceiveMessage, domain);
+        AssignTarget(domain, messageType, targetId);
+        await BroadcastEvent(targetId, messageType, ReceiveMessage, domain);
         await _service.AddAsync(domain);
     }
+    public async Task Delete(MessageType messageType, Guid targetId, Guid messageId)
+    {
+        await BroadcastEvent(targetId, messageType, DeleteMessage, messageId);
+        await _service.DeleteByIdAsync(messageId);
+    }
 
-    public async Task EditMessage([FromRoute] Guid id, [FromBody] MessageCreationModel model)
+    public async Task Update(MessageType messageType, Guid targetId, Guid messageId, MessageCreationModel model
+    ) 
     {
         var domain = _mapper.Map<Message>(model);
-        var result = await _service.UpdateAsync(id, domain);
-        if (result != null && result.Success)
+        domain.UpdateModify();
+        domain.IsEdited = true;
+        AssignTarget(domain, messageType, targetId);
+        await BroadcastEvent(targetId, messageType, UpdateMessage, domain);
+        await _service.UpdateAsync(messageId, domain);
+    }
+    public async Task JoinRoom(string roomId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+        Console.WriteLine($"🔹 User {Context.ConnectionId} joined room {roomId}");
+    }
+    private async Task BroadcastEvent(Guid targetId, MessageType messageType, string eventName, object data)
+    {
+        switch (messageType)
         {
-            await BroadcastMessage(model, "EditMessage", result);
+            case MessageType.Room:
+            case MessageType.Group:
+                await Clients.Group(targetId.ToString()).SendAsync(eventName, data);
+                break;
+            case MessageType.Direct:
+                await Clients.User(targetId.ToString()).SendAsync(eventName, data);
+                break;
         }
     }
 
-    public async Task DeleteMessage([FromBody] MessageDeletionModel model)
+    private static void AssignTarget(Message domain, MessageType messageType, Guid targetId)
     {
-        var result = await _service.DeleteByIdAsync(model.Id);
-        if (result!= null && result.Success) 
+        domain.Type = messageType;
+        switch (messageType)
         {
-            await BroadcastMessage(model, "RemoveMessage", model.Id);
-        }
-    }
-
-    public async Task JoinRoom(Guid roomId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
-        await Clients.Group(roomId.ToString()).SendAsync(ReceiveMessage, "System", $"User {Context.ConnectionId} joined room {roomId}.", DateTime.UtcNow);
-    }
-
-    public async Task LeaveRoom(Guid roomId)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId.ToString());
-        await Clients.Group(roomId.ToString()).SendAsync(ReceiveMessage, "System", $"User {Context.ConnectionId} left room {roomId}.", DateTime.UtcNow);
-    }
-
-    private async Task BroadcastMessage(MessageBaseModel model, string action, object response)
-    {
-        var groupId = model.Type switch
-        {
-            MessageType.Direct => model.ReceiverId?.ToString(),
-            MessageType.Room => model.RoomId?.ToString(),
-            MessageType.Group => model.GroupId?.ToString(),
-            _ => null
-        };
-
-        if (!string.IsNullOrEmpty(groupId))
-        {
-            await Clients.Groups(groupId).SendAsync(action, response);
+            case MessageType.Room:
+                domain.RoomId = targetId;
+                break;
+            case MessageType.Direct:
+                domain.ReceiverId = targetId;
+                break;
+            case MessageType.Group:
+                domain.GroupId = targetId;
+                break;
+            default: throw new ParameterInvalidException();
         }
     }
 

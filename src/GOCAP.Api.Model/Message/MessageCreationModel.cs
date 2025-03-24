@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Api.Model;
 
-public class MessageCreationModel : MessageBaseModel
+public class MessageCreationModel 
 {
     public Guid SenderId { get; set; }
     public string Content { get; set; } = string.Empty;

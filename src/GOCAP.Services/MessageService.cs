@@ -15,7 +15,6 @@ internal class MessageService(
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Message).Name);
         await ValidateMessage(domain);
-        domain.InitCreation();
         var entity = _mapper.Map<MessageEntity>(domain);
         var result = await _repository.AddAsync(entity);
         return _mapper.Map<Message>(result);
@@ -30,7 +29,6 @@ internal class MessageService(
             throw new ParameterInvalidException($"Message {id} does not exist.");
         }
         await ValidateMessage(domain);
-        domain.UpdateModify();
         var entity = _mapper.Map<MessageEntity>(domain);
         return new OperationResult(await _repository.UpdateAsync(entity));
     }
