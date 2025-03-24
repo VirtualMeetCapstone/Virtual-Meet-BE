@@ -10,6 +10,7 @@ public class KafkaSettings
     {
         { nameof(KafkaConstants.Topics.UserLogin), KafkaConstants.Topics.UserLogin },
         { nameof(KafkaConstants.Topics.Notification), KafkaConstants.Topics.Notification },
+        { nameof(KafkaConstants.Topics.SearchHistory), KafkaConstants.Topics.SearchHistory },
     };
     public string GroupId { get; set; } = KafkaConstants.GroupId;
     public int ReplicationFactor { get; set; } = 1;

@@ -3,12 +3,14 @@
 public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
 {
     private static readonly string ReceiveMessage = "ReceiveMessage";
+
+    [ValidateModel]
     public async Task SendMessage([FromBody] MessageCreationModel model)
     {
         var domain = _mapper.Map<Message>(model);
         domain.InitCreation();
         await BroadcastMessage(model, ReceiveMessage, domain);
-        _ = Task.Run(() => _service.AddAsync(domain));
+        await _service.AddAsync(domain);
     }
 
     public async Task EditMessage([FromRoute] Guid id, [FromBody] MessageCreationModel model)

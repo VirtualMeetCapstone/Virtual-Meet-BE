@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Services;
+﻿using GOCAP.Services.Intention;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
@@ -6,6 +8,7 @@ internal class RoomService(
     IRoomMemberRepository _roomMemberRepository,
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
+    IUserContextService _userContextService,
     IUnitOfWork _unitOfWork,
     IKafkaProducer _kafkaProducer,
     IMapper _mapper,
@@ -124,7 +127,17 @@ internal class RoomService(
     }
 
     public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
-    => await _repository.GetWithPagingAsync(queryInfo);
+    {
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
+        return await _repository.GetWithPagingAsync(queryInfo);
+    }
 
     public async Task<Room> GetDetailByIdAsync(Guid id)
     => await _repository.GetDetailByIdAsync(id);

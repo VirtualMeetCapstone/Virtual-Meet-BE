@@ -4,11 +4,14 @@
 internal class UserService(
 	IUserRepository _repository,
 	IBlobStorageService _blobStorageService,
+	IKafkaProducer _kafkaProducer,
+	IUserContextService _userContextService,
 	IMapper _mapper,
 	ILogger<UserService> _logger
 	) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
 {
 	private readonly IMapper _mapper = _mapper;
+
 	public async Task<User> GetUserProfileAsync(Guid id)
 	{
 		return await _repository.GetUserProfileAsync(id);
@@ -52,6 +55,7 @@ internal class UserService(
 		var entity = await _repository.GetByEmailAsync(email);
 		return _mapper.Map<User?>(entity);
     }
+
 	public async Task<UserCount> GetUserCountsAsync()
 	{
 		return await _repository.GetUserCountsAsync() ?? new UserCount();
@@ -62,4 +66,18 @@ internal class UserService(
 
 		return await _repository.SearchUsersAsync(userName, limit);
 	}
+
+    public override async Task<QueryResult<User>> GetByPageAsync(QueryInfo queryInfo)
+    {
+        var entities = await _repository.GetByPageAsync(queryInfo);
+		if (!string.IsNullOrEmpty(queryInfo.SearchText))
+		{
+            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
+        return _mapper.Map<QueryResult<User>>(entities);
+    }
 }

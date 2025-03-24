@@ -16,6 +16,7 @@ public class KafkaConsumerService(
     private IServiceScope? _scope;
     private Task? _userLoginTask;
     private Task? _notificationTask;
+    private Task? _searchHistoryTask;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -29,9 +30,11 @@ public class KafkaConsumerService(
             _scope = _serviceProvider.CreateScope();
             var userLoginConsumer = _scope.ServiceProvider.GetRequiredService<UserLoginConsumer>();
             var notificationConsumer = _scope.ServiceProvider.GetRequiredService<NotificationConsumer>();
+            var searchHistoryConsumer = _scope.ServiceProvider.GetRequiredService<SearchHistoryConsumer>();
 
             _userLoginTask = Task.Run(() => userLoginConsumer.StartAsync(_cts.Token), _cts.Token);
             _notificationTask = Task.Run(() => notificationConsumer.StartAsync(_cts.Token), _cts.Token);
+            _searchHistoryTask = Task.Run(() => searchHistoryConsumer.StartAsync(_cts.Token), _cts.Token);
         });
 
         return Task.CompletedTask;
@@ -42,9 +45,10 @@ public class KafkaConsumerService(
         _logger.LogInformation("🛑 Stopping Kafka Consumers...");
         _cts?.Cancel();
 
-        // Đợi các consumer dừng lại
+        // Wait consumers stop.
         if (_userLoginTask != null) await _userLoginTask;
         if (_notificationTask != null) await _notificationTask;
+        if (_searchHistoryTask != null) await _searchHistoryTask;
 
         _scope?.Dispose();
     }
