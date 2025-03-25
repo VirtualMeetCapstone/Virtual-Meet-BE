@@ -1,13 +1,8 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public class RoomHub : Hub
+public class RoomHub(ILogger<RoomHub> _logger,
+    IUserService _userService) : Hub
 {
-    private readonly ILogger<RoomHub> _logger;
-
-    public RoomHub(ILogger<RoomHub> logger)
-    {
-        _logger = logger;
-    }
 
     public async Task JoinRoom(string userId, string roomId)
     {
@@ -42,11 +37,14 @@ public class RoomHub : Hub
             RoomId = roomId
         };
 
+        Guid guidID = Guid.Parse(userId); // Chuyển đổi sang Guid
+        var user = await _userService.GetUserProfileAsync(guidID);
+        
         // Tạo thông tin peer mới
         var peerInfo = new PeerInfo
         {
             PeerId = Context.ConnectionId,
-            UserName = string.IsNullOrEmpty(userId) ? "Anonymous" : userId
+            UserName = user.Name,
         };
 
         // Gửi danh sách peers hiện tại cho người mới
@@ -128,6 +126,16 @@ public class RoomHub : Hub
         {
             _logger.LogError("❌ [ERROR] SendShare failed - User not found for ConnectionId {ConnectionId}", Context.ConnectionId);
         }
+    }
+
+    public async Task SendRaiseHand(string username, string roomId)
+    {
+        await Clients.Group(roomId).SendAsync("ReceiveRaiseHand", username);
+    }
+
+    public async Task SendEmotion(string username, string roomId, string type, double x, double y)
+    {
+        await Clients.Group(roomId).SendAsync("ReceiveEmotion", username, type, x, y);
     }
 
     public async Task SelectVideo(string roomId, string videoId)
