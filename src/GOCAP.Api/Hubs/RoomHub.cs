@@ -1,7 +1,9 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public class RoomHub(ILogger<RoomHub> _logger,
-    IUserService _userService, IMessageService _service, IMapper _mapper) : Hub
+public partial class RoomHub(ILogger<RoomHub> _logger,
+    IUserService _userService, 
+    IMessageService _service,
+    IMapper _mapper) : Hub
 {
 
     public async Task JoinRoom(string userId, string roomId)

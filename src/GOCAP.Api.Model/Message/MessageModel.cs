@@ -13,4 +13,5 @@ public class MessageModel
     public Guid? GroupId { get; set; }
     public Guid? ReceiverId { get; set; }
     public long CreateTime { get; set; }
+    public long LastModifyTime { get; set; }
 }
