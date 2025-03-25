@@ -17,6 +17,7 @@ public class UserInfo
 public class PeerInfo
 {
     public string PeerId { get; set; }
+    public string? UserId { get; set; }
     public string UserName { get; set; }
 }
 
