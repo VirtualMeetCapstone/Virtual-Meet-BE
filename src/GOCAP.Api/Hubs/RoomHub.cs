@@ -16,7 +16,7 @@ public class RoomHub(ILogger<RoomHub> _logger,
             RoomStateManager.roomPeers[roomId] = new List<PeerInfo>();
 
         // Kiểm tra nếu user đã tồn tại trong phòng
-        var existingPeer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.UserName == userId);
+        var existingPeer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.UserId == userId);
         if (existingPeer != null)
         {
             // Xóa kết nối cũ
@@ -45,6 +45,7 @@ public class RoomHub(ILogger<RoomHub> _logger,
         {
             PeerId = Context.ConnectionId,
             UserName = user.Name,
+            UserId = userId
         };
 
         // Gửi danh sách peers hiện tại cho người mới
@@ -135,8 +136,11 @@ public class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task SendEmotion(string username, string roomId, string type, double x, double y)
     {
-        await Clients.Group(roomId).SendAsync("ReceiveEmotion", username, type, x, y);
+        Console.WriteLine($"📢 Emotion Sent - User: {username}, Room: {roomId}, Type: {type}, Position: ({x}, {y})");
+
+        await Clients.OthersInGroup(roomId).SendAsync("ReceiveEmotion", username, type, x, y);
     }
+
 
     public async Task SelectVideo(string roomId, string videoId)
     {
