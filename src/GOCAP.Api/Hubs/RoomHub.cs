@@ -114,10 +114,6 @@ public class RoomHub(ILogger<RoomHub> _logger,
         }
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0413566 (Update message)
     public async Task SendShare()
     {
         if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
