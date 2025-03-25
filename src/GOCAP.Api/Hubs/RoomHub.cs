@@ -1,13 +1,8 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public class RoomHub : Hub
+public partial class RoomHub(ILogger<RoomHub> logger, IMessageService _service, IMapper _mapper) : Hub
 {
-    private readonly ILogger<RoomHub> _logger;
-
-    public RoomHub(ILogger<RoomHub> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<RoomHub> _logger = logger;
 
     public async Task JoinRoom(string username, string roomId)
     {
@@ -92,8 +87,6 @@ public class RoomHub : Hub
         }
     }
 
-
-
     public async Task SendShare()
     {
         if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
@@ -174,7 +167,6 @@ public class RoomHub : Hub
         _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
         await Clients.Client(connectionId).SendAsync("ReceiveRoomState", roomState);
     }
-
 
     public static int GetRoomUserCount(string roomId)
     {
