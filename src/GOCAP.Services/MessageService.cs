@@ -6,6 +6,7 @@ internal class MessageService(
     IUserRepository _userRepository,
     IRoomRepository _roomRepository,
     IGroupRepository _groupRepository,
+    IBlobStorageService _blobStorageService,
     IMapper _mapper,
     ILogger<MessageService> _logger
     ) : ServiceBase<Message, MessageEntity>(_repository, _mapper, _logger), IMessageService
@@ -35,6 +36,16 @@ internal class MessageService(
 
     private async Task ValidateMessage(Message domain)
     {
+        if (domain.Attachments != null && domain.Attachments.Count > 0)
+        {
+            var urls = domain.Attachments.Select(x => x.Url).ToList();
+            var isExists = await _blobStorageService.CheckFilesExistByUrlsAsync(urls);
+            if (!isExists)
+            {
+                throw new ParameterInvalidException("At least one media file uploaded is invalid.");
+            }
+            domain.Attachments.ToList().ForEach(x => x.Type = ConvertMediaHelper.GetMediaTypeFromUrl(x.Url));
+        }
         switch (domain.Type)
         {
             case MessageType.Direct:
