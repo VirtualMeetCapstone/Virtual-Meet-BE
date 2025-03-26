@@ -33,4 +33,15 @@ public class SearchesController (ISearchHistoryService _service, IMapper _mapper
         }
         return await _service.GetPopularSearchSuggestionsAsync(prefix, limit);
     }
+
+    [HttpGet("{userId}")]
+    public async Task<List<string>> GetSearchByUserId([FromRoute] Guid userId, [FromQuery]
+    int limit)
+    {
+        if (limit == 0)
+        {
+            limit = 20;
+        }
+        return await _service.GetSearchByUserIdAsync(userId, limit);
+    }
 }
