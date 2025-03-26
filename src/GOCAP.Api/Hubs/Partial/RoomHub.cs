@@ -8,12 +8,9 @@ public partial class RoomHub
 
     public async Task SendMessage(Guid roomId, MessageCreationModel model)
     {
-        if (model == null || roomId == Guid.Empty)
-        {
-            throw new ParameterInvalidException();
-        }
-        
-        try
+        ValidateMessage(roomId, null, model);
+
+        await ExecuteWithErrorHandling(async () =>
         {
             var domain = _mapper.Map<Message>(model);
             domain.InitCreation();
@@ -22,40 +19,23 @@ public partial class RoomHub
             var result = _mapper.Map<MessageModel>(domain);
             await BroadcastEvent(roomId, ReceiveMessageRoom, result);
             await _service.AddAsync(domain);
-        }
-        catch (Exception ex)
-        {
-            await Clients.Caller.SendAsync("Error", "Failed to send message: " + ex.Message);
-            throw;
-        }
+        }, "Failed to send message");
     }
 
     public async Task DeleteMessage(Guid roomId, Guid messageId)
     {
-        if (messageId == Guid.Empty || roomId == Guid.Empty)
-        {
-            throw new ParameterInvalidException();
-        }
-
-        try
+        ValidateMessage(roomId, messageId);
+        await ExecuteWithErrorHandling(async () =>
         {
             await BroadcastEvent(roomId, DeleteMessageRoom, messageId);
             await _service.DeleteByIdAsync(messageId);
-        }
-        catch (Exception ex)
-        {
-            await Clients.Caller.SendAsync("Error", "Failed to send message: " + ex.Message);
-            throw;
-        }
+        }, "Failed to delete message");
     }
 
     public async Task UpdateMessage(Guid roomId, Guid messageId, MessageCreationModel model)
     {
-        if (messageId == Guid.Empty || roomId == Guid.Empty || model == null)
-        {
-            throw new ParameterInvalidException();
-        }
-        try
+        ValidateMessage(roomId, messageId, model);
+        await ExecuteWithErrorHandling(async () =>
         {
             var domain = _mapper.Map<Message>(model);
             domain.Id = messageId;
@@ -66,16 +46,70 @@ public partial class RoomHub
             var result = _mapper.Map<MessageModel>(domain);
             await BroadcastEvent(roomId, UpdateMessageRoom, result);
             await _service.UpdateAsync(messageId, domain);
-        }
-        catch (Exception ex)
+        }, "Failed to update message");
+    }
+
+    public async Task SendMessageReaction(Guid roomId, Guid reactionId, MessageReactionCreationModel model)
+    {
+        ValidateMessage(roomId, reactionId, model);
+        await ExecuteWithErrorHandling(async () =>
         {
-            await Clients.Caller.SendAsync("Error", "Failed to send message: " + ex.Message);
-            throw;
-        }
+            var domain = _mapper.Map<MessageReaction>(model);
+            domain.InitCreation();
+            var result = _mapper.Map<MessageReactionModel>(domain);
+            await BroadcastEvent(roomId, ReceiveMessageRoom, result);
+            await _messageReactionService.AddAsync(domain);
+        }, "Failed to send message reaction");
+    }
+
+    public async Task DeleteMessageReaction(Guid roomId, Guid reactionId)
+    {
+        ValidateMessage(roomId, reactionId);
+        await ExecuteWithErrorHandling(async () =>
+        {
+            await BroadcastEvent(roomId, DeleteMessageRoom, reactionId);
+            await _messageReactionService.DeleteByIdAsync(reactionId);
+        }, "Failed to delete message reaction");
+    }
+
+    public async Task UpdateMessageReaction(Guid roomId, Guid reactionId, MessageReactionCreationModel model)
+    {
+        ValidateMessage(roomId, reactionId, model);
+        await ExecuteWithErrorHandling(async () =>
+        {
+            var domain = _mapper.Map<MessageReaction>(model);
+            domain.Id = reactionId;
+            domain.UpdateModify();
+            var result = _mapper.Map<MessageReactionModel>(domain);
+            await BroadcastEvent(roomId, UpdateMessageRoom, result);
+            await _messageReactionService.UpdateAsync(reactionId, domain);
+        }, "Failed to update message reaction");
     }
 
     private async Task BroadcastEvent(Guid roomId, string eventName, object data)
     {
         await Clients.Group(roomId.ToString()).SendAsync(eventName, data);
     }
+    private async Task ExecuteWithErrorHandling(Func<Task> action, string errorMessage)
+    {
+        try
+        {
+            await action();
+        }
+        catch (Exception ex)
+        {
+            await Clients.Caller.SendAsync("Error", $"{errorMessage}: {ex.Message}");
+            throw;
+        }
+    }
+    private static void ValidateMessage(Guid roomId, Guid? targetId = null, object? model = null)
+    {
+        if (roomId == Guid.Empty ||
+            (targetId.HasValue && targetId.Value == Guid.Empty) ||
+            (model != null && model == null))
+        {
+            throw new ParameterInvalidException();
+        }
+    }
+
 }

@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(ISearchHistoryService))]
 internal class SearchHistoryService(
@@ -30,4 +29,7 @@ internal class SearchHistoryService(
 
     public async Task<List<string>> GetPopularSearchSuggestionsAsync(string prefix, int limit)
     => await _repository.GetPopularSearchSuggestionsAsync(prefix, limit);
+
+    public async Task<List<string>> GetSearchByUserIdAsync(Guid userId, int limit)
+    => await _repository.GetSearchByUserIdAsync(userId, limit);
 }
