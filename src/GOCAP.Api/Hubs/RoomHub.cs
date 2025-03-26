@@ -3,7 +3,6 @@
 public partial class RoomHub(ILogger<RoomHub> _logger,
     IUserService _userService, 
     IMessageService _service,
-    IUserContextService _userContextService,
     IMapper _mapper) : Hub
 {
 

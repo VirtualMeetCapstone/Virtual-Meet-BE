@@ -19,7 +19,6 @@ public partial class RoomHub
             domain.InitCreation();
             domain.RoomId = roomId;
             domain.Type = MessageType.Room;
-            domain.SenderId = _userContextService.Id;
             var result = _mapper.Map<MessageModel>(domain);
             await BroadcastEvent(roomId, ReceiveMessageRoom, result);
             await _service.AddAsync(domain);
@@ -64,7 +63,6 @@ public partial class RoomHub
             domain.IsEdited = true;
             domain.RoomId = roomId;
             domain.Type = MessageType.Room;
-            domain.SenderId = _userContextService.Id;
             var result = _mapper.Map<MessageModel>(domain);
             await BroadcastEvent(roomId, UpdateMessageRoom, result);
             await _service.UpdateAsync(messageId, domain);
