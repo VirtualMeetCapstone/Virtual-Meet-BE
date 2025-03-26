@@ -6,6 +6,10 @@ public partial class RoomHub
     private static readonly string DeleteMessageRoom = "DeleteMessage";
     private static readonly string UpdateMessageRoom = "UpdateMessage";
 
+    private static readonly string ReceiveMessageReactionRoom = "ReceiveMessageReactionRoom";
+    private static readonly string DeleteMessageReactionRoom = "DeleteMessageReactionRoom";
+    private static readonly string UpdateMessageReactionRoom = "UpdateMessageReactionRoom";
+
     public async Task SendMessage(Guid roomId, MessageCreationModel model)
     {
         ValidateMessage(roomId, null, model);
@@ -49,15 +53,15 @@ public partial class RoomHub
         }, "Failed to update message");
     }
 
-    public async Task SendMessageReaction(Guid roomId, Guid reactionId, MessageReactionCreationModel model)
+    public async Task SendMessageReaction(Guid roomId, MessageReactionCreationModel model)
     {
-        ValidateMessage(roomId, reactionId, model);
+        ValidateMessage(roomId, null, model);
         await ExecuteWithErrorHandling(async () =>
         {
             var domain = _mapper.Map<MessageReaction>(model);
             domain.InitCreation();
             var result = _mapper.Map<MessageReactionModel>(domain);
-            await BroadcastEvent(roomId, ReceiveMessageRoom, result);
+            await BroadcastEvent(roomId, ReceiveMessageReactionRoom, result);
             await _messageReactionService.AddAsync(domain);
         }, "Failed to send message reaction");
     }
@@ -67,7 +71,7 @@ public partial class RoomHub
         ValidateMessage(roomId, reactionId);
         await ExecuteWithErrorHandling(async () =>
         {
-            await BroadcastEvent(roomId, DeleteMessageRoom, reactionId);
+            await BroadcastEvent(roomId, DeleteMessageReactionRoom, reactionId);
             await _messageReactionService.DeleteByIdAsync(reactionId);
         }, "Failed to delete message reaction");
     }
@@ -81,7 +85,7 @@ public partial class RoomHub
             domain.Id = reactionId;
             domain.UpdateModify();
             var result = _mapper.Map<MessageReactionModel>(domain);
-            await BroadcastEvent(roomId, UpdateMessageRoom, result);
+            await BroadcastEvent(roomId, UpdateMessageReactionRoom, result);
             await _messageReactionService.UpdateAsync(reactionId, domain);
         }, "Failed to update message reaction");
     }
