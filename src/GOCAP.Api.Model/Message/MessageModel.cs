@@ -8,6 +8,7 @@ public class MessageModel
     public string Content { get; set; } = string.Empty;
     public List<Media>? Attachments { get; set; }
     public bool IsPinned { get; set; }
+    public bool IsEdited { get; set; }
     public Guid? ParentId { get; set; }
     public Guid? RoomId { get; set; }
     public Guid? GroupId { get; set; }

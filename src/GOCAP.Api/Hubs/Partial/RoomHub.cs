@@ -12,43 +12,57 @@ public partial class RoomHub
 
     public async Task SendMessage(Guid roomId, MessageCreationModel model)
     {
-        ValidateMessage(roomId, null, model);
-
         await ExecuteWithErrorHandling(async () =>
         {
-            var domain = _mapper.Map<Message>(model);
-            domain.InitCreation();
-            domain.RoomId = roomId;
-            domain.Type = MessageType.Room;
-            var result = _mapper.Map<MessageModel>(domain);
+            var result = new MessageModel
+            {
+                Id = Guid.NewGuid(),
+                SenderId = model.SenderId,
+                Content = model.Content,
+                Attachments = model.Attachments,
+                IsPinned = model.IsPinned,
+                ParentId = model.ParentId,
+                Type = MessageType.Room,
+                RoomId = roomId,
+                CreateTime = DateTime.Now.Ticks,
+            };
             await BroadcastEvent(roomId, ReceiveMessageRoom, result);
+            ValidateMessage(roomId, null, model);
+            var domain = _mapper.Map<Message>(result);
             await _service.AddAsync(domain);
         }, "Failed to send message");
     }
 
     public async Task DeleteMessage(Guid roomId, Guid messageId)
     {
-        ValidateMessage(roomId, messageId);
         await ExecuteWithErrorHandling(async () =>
         {
             await BroadcastEvent(roomId, DeleteMessageRoom, messageId);
+            ValidateMessage(roomId, messageId);
             await _service.DeleteByIdAsync(messageId);
         }, "Failed to delete message");
     }
 
     public async Task UpdateMessage(Guid roomId, Guid messageId, MessageCreationModel model)
     {
-        ValidateMessage(roomId, messageId, model);
         await ExecuteWithErrorHandling(async () =>
         {
-            var domain = _mapper.Map<Message>(model);
-            domain.Id = messageId;
-            domain.UpdateModify();
-            domain.IsEdited = true;
-            domain.RoomId = roomId;
-            domain.Type = MessageType.Room;
-            var result = _mapper.Map<MessageModel>(domain);
+            var result = new MessageModel
+            {
+                Id = messageId,
+                SenderId = model.SenderId,
+                Content = model.Content,
+                Attachments = model.Attachments,
+                IsPinned = model.IsPinned,
+                ParentId = model.ParentId,
+                Type = MessageType.Room,
+                RoomId = roomId,
+                IsEdited = true,
+                LastModifyTime = DateTime.Now.Ticks,
+            };
             await BroadcastEvent(roomId, UpdateMessageRoom, result);
+            ValidateMessage(roomId, messageId, model);
+            var domain = _mapper.Map<Message>(result);
             await _service.UpdateAsync(messageId, domain);
         }, "Failed to update message");
     }
