@@ -132,7 +132,14 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task SendRaiseHand(string username, string roomId)
     {
-        await Clients.Group(roomId).SendAsync("ReceiveRaiseHand", username);
+        Console.WriteLine($"📢 Emotion Sent - User: {username}, Room: {roomId}");
+
+        await Clients.OthersInGroup(roomId).SendAsync("ReceiveRaiseHand", username);
+    }
+
+    public async Task SendLowerHand(string username, string roomId)
+    {
+        await Clients.OthersInGroup(roomId).SendAsync("ReceiveLowerHand", username);
     }
 
     public async Task SendEmotion(string username, string roomId, string type, double x, double y)
