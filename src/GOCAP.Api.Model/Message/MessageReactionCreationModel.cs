@@ -1,6 +1,6 @@
-﻿namespace GOCAP.Domain;
+﻿namespace GOCAP.Api.Model;
 
-public class MessageReaction : DateTrackingBase
+public class MessageReactionCreationModel
 {
     public Guid MessageId { get; set; }
     public Guid UserId { get; set; }

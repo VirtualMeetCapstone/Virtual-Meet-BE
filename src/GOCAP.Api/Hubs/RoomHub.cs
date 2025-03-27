@@ -1,7 +1,10 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public class RoomHub(ILogger<RoomHub> _logger,
-    IUserService _userService) : Hub
+public partial class RoomHub(ILogger<RoomHub> _logger,
+    IUserService _userService, 
+    IMessageService _service,
+    IMessageReactionService _messageReactionService,
+    IMapper _mapper) : Hub
 {
 
     public async Task JoinRoom(string userId, string roomId)
@@ -13,7 +16,7 @@ public class RoomHub(ILogger<RoomHub> _logger,
 
         // Initialize room if it doesn't exist
         if (!RoomStateManager.roomPeers.ContainsKey(roomId))
-            RoomStateManager.roomPeers[roomId] = new List<PeerInfo>();
+            RoomStateManager.roomPeers[roomId] = [];
 
         // Kiểm tra nếu user đã tồn tại trong phòng
         var existingPeer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.UserId == userId);
@@ -84,10 +87,9 @@ public class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task LeaveRoom(string roomId)
     {
-        if (RoomStateManager.roomPeers.ContainsKey(roomId))
+        if (RoomStateManager.roomPeers.TryGetValue(roomId, out List<PeerInfo>? value))
         {
-            var peer = RoomStateManager.roomPeers[roomId]
-                .FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+            var peer = value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
 
             if (peer != null)
             {
@@ -114,10 +116,9 @@ public class RoomHub(ILogger<RoomHub> _logger,
         }
     }
 
-
     public async Task SendShare()
     {
-        if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
+        if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo? user))
         {
             _logger.LogInformation("🔁 [SHARE] {User} shared in Room {RoomId}", user.Name, user.RoomId);
             RoomStateManager.SharingUsers.TryAdd(user.RoomId,true);
@@ -175,7 +176,7 @@ public class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task GetRoomState()
     {
-        if (!RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo user))
+        if (!RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo? user))
         {
             _logger.LogError("❌ [ERROR] GetRoomState failed - User not found");
             return;
@@ -215,7 +216,6 @@ public class RoomHub(ILogger<RoomHub> _logger,
         _logger.LogInformation("📡 Sending room state for {RoomId}: {VideoId} at {Time}s", roomId, roomState.VideoId, roomState.Time);
         await Clients.Client(connectionId).SendAsync("ReceiveRoomState", roomState);
     }
-
 
     public static int GetRoomUserCount(string roomId)
     {
@@ -274,7 +274,7 @@ public class RoomHub(ILogger<RoomHub> _logger,
     }
 
     // Handle disconnections
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         // Find which rooms the user is in
         foreach (var room in RoomStateManager.roomPeers)

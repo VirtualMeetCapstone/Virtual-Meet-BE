@@ -1,5 +1,4 @@
-﻿
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(ISearchHistoryRepository))]
 internal class SearchHistoryRepository(AppMongoDbContext context) : MongoRepositoryBase<SearchHistoryEntity>(context), ISearchHistoryRepository
@@ -25,6 +24,20 @@ internal class SearchHistoryRepository(AppMongoDbContext context) : MongoReposit
                                 .Limit(limit)
                                 .Project(x => x.Query)
                                 .ToListAsync();
+
+        return results;
+    }
+
+    public async Task<List<string>> GetSearchByUserIdAsync(Guid userId, int limit)
+    {
+        var filter = Builders<SearchHistoryEntity>.Filter.Eq(x => x.UserId, userId);
+
+        var results = await _context.SearchHistories
+            .Find(filter)
+            .SortByDescending(x => x.CreateTime)
+            .Limit(limit)
+            .Project(x => x.Query)
+            .ToListAsync();
 
         return results;
     }

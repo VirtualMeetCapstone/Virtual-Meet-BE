@@ -3,8 +3,8 @@
 public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
 {
     private static readonly string ReceiveMessage = "ReceiveMessage";
-    private static readonly string DeleteMessage = "DeleteMessage";
-    private static readonly string UpdateMessage = "UpdateMessage";
+    private static readonly string DeleteMessage  = "DeleteMessage";
+    private static readonly string UpdateMessage  = "UpdateMessage";
 
     public async Task Send(Guid targetId, MessageType messageType, MessageCreationModel model)
     {
@@ -26,6 +26,10 @@ public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
         var domain = _mapper.Map<Message>(model);
         domain.UpdateModify();
         domain.IsEdited = true;
+        if (model.IsPinned)
+        {
+            domain.IsPinned = model.IsPinned;
+        }
         AssignTarget(domain, messageType, targetId);
         await BroadcastEvent(targetId, messageType, UpdateMessage, domain);
         await _service.UpdateAsync(messageId, domain);
