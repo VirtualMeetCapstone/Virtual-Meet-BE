@@ -1,4 +1,4 @@
-﻿namespace GOCAP.Test;
+﻿namespace GOCAP.Tests.Unit;
 
 public class PostRepositoryTests
 {
