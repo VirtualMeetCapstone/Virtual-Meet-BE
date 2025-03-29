@@ -35,11 +35,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Producer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Consumer", "GOCAP.Messaging.Consumer\GOCAP.Messaging.Consumer.csproj", "{18C4D141-686E-412C-8D8E-899535BD7A89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.IntegrationTests", "GOCAP.IntegrationTests\GOCAP.IntegrationTests.csproj", "{68AA4B15-A906-4837-B352-2D8D09D3CCAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Tests.Integration", "GOCAP.Tests.Integration\GOCAP.Tests.Integration.csproj", "{C395F8F5-3CBE-72D7-D653-A5267996708C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GOCAP.Tests", "GOCAP.Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.UnitTests", "GOCAP.Test\UnitTests\GOCAP.UnitTests.csproj", "{0A854BFC-3192-3E36-D2EE-CCC651477CA7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Tests.Unit", "GOCAP.Tests.Unit\GOCAP.Tests.Unit.csproj", "{1E134D18-FB8A-4B21-5D58-BF2038159941}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,21 +109,17 @@ Global
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C395F8F5-3CBE-72D7-D653-A5267996708C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C395F8F5-3CBE-72D7-D653-A5267996708C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C395F8F5-3CBE-72D7-D653-A5267996708C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C395F8F5-3CBE-72D7-D653-A5267996708C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E134D18-FB8A-4B21-5D58-BF2038159941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E134D18-FB8A-4B21-5D58-BF2038159941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E134D18-FB8A-4B21-5D58-BF2038159941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E134D18-FB8A-4B21-5D58-BF2038159941}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{68AA4B15-A906-4837-B352-2D8D09D3CCAA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{0A854BFC-3192-3E36-D2EE-CCC651477CA7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C5CE0A76-B1EB-4313-B57C-1E9A465CE3C3}
