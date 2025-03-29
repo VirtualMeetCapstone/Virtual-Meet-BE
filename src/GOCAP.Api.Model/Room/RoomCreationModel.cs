@@ -3,7 +3,7 @@
 public class RoomCreationModel
 {
     public Guid OwnerId { get; set; }
-    public PrivacyType Privacy { get; set; } = PrivacyType.Public;
+    public PrivacyType? Privacy { get; set; }
     public string Topic { get; set; } = "";
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }

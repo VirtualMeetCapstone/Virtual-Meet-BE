@@ -35,11 +35,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Producer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.Messaging.Consumer", "GOCAP.Messaging.Consumer\GOCAP.Messaging.Consumer.csproj", "{18C4D141-686E-412C-8D8E-899535BD7A89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.UnitTests", "GOCAP.UnitTests\GOCAP.UnitTests.csproj", "{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.IntegrationTests", "GOCAP.IntegrationTests\GOCAP.IntegrationTests.csproj", "{68AA4B15-A906-4837-B352-2D8D09D3CCAA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GOCAP.Tests", "GOCAP.Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GOCAP.UnitTests", "GOCAP.Test\UnitTests\GOCAP.UnitTests.csproj", "{0A854BFC-3192-3E36-D2EE-CCC651477CA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,21 +111,21 @@ Global
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18C4D141-686E-412C-8D8E-899535BD7A89}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68AA4B15-A906-4837-B352-2D8D09D3CCAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A854BFC-3192-3E36-D2EE-CCC651477CA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{ED9E13A0-366A-4BB0-9464-0B099B4E4F0B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{68AA4B15-A906-4837-B352-2D8D09D3CCAA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{0A854BFC-3192-3E36-D2EE-CCC651477CA7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C5CE0A76-B1EB-4313-B57C-1E9A465CE3C3}
