@@ -2,24 +2,64 @@
 
 public class RedisService(IConnectionMultiplexer redisConnection) : IRedisService
 {
-    private readonly IDatabase _db = redisConnection.GetDatabase(); 
+    private readonly IConnectionMultiplexer _redis = redisConnection;
+   
+    private IDatabase GetDatabase() => _redis.GetDatabase();
 
-    public async Task SetAsync(string key, string value) => await _db.StringSetAsync(key, value);
-    public async Task<string?> GetAsync(string key) => await _db.StringGetAsync(key);
-    public async Task DeleteAsync(string key) => await _db.KeyDeleteAsync(key);
-    public async Task<bool> ExistsAsync(string key) => await _db.KeyExistsAsync(key);
-    public async Task<long> IncrementAsync(string key, long value = 1) => await _db.StringIncrementAsync(key, value);
-    public async Task<long> DecrementAsync(string key, long value = 1) => await _db.StringDecrementAsync(key, value);
-    public async Task SetExpiryAsync(string key, TimeSpan expiry) => await _db.KeyExpireAsync(key, expiry);
-    public async Task SetHashFieldAsync(string hashKey, string field, string value) => await _db.HashSetAsync(hashKey, field, value);
-    public async Task<string?> GetHashFieldAsync(string hashKey, string field) => await _db.HashGetAsync(hashKey, field);
-    public async Task<HashEntry[]> GetAllHashFieldsAsync(string hashKey) => await _db.HashGetAllAsync(hashKey);
-    public async Task PushLeftAsync(string key, string value) => await _db.ListLeftPushAsync(key, value);
-    public async Task PushRightAsync(string key, string value) => await _db.ListRightPushAsync(key, value);
-    public async Task<string?> PopLeftAsync(string key) => await _db.ListLeftPopAsync(key);
-    public async Task<string?> PopRightAsync(string key) => await _db.ListRightPopAsync(key);
-    public async Task AddToSetAsync(string key, string value) => await _db.SetAddAsync(key, value);
-    public async Task<bool> IsMemberOfSetAsync(string key, string value) => await _db.SetContainsAsync(key, value);
-    public async Task AddToSortedSetAsync(string key, string value, double score) => await _db.SortedSetAddAsync(key, value, score);
-    public async Task<SortedSetEntry[]> GetSortedSetByRankAsync(string key, int start, int stop) => await _db.SortedSetRangeByRankWithScoresAsync(key, start, stop);
+    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
+    {
+        var json = JsonHelper.Serialize(value);
+        await GetDatabase().StringSetAsync(key, json, expiry).ConfigureAwait(false);
+    }
+
+    public async Task<T?> GetAsync<T>(string key)
+    {
+        var value = await GetDatabase().StringGetAsync(key).ConfigureAwait(false);
+        return value.HasValue ? JsonHelper.Deserialize<T>(value!) : default;
+    }
+
+    public async Task DeleteAsync(string key) => await GetDatabase().KeyDeleteAsync(key).ConfigureAwait(false);
+    
+    public async Task<bool> ExistsAsync(string key) => await GetDatabase().KeyExistsAsync(key).ConfigureAwait(false);
+    
+    public async Task<long> IncrementAsync(string key, long value = 1) => await GetDatabase().StringIncrementAsync(key, value).ConfigureAwait(false);
+   
+    public async Task<long> DecrementAsync(string key, long value = 1) => await GetDatabase().StringDecrementAsync(key, value).ConfigureAwait(false);
+   
+    public async Task SetExpiryAsync(string key, TimeSpan expiry) => await GetDatabase().KeyExpireAsync(key, expiry).ConfigureAwait(false);
+
+    public async Task SetHashFieldAsync(string hashKey, string field, string value) => await GetDatabase().HashSetAsync(hashKey, field, value).ConfigureAwait(false);
+  
+    public async Task<string?> GetHashFieldAsync(string hashKey, string field) => await GetDatabase().HashGetAsync(hashKey, field).ConfigureAwait(false);
+  
+    public async Task<Dictionary<string, string>> GetAllHashFieldsAsync(string hashKey)
+    {
+        var entries = await GetDatabase().HashGetAllAsync(hashKey).ConfigureAwait(false);
+        return entries.ToDictionary(x => x.Name.ToString(), x => x.Value.ToString());
+    }
+
+    public async Task PushLeftAsync(string key, string value) => await GetDatabase().ListLeftPushAsync(key, value).ConfigureAwait(false);
+  
+    public async Task PushRightAsync(string key, string value) => await GetDatabase().ListRightPushAsync(key, value).ConfigureAwait(false);
+   
+    public async Task<string?> PopLeftAsync(string key) => await GetDatabase().ListLeftPopAsync(key).ConfigureAwait(false);
+   
+    public async Task<string?> PopRightAsync(string key) => await GetDatabase().ListRightPopAsync(key).ConfigureAwait(false);
+
+    public async Task AddToSetAsync(string key, string value) => await GetDatabase().SetAddAsync(key, value).ConfigureAwait(false);
+  
+    public async Task<bool> IsMemberOfSetAsync(string key, string value) => await GetDatabase().SetContainsAsync(key, value).ConfigureAwait(false);
+
+    public async Task AddToSortedSetAsync(string key, string value, double score) => await GetDatabase().SortedSetAddAsync(key, value, score).ConfigureAwait(false);
+  
+    public async Task<bool> RemoveFromSortedSetAsync(string key, string value) => await GetDatabase().SortedSetRemoveAsync(key, value).ConfigureAwait(false);
+
+    public async Task<SortedSetEntry[]> GetSortedSetByRankAsync(string key, int start, int stop) => await GetDatabase().SortedSetRangeByRankWithScoresAsync(key, start, stop).ConfigureAwait(false);
+
+    public Task<IEnumerable<string>> GetKeysByPatternAsync(string pattern)
+    {
+        var server = _redis.GetServer(_redis.GetEndPoints().First());
+        var keys = server.Keys(pattern: pattern).Select(k => k.ToString());
+        return Task.FromResult(keys);
+    }
 }
