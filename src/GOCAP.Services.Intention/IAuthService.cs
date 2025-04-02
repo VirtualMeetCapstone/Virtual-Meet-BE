@@ -6,6 +6,7 @@ public interface IAuthService
 {
     Task<GoogleJsonWebSignature.Payload> VerifyGoogleTokenAsync(string idToken);
     Task<User> GetOrCreateUserAsync(GoogleJsonWebSignature.Payload payload);
-    Task<string> GenerateJwtTokenAsync(User user);
-    string GenerateRefreshTokenAsync(Guid userId);
+    Task<TokenResponse> GenerateJwtTokenAsync(User user);
+    Task<TokenResponse> RefreshTokensAsync(RefreshToken domain);
+    Task<OperationResult> LogoutAsync(RefreshToken domain);
 }
