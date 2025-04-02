@@ -4,7 +4,8 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 {
 	public UserModelMapperProfile()
 	{
-		CreateMap<User, UserModel>().ReverseMap();
+        CreateMap<RefreshToken, RefreshTokenModel>().ReverseMap();
+        CreateMap<User, UserModel>().ReverseMap();
 		CreateMap<User, UserProfileModel>().ReverseMap();
 
 		CreateMap<User, UserUpdationModel>()
