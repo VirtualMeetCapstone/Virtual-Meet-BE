@@ -47,6 +47,7 @@ if (isProductionEnviroment)
 }
 app.UseCors();
 app.UseRouting();
+app.UseWebSockets();
 app.UseIpRateLimiting();
 
 app.UseAuthentication();

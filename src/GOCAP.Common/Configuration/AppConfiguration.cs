@@ -52,4 +52,14 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
     /// <returns>string</returns>
     public string GetDefaultDomain()
     => _configuration.GetSection("Domain").Value ?? "";
+
+    /// <summary>
+    /// Get LiveKit settings.
+    /// </summary>
+    public LiveKitSettings GetLiveKitSettings()
+    {
+        var liveKitSettings = new LiveKitSettings();
+        _configuration.GetSection("LiveKit").Bind(liveKitSettings);
+        return liveKitSettings;
+    }
 }
