@@ -273,6 +273,11 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         );
     }
 
+    public async Task SendSubtitle(string roomId, string username, string subtitle, string sourceLang)
+    {
+        await Clients.Group(roomId).SendAsync("ReceiveSubtitle", username, subtitle, sourceLang);
+    }
+
     // Handle disconnections
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
