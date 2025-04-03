@@ -7,4 +7,5 @@ public interface IAppConfiguration
     JwtSettings GetJwtSettings();
     FileSettings GetFileSettings();
     string GetDefaultDomain();
+    LiveKitSettings GetLiveKitSettings();
 }

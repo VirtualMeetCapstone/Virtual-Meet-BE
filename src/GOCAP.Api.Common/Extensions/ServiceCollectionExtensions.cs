@@ -16,6 +16,9 @@ public static class ServiceCollectionExtensions
         // Configure email service.
         services.AddEmailService(configuration);
 
+        // Configure LiveKit settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetLiveKitSettings());
+
         // Configure azure blob storage.
         services.AddBlobStorageService(configuration);
 
