@@ -34,7 +34,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         }
 
         // Cập nhật danh sách kết nối mới của user
-        RoomStateManager.Users[Context.ConnectionId] = new UserInfo
+        RoomStateManager.Users[Context.ConnectionId] = new RoomConnectedUserModel
         {
             Name = userId,
             RoomId = roomId
@@ -44,7 +44,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         var user = await _userService.GetUserProfileAsync(guidID);
         
         // Tạo thông tin peer mới
-        var peerInfo = new PeerInfo
+        var peerInfo = new RoomPeerModel
         {
             PeerId = Context.ConnectionId,
             UserName = user.Name,
@@ -84,10 +84,9 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     }
 
-
     public async Task LeaveRoom(string roomId)
     {
-        if (RoomStateManager.roomPeers.TryGetValue(roomId, out List<PeerInfo>? value))
+        if (RoomStateManager.roomPeers.TryGetValue(roomId, out List<RoomPeerModel>? value))
         {
             var peer = value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
 
@@ -118,7 +117,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task SendShare()
     {
-        if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo? user))
+        if (RoomStateManager.Users.TryGetValue(Context.ConnectionId, out RoomConnectedUserModel? user))
         {
             _logger.LogInformation("🔁 [SHARE] {User} shared in Room {RoomId}", user.Name, user.RoomId);
             RoomStateManager.SharingUsers.TryAdd(user.RoomId,true);
@@ -144,15 +143,15 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task SendEmotion(string username, string roomId, string type, double x, double y)
     {
-        Console.WriteLine($"📢 Emotion Sent - User: {username}, Room: {roomId}, Type: {type}, Position: ({x}, {y})");
-
+        _logger.LogInformation("Sent - User: {Username}, Room: {RoomId}, Type: {Type}, Position: ({X}, {Y})",
+            username, roomId, type, x, y);
         await Clients.OthersInGroup(roomId).SendAsync("ReceiveEmotion", username, type, x, y);
     }
 
 
     public async Task SelectVideo(string roomId, string videoId)
     {
-        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new RoomVideoStateModel());
         state.VideoId = videoId;
         state.Timestamp = 0;
         state.IsPaused = true;
@@ -163,7 +162,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task UpdatePlayerStatus(string roomId, int status, double time)
     {
-        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new RoomVideoStateModel());
 
         state.Timestamp = time;
         state.IsPaused = (status == 2);
@@ -176,7 +175,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task GetRoomState()
     {
-        if (!RoomStateManager.Users.TryGetValue(Context.ConnectionId, out UserInfo? user))
+        if (!RoomStateManager.Users.TryGetValue(Context.ConnectionId, out RoomConnectedUserModel? user))
         {
             _logger.LogError("❌ [ERROR] GetRoomState failed - User not found");
             return;
@@ -187,7 +186,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
 
     public async Task SendRoomState(string roomId, string connectionId)
     {
-        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new VideoState());
+        var state = RoomStateManager.RoomStates.GetOrAdd(roomId, new RoomVideoStateModel());
 
         // 🔥 Kiểm tra nếu phòng chỉ có 1 người và chưa có video
         if (GetRoomUserCount(roomId) == 1 && string.IsNullOrEmpty(state.VideoId))
@@ -205,7 +204,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
             actualTime += (DateTime.UtcNow - state.LastUpdated).TotalSeconds;
         }
 
-        var roomState = new RoomState
+        var roomState = new RoomPlaybackStateModel
         {
             VideoId = state.VideoId,
             Time = actualTime, // 🔥 Thời gian thực tế
@@ -290,18 +289,6 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         await base.OnDisconnectedAsync(exception);
     }
 
-
-    public class RoomState
-    {
-        [JsonProperty("videoId")]
-        public string VideoId { get; set; } = "";
-        [JsonProperty("time")]
-        public double Time { get; set; }
-        [JsonProperty("isPaused")]
-        public bool IsPaused { get; set; } = true;
-        [JsonProperty("sharing")]
-        public bool Sharing { get; set; } = false;
-    }
 
 }
 

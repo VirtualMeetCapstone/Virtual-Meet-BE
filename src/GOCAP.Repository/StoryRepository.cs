@@ -12,7 +12,7 @@ internal class StoryRepository(AppSqlDbContext context, IMapper _mapper) : SqlRe
                                             .Where(f => f.FollowerId == userId) // Who this user is following
                                             .Select(f => f.FollowingId) // Get followed people list
                                             .ToListAsync();
-
+        followingIds.Add(userId);
         // Filter story list from who user followed
         var currentTime = DateTimeOffset.UtcNow.Ticks;
         var storiesQuery = _context.Stories
