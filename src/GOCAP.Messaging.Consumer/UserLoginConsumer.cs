@@ -11,7 +11,6 @@ public class UserLoginConsumer(
     IAppConfiguration _appConfiguration,
     ILogger<UserLoginConsumer> _logger, IEmailService _emailService) : KafkaConsumerBase(_kafkaSettings, _logger, KafkaConstants.Topics.UserLogin)
 {
-
     protected override async Task ProcessMessageAsync(string message)
     {
         var userLoginEvent = JsonHelper.Deserialize<UserLoginEvent>(message);

@@ -3,7 +3,6 @@
 [RegisterService(typeof(IFollowService))]
 internal class FollowService(
     IUserContextService _userContextService,
-    IUserRepository _userRepository,
     IFollowRepository _repository,
     IKafkaProducer _kafkaProducer,
     IMapper _mapper,

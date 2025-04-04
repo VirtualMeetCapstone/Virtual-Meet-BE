@@ -8,4 +8,5 @@ public interface IAppConfiguration
     FileSettings GetFileSettings();
     string GetDefaultDomain();
     LiveKitSettings GetLiveKitSettings();
+    string? GetEnvironment();
 }

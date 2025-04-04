@@ -63,7 +63,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddServicesFromAssembly(this IServiceCollection services, List<Assembly> assemblies)
     {
-        assemblies?.ForEach(assembly => services.ScanTypes(assembly.GetTypes().Where(type => type.IsClass && !type.IsAbstract).ToList()));
+        assemblies?.ForEach(assembly => services.ScanTypes([.. assembly.GetTypes().Where(type => type.IsClass && !type.IsAbstract)]));
         return services;
     }
 

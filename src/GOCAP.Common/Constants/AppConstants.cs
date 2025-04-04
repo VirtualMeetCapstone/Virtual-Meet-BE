@@ -31,4 +31,12 @@ public static class AppConstants
     // Default media file size
     public const long MaxBlobSize = 1024 * 1024 * 50;
     public const string BlobContainer = "gocap";
+
+    // Enviroment
+    public static class Enviroments
+    {
+        public const string Test = "Test";
+        public const string Development = "Development";
+        public const string Production = "Production";
+    }
 }

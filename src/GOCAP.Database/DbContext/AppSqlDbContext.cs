@@ -43,7 +43,17 @@ public class AppSqlDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(_configuration.GetSqlServerConnectionString());
+        var environment = _configuration.GetEnvironment();
+        if (environment == AppConstants.Enviroments.Test)
+        {
+            // Use InMemoryDatabase for test environment
+            optionsBuilder.UseInMemoryDatabase($"{AppConstants.Enviroments.Test}_{Guid.NewGuid()}");
+        }
+        else
+        {
+            // Use SQL Server for other environments (e.g., Development, Production)
+            optionsBuilder.UseSqlServer(_configuration.GetSqlServerConnectionString());
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace GOCAP.Common;
 
-public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
+public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _hostEnvironment) : IAppConfiguration
 {
 
     /// <summary>
@@ -61,5 +62,14 @@ public class AppConfiguration(IConfiguration _configuration) : IAppConfiguration
         var liveKitSettings = new LiveKitSettings();
         _configuration.GetSection("LiveKit").Bind(liveKitSettings);
         return liveKitSettings;
+    }
+
+    /// <summary>
+    /// Get current enviroment.
+    /// </summary>
+    /// <returns></returns>
+    public string? GetEnvironment()
+    {
+        return _hostEnvironment.EnvironmentName;
     }
 }
