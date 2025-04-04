@@ -4,7 +4,6 @@
 internal class RoomService(
     IRoomRepository _repository,
     IRoomMemberRepository _roomMemberRepository,
-    IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
     IUserContextService _userContextService,
     IUnitOfWork _unitOfWork,
@@ -23,10 +22,6 @@ internal class RoomService(
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Room).Name);
 
-        if (!await _userRepository.CheckExistAsync(room.OwnerId))
-        {
-            throw new ResourceNotFoundException($"User {room.OwnerId} was not found.");
-        }
         if (room.Medias != null && room.Medias.Count > 0)
         {
             var urls = room.Medias.Select(x => x.Url).ToList();
@@ -39,6 +34,7 @@ internal class RoomService(
         }
         room.InitCreation();
         var entity = _mapper.Map<RoomEntity>(room);
+        entity.OwnerId = _userContextService.Id;
         var result = await _repository.AddAsync(entity);
         await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
         {
@@ -62,10 +58,14 @@ internal class RoomService(
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
         var room = await _repository.GetByIdAsync(id);
+        if (room.OwnerId != _userContextService.Id)
+        {
+            throw new ForbiddenException("You are not the owner of this room.");
+        }
         var medias = JsonHelper.Deserialize<List<Media>>(room.Medias);
         if (medias != null && medias.Count > 0)
         {
-            var isFileDeleted = await _blobStorageService.DeleteFilesByUrlsAsync(medias.Select(x => x.Url).ToList());
+            var isFileDeleted = await _blobStorageService.DeleteFilesByUrlsAsync([.. medias.Select(x => x.Url)]);
             if (!isFileDeleted)
             {
                 return new OperationResult(isFileDeleted, "Unexpected error occurs while deleting media file.");
@@ -97,6 +97,10 @@ internal class RoomService(
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
         domain.UpdateModify();
         var entity = await _repository.GetByIdAsync(domain.Id, false);
+        if (entity.OwnerId != _userContextService.Id)
+        {
+            throw new ForbiddenException("You are not the owner of this room.");
+        }
         if (domain.Medias != null && domain.Medias.Count > 0)
         {
             if (!string.IsNullOrEmpty(entity.Medias))

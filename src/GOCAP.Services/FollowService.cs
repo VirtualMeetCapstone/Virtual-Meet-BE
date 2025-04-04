@@ -25,18 +25,8 @@ internal class FollowService(
             throw new ParameterInvalidException();
         }
 
-        if (!await _userRepository.CheckExistAsync(domain.FollowerId))
-        {
-            throw new ResourceNotFoundException($"User {domain.FollowerId} was not found.");
-        }
-
-        if (!await _userRepository.CheckExistAsync(domain.FollowingId))
-        {
-            throw new ResourceNotFoundException($"User {domain.FollowingId} was not found.");
-        }
-
         var result = new OperationResult(true);
-        var follow = await _repository.GetByFollowerAndFollowingAsync(domain.FollowerId, domain.FollowingId);
+        var follow = await _repository.GetByFollowerAndFollowingAsync(_userContextService.Id, domain.FollowingId);
 
         // If existing then remove the follow ( unfollow )
         if (follow != null)
@@ -51,6 +41,7 @@ internal class FollowService(
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Follow).Name);
             domain.InitCreation();
             var entity = _mapper.Map<UserFollowEntity>(domain);
+            entity.FollowerId = _userContextService.Id;
             await _repository.AddAsync(entity);
             await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {

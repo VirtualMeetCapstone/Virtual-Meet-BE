@@ -3,14 +3,9 @@
 namespace GOCAP.Api.Controllers;
 
 [Route("livekit")]
-public class LiveKitController : ApiControllerBase
+public class LiveKitController(LiveKitSettings settings) : ApiControllerBase
 {
-    private readonly LiveKitSettings _settings;
-
-    public LiveKitController(LiveKitSettings settings)
-    {
-        _settings = settings;
-    }
+    private readonly LiveKitSettings _settings = settings;
 
     [HttpPost("token")]
     public ActionResult<string> GenerateToken([FromBody] RoomLiveKitModel request)

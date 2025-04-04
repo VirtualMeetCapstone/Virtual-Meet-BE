@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Api.Hubs;
+﻿using System.Collections.Concurrent;
+
+namespace GOCAP.Api.Model;
 
 public static class RoomStateManager
 {
@@ -7,6 +9,3 @@ public static class RoomStateManager
     public static ConcurrentDictionary<string, RoomConnectedUserModel> Users { get; } = new();
     public static ConcurrentDictionary<string, bool> SharingUsers { get; } = new();
 }
-
-
-
