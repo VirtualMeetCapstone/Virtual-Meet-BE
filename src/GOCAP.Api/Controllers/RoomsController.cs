@@ -25,6 +25,7 @@ public class RoomsController(IRoomService _service,
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<RoomModel> GetById([FromRoute] Guid id)
     {
         var domain = await _service.GetDetailByIdAsync(id);
@@ -38,6 +39,7 @@ public class RoomsController(IRoomService _service,
     /// <returns></returns>
     [HttpPost]
     [ValidateModel]
+    [Authorize]
     public async Task<RoomModel> Create([FromBody] RoomCreationModel model)
     {
         var room = _mapper.Map<Room>(model);
@@ -52,6 +54,8 @@ public class RoomsController(IRoomService _service,
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPatch("{id}")]
+    [ValidateModel]
+    [Authorize]
     public async Task<OperationResult> Update([FromRoute] Guid id, [FromBody] RoomUpdationModel model)
     {
         var domain = _mapper.Map<Room>(model);
@@ -65,6 +69,7 @@ public class RoomsController(IRoomService _service,
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
         return await _service.DeleteByIdAsync(id);

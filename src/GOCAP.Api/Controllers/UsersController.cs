@@ -52,6 +52,7 @@ public class UsersController(IUserService _userService,
 	/// <param name="model"></param>
 	/// <returns></returns>
 	[HttpPost("follow")]
+	[Authorize]
 	public async Task<OperationResult> FollowOrUnfollow([FromBody] FollowCreationModel model)
 	{
 		var follow = _mapper.Map<Follow>(model);
@@ -60,6 +61,7 @@ public class UsersController(IUserService _userService,
 	}
 
     [HttpGet("is-following/{followingId}")]
+    [Authorize]
     public async Task<bool> IsFollowing([FromRoute] Guid followingId)
     {
 		return await _followService.IsFollowingAsync(followingId);
