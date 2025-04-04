@@ -10,36 +10,36 @@ public class AppSqlDbContext
     /// Please always updating the number of db sets and the db sets name by order.
     /// There are 30 db sets.
     /// </summary>
-    public DbSet<GroupEntity> Groups { get; set; }
-    public DbSet<GroupMemberEntity> GroupMembers { get; set; }
-    public DbSet<RoomChannelEntity> RoomChannels { get; set; }
-    public DbSet<RoomEntity> Rooms { get; set; }
-    public DbSet<RoomTagEntity> RoomTags { get; set; }
-    public DbSet<RoomEventEntity> RoomEvents { get; set; }
-    public DbSet<RoomFavouriteEntity> RoomFavourites { get; set; }
-    public DbSet<RoomMemberEntity> RoomMembers { get; set; }
-    public DbSet<RoomMemberRoleEntity> RoomMemberRoles { get; set; }
-    public DbSet<RoomNotificationEntity> RoomNotifications { get; set; }
-    public DbSet<RoomSettingEntity> RoomSettings { get; set; }
-    public DbSet<HashTagEntity> HashTags { get; set; }
-    public DbSet<RoomHashTagEntity> RoomHashTags { get; set; }
-    public DbSet<UserActivityEntity> UserActivities { get; set; }
-    public DbSet<UserBlockEntity> UserBlocks { get; set; }
-    public DbSet<UserEntity> Users { get; set; }
-    public DbSet<UserFollowEntity> UserFollows { get; set; }
-    public DbSet<PostEntity> Posts { get; set; }
-    public DbSet<PostTagEntity> PostTags { get; set; }
-    public DbSet<PostReactionEntity> PostReactions { get; set; }
-    public DbSet<UserRewardEntity> UserRewards { get; set; }
-    public DbSet<UserRoleEntity> UserRoles { get; set; }
-    public DbSet<RoleEntity> Roles { get; set; }
-    public DbSet<RoleHierarchyEntity> RoleHierarchies { get; set; }
-    public DbSet<PermissionEntity> Permissions { get; set; }
-    public DbSet<RolePermissionEntity> RolePermissions { get; set; }
-    public DbSet<StoryEntity> Stories { get; set; }
-    public DbSet<StoryViewEntity> StoryViews { get; set; }
-    public DbSet<StoryReactionEntity> StoryReactions { get; set; }
-    public DbSet<StoryHightLightEntity> StoryHightLights { get; set; }
+    public virtual DbSet<GroupEntity> Groups { get; set; }
+    public virtual DbSet<GroupMemberEntity> GroupMembers { get; set; }
+    public virtual DbSet<RoomChannelEntity> RoomChannels { get; set; }
+    public virtual DbSet<RoomEntity> Rooms { get; set; }
+    public virtual DbSet<RoomTagEntity> RoomTags { get; set; }
+    public virtual DbSet<RoomEventEntity> RoomEvents { get; set; }
+    public virtual DbSet<RoomFavouriteEntity> RoomFavourites { get; set; }
+    public virtual DbSet<RoomMemberEntity> RoomMembers { get; set; }
+    public virtual DbSet<RoomMemberRoleEntity> RoomMemberRoles { get; set; }
+    public virtual DbSet<RoomNotificationEntity> RoomNotifications { get; set; }
+    public virtual DbSet<RoomSettingEntity> RoomSettings { get; set; }
+    public virtual DbSet<HashTagEntity> HashTags { get; set; }
+    public virtual DbSet<RoomHashTagEntity> RoomHashTags { get; set; }
+    public virtual DbSet<UserActivityEntity> UserActivities { get; set; }
+    public virtual DbSet<UserBlockEntity> UserBlocks { get; set; }
+    public virtual DbSet<UserEntity> Users { get; set; }
+    public virtual DbSet<UserFollowEntity> UserFollows { get; set; }
+    public virtual DbSet<PostEntity> Posts { get; set; }
+    public virtual DbSet<PostTagEntity> PostTags { get; set; }
+    public virtual DbSet<PostReactionEntity> PostReactions { get; set; }
+    public virtual DbSet<UserRewardEntity> UserRewards { get; set; }
+    public virtual DbSet<UserRoleEntity> UserRoles { get; set; }
+    public virtual DbSet<RoleEntity> Roles { get; set; }
+    public virtual DbSet<RoleHierarchyEntity> RoleHierarchies { get; set; }
+    public virtual DbSet<PermissionEntity> Permissions { get; set; }
+    public virtual DbSet<RolePermissionEntity> RolePermissions { get; set; }
+    public virtual DbSet<StoryEntity> Stories { get; set; }
+    public virtual DbSet<StoryViewEntity> StoryViews { get; set; }
+    public virtual DbSet<StoryReactionEntity> StoryReactions { get; set; }
+    public virtual DbSet<StoryHightLightEntity> StoryHightLights { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

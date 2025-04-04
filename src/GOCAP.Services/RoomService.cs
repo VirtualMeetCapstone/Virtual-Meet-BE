@@ -1,6 +1,4 @@
-﻿using GOCAP.Services.Intention;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
@@ -140,5 +138,5 @@ internal class RoomService(
     }
 
     public async Task<Room> GetDetailByIdAsync(Guid id)
-    => await _repository.GetDetailByIdAsync(id);
+    => await _repository.GetDetailByIdAsync(id) ?? throw new ResourceNotFoundException($"Room {id} was not found.");
 }

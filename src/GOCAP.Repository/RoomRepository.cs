@@ -78,7 +78,7 @@ internal class RoomRepository(
 
     }
 
-    public async Task<Room> GetDetailByIdAsync(Guid id)
+    public async Task<Room?> GetDetailByIdAsync(Guid id)
     {
         var room = await _context.Rooms
             .AsNoTracking()
@@ -113,6 +113,6 @@ internal class RoomRepository(
             })
             .FirstOrDefaultAsync();
 
-        return room ?? throw new ResourceNotFoundException($"Room {id} was not found.");
+        return room;
     }
 }
