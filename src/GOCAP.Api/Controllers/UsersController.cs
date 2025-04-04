@@ -26,7 +26,8 @@ public class UsersController(IUserService _userService,
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[HttpGet("{id}")]
-	public async Task<UserProfileModel> GetUserProfile([FromRoute] Guid id)
+    [AllowAnonymous]
+    public async Task<UserProfileModel> GetUserProfile([FromRoute] Guid id)
 	{
 		var user = await _userService.GetUserProfileAsync(id);
 		return _mapper.Map<UserProfileModel>(user);
