@@ -12,4 +12,7 @@
     <ProjectReference Include="..\GOCAP.Services.Intention\GOCAP.Services.Intention.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="GOCAP.Tests.Unit" />
+	</ItemGroup>
 </Project>

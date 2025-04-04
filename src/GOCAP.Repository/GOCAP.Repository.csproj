@@ -21,4 +21,7 @@
     <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="GOCAP.Tests.Unit" />
+	</ItemGroup>
 </Project>
