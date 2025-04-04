@@ -1,99 +1,184 @@
-﻿namespace GOCAP.Tests.Unit
+﻿namespace GOCAP.Tests.Unit;
+
+public class RoomRepositoryTests : RepositoryBaseTests
 {
-    public class RoomRepositoryTests
+    private readonly RoomRepository _roomRepository;
+    public RoomRepositoryTests()
     {
-        private readonly Mock<DbSet<RoomEntity>> _roomDbSetMock;
-        private readonly Mock<DbSet<RoomMemberEntity>> _roomMemberDbSetMock;
-        private readonly Mock<DbSet<UserEntity>> _userDbSetMock;
-        private readonly RoomRepository _roomRepository;
-        private readonly Mock<IAppConfiguration> _configurationMock;
-        private readonly Mock<DbContextOptions<AppSqlDbContext>> _dbContextOptionsMock;
-        private readonly Mock<AppSqlDbContext> _dbContextMock;
-
-        public RoomRepositoryTests()
-        {
-            // Mock DbSets
-            _roomDbSetMock = new Mock<DbSet<RoomEntity>>();
-            _roomMemberDbSetMock = new Mock<DbSet<RoomMemberEntity>>();
-            _userDbSetMock = new Mock<DbSet<UserEntity>>();
-
-            // Mock IAppConfiguration
-            _configurationMock = new Mock<IAppConfiguration>();
-            _configurationMock.Setup(cfg => cfg.GetSqlServerConnectionString())
-                              .Returns("your_connection_string_here");
-
-            // Mock DbContextOptions
-            _dbContextOptionsMock = new Mock<DbContextOptions<AppSqlDbContext>>();
-
-            // Mock AppSqlDbContext with constructor parameters
-            _dbContextMock = new Mock<AppSqlDbContext>(_dbContextOptionsMock.Object, _configurationMock.Object);
-
-            // Setup DbSets for DbContext
-            _dbContextMock.Setup(db => db.Rooms).Returns(_roomDbSetMock.Object);
-            _dbContextMock.Setup(db => db.RoomMembers).Returns(_roomMemberDbSetMock.Object);
-            _dbContextMock.Setup(db => db.Users).Returns(_userDbSetMock.Object);
-
-            // Initialize repository
-            _roomRepository = new RoomRepository(_dbContextMock.Object);
-        }
-
-        [Fact]
-        public async Task GetWithPagingAsync_ShouldReturnRooms_WhenSearchTextIsNotEmpty()
-        {
-            // Arrange: Mock Rooms DbSet
-            var rooms = new List<RoomEntity>
-            {
-                new RoomEntity { Id = Guid.NewGuid(), Topic = "TestRoom", Status = RoomStatusType.Available, CreateTime = DateTime.UtcNow.Ticks }
-            }.AsQueryable();
-
-            _roomDbSetMock.As<IQueryable<RoomEntity>>()
-                .Setup(m => m.Provider).Returns(rooms.Provider);
-            _roomDbSetMock.As<IQueryable<RoomEntity>>()
-                .Setup(m => m.Expression).Returns(rooms.Expression);
-            _roomDbSetMock.As<IQueryable<RoomEntity>>()
-                .Setup(m => m.ElementType).Returns(rooms.ElementType);
-            _roomDbSetMock.As<IQueryable<RoomEntity>>()
-                .Setup(m => m.GetEnumerator()).Returns(rooms.GetEnumerator());
-
-            // Arrange: Mock RoomMembers DbSet
-            var roomMembers = new List<RoomMemberEntity>
-            {
-                new RoomMemberEntity { RoomId = rooms.First().Id, UserId = Guid.NewGuid() }
-            }.AsQueryable();
-
-            _roomMemberDbSetMock.As<IQueryable<RoomMemberEntity>>()
-                .Setup(m => m.Provider).Returns(roomMembers.Provider);
-            _roomMemberDbSetMock.As<IQueryable<RoomMemberEntity>>()
-                .Setup(m => m.Expression).Returns(roomMembers.Expression);
-            _roomMemberDbSetMock.As<IQueryable<RoomMemberEntity>>()
-                .Setup(m => m.ElementType).Returns(roomMembers.ElementType);
-            _roomMemberDbSetMock.As<IQueryable<RoomMemberEntity>>()
-                .Setup(m => m.GetEnumerator()).Returns(roomMembers.GetEnumerator());
-
-            // Arrange: Mock Users DbSet
-            var users = new List<UserEntity>
-            {
-                new UserEntity { Id = roomMembers.First().UserId, Name = "User1", Picture = "user1.png" }
-            }.AsQueryable();
-
-            _userDbSetMock.As<IQueryable<UserEntity>>()
-                .Setup(m => m.Provider).Returns(users.Provider);
-            _userDbSetMock.As<IQueryable<UserEntity>>()
-                .Setup(m => m.Expression).Returns(users.Expression);
-            _userDbSetMock.As<IQueryable<UserEntity>>()
-                .Setup(m => m.ElementType).Returns(users.ElementType);
-            _userDbSetMock.As<IQueryable<UserEntity>>()
-                .Setup(m => m.GetEnumerator()).Returns(users.GetEnumerator());
-
-            var queryInfo = new QueryInfo { SearchText = "TestRoom", Skip = 0, Top = 10, NeedTotalCount = true };
-
-            // Act
-            var result = await _roomRepository.GetWithPagingAsync(queryInfo);
-
-            // Assert
-            result.Data.Should().NotBeEmpty();
-            result.Data.FirstOrDefault()?.Topic.Should().Be("TestRoom");
-            result.TotalCount.Should().Be(1);
-        }
+        _roomRepository = new RoomRepository(_dbContext);
     }
+
+    #region GetDetailByIdAsync
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldReturnNull_WhenRoomDoesNotExist()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid(); 
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldReturnNullOwner_WhenUserDoesNotExist()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid();
+        var roomEntity = new RoomEntity
+        {
+            Id = roomId,
+            OwnerId = Guid.NewGuid(), // OwnerId does not exist
+            Topic = "TestRoom",
+            Description = "Test Description",
+            MaximumMembers = 10,
+            Medias = "[]",
+            Status = RoomStatusType.Available,
+            CreateTime = DateTime.UtcNow.Ticks
+        };
+
+        _dbContext.Rooms.Add(roomEntity);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Null(result.Owner); // Owner must be null
+    }
+
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldReturnEmptyMembers_WhenNoMembersExist()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid();
+        var roomEntity = new RoomEntity
+        {
+            Id = roomId,
+            OwnerId = Guid.NewGuid(),
+            Topic = "TestRoom",
+            Description = "Test Description",
+            MaximumMembers = 10,
+            Medias = "[]",
+            Status = RoomStatusType.Available,
+            CreateTime = DateTime.UtcNow.Ticks
+        };
+
+        _dbContext.Rooms.Add(roomEntity);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result.Members); 
+    }
+
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldReturnMembers_WhenMembersExist()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var roomEntity = new RoomEntity
+        {
+            Id = roomId,
+            OwnerId = Guid.NewGuid(),
+            Topic = "TestRoom",
+            Description = "Test Description",
+            MaximumMembers = 10,
+            Medias = "[]",
+            Status = RoomStatusType.Available,
+            CreateTime = DateTime.UtcNow.Ticks
+        };
+
+        _dbContext.Rooms.Add(roomEntity);
+        await _dbContext.SaveChangesAsync();
+
+        var roomMember = new RoomMemberEntity
+        {
+            RoomId = roomId,
+            UserId = userId
+        };
+        _dbContext.RoomMembers.Add(roomMember);
+        await _dbContext.SaveChangesAsync();
+
+        var userEntity = new UserEntity
+        {
+            Id = userId,
+            Name = "Test User",
+            Picture = "{}" 
+        };
+        _dbContext.Users.Add(userEntity);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Members);
+        Assert.Equal("Test User", result.Members.First().Name); 
+    }
+
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldHandleInvalidMedias()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid();
+        var roomEntity = new RoomEntity
+        {
+            Id = roomId,
+            OwnerId = Guid.NewGuid(),
+            Topic = "TestRoom",
+            Description = "Test Description",
+            MaximumMembers = 10,
+            Medias = "InvalidJson", 
+            Status = RoomStatusType.Available,
+            CreateTime = DateTime.UtcNow.Ticks
+        };
+
+        _dbContext.Rooms.Add(roomEntity);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Null(result.Medias); 
+    }
+
+    [Fact]
+    public async Task GetDetailByIdAsync_ShouldReturnCorrectMaximumMembers()
+    {
+        // Arrange
+        var roomId = Guid.NewGuid();
+        var roomEntity = new RoomEntity
+        {
+            Id = roomId,
+            OwnerId = Guid.NewGuid(),
+            Topic = "TestRoom",
+            Description = "Test Description",
+            MaximumMembers = 50, 
+            Medias = "[]",
+            Status = RoomStatusType.Available,
+            CreateTime = DateTime.UtcNow.Ticks
+        };
+
+        _dbContext.Rooms.Add(roomEntity);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _roomRepository.GetDetailByIdAsync(roomId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(50, result.MaximumMembers); 
+    }
+    #endregion
 }

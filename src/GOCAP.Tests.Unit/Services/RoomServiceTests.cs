@@ -4,7 +4,6 @@ public class RoomServiceTests
 {
     private readonly Mock<IRoomRepository> _repositoryMock;
     private readonly Mock<IRoomMemberRepository> _roomMemberRepositoryMock;
-    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<IBlobStorageService> _blobStorageServiceMock;
     private readonly Mock<IUserContextService> _userContextServiceMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
@@ -17,7 +16,6 @@ public class RoomServiceTests
     {
         _repositoryMock = new Mock<IRoomRepository>();
         _roomMemberRepositoryMock = new Mock<IRoomMemberRepository>();
-        _userRepositoryMock = new Mock<IUserRepository>();
         _blobStorageServiceMock = new Mock<IBlobStorageService>();
         _userContextServiceMock = new Mock<IUserContextService>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -29,7 +27,6 @@ public class RoomServiceTests
         _roomService = new RoomService(
             _repositoryMock.Object,
             _roomMemberRepositoryMock.Object,
-            _userRepositoryMock.Object,
             _blobStorageServiceMock.Object,
             _userContextServiceMock.Object,
             _unitOfWorkMock.Object,
@@ -66,7 +63,7 @@ public class RoomServiceTests
     {
         // Arrange
         var queryInfo = new QueryInfo { SearchText = "test" };
-        var queryResult = new QueryResult<Room> { Data = new List<Room> { new Room() } };
+        var queryResult = new QueryResult<Room> { Data = [new()] };
 
         _repositoryMock.Setup(repo => repo.GetWithPagingAsync(queryInfo))
             .ReturnsAsync(queryResult);
