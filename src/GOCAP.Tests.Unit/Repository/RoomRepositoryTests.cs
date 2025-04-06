@@ -181,4 +181,105 @@ public class RoomRepositoryTests : RepositoryBaseTests
         Assert.Equal(50, result.MaximumMembers); 
     }
     #endregion
+
+    #region GetWithPagingAsync
+    [Fact]
+    public async Task GetWithPagingAsync_ShouldReturnAllRooms_WhenNoSearchText()
+    {
+        // Arrange
+        var ownerId1 = Guid.NewGuid();
+        var ownerId2 = Guid.NewGuid();
+
+        _dbContext.Users.AddRange(
+            new UserEntity { Id = ownerId1, Name = "Owner A", Picture = "{}" },
+            new UserEntity { Id = ownerId2, Name = "Owner B", Picture = "{}" }
+        );
+
+        var roomA = new RoomEntity
+        {
+            Id = Guid.NewGuid(),
+            OwnerId = ownerId1,
+            Topic = "Room A",
+            CreateTime = DateTime.UtcNow.AddMinutes(-1).Ticks,
+            Status = RoomStatusType.Available,
+            Medias = "[]"
+        };
+
+        var roomB = new RoomEntity
+        {
+            Id = Guid.NewGuid(),
+            OwnerId = ownerId2,
+            Topic = "Room B",
+            CreateTime = DateTime.UtcNow.Ticks,
+            Status = RoomStatusType.Available,
+            Medias = "[]"
+        };
+
+        _dbContext.Rooms.AddRange(roomA, roomB);
+        await _dbContext.SaveChangesAsync();
+
+        var queryInfo = new QueryInfo
+        {
+            Skip = 0,
+            Top = 10,
+            NeedTotalCount = true
+        };
+
+        // Act
+        var result = await _roomRepository.GetWithPagingAsync(queryInfo);
+
+        // Assert
+        Assert.Equal(2, result.Data.Count());
+        Assert.Equal(2, result.TotalCount);
+
+        // Check ordering by CreateTime descending
+        Assert.Equal("Room B", result.Data.FirstOrDefault()?.Topic);
+        Assert.Equal("Room A", result.Data.Skip(1).FirstOrDefault()?.Topic);
+
+        // Check owner not null
+        Assert.All(result.Data, r =>
+        {
+            Assert.NotNull(r.Owner);
+            Assert.False(string.IsNullOrEmpty(r.Owner.Name));
+        });
+    }
+
+    [Fact]
+    public async Task GetWithPagingAsync_ShouldReturnCorrectTotalCount_WhenNeeded()
+    {
+        // Arrange
+        var room1 = new RoomEntity
+        {
+            Id = Guid.NewGuid(),
+            OwnerId = Guid.NewGuid(),
+            Topic = "Room A",
+            CreateTime = DateTime.UtcNow.Ticks,
+            Status = RoomStatusType.Available,
+            Medias = "[]"
+        };
+        var room2 = new RoomEntity
+        {
+            Id = Guid.NewGuid(),
+            OwnerId = Guid.NewGuid(),
+            Topic = "Room B",
+            CreateTime = DateTime.UtcNow.Ticks,
+            Status = RoomStatusType.Available,
+            Medias = "[]"
+        };
+        _dbContext.Rooms.Add(room1);
+        _dbContext.Rooms.Add(room2);
+        await _dbContext.SaveChangesAsync();
+
+        var queryInfo = new QueryInfo
+        {
+            NeedTotalCount = true
+        };
+
+        // Act
+        var result = await _roomRepository.GetWithPagingAsync(queryInfo);
+
+        // Assert
+        Assert.Equal(2, result.TotalCount);
+    }
+    #endregion
 }

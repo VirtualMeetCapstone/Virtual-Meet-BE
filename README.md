@@ -6,6 +6,7 @@ Welcome to GOCAP Social Media, where we connect and grow our community through e
 - Backend: ASP.NET CORE API 8, C#, Entity Framework Core, LINQ, DI, AutoMapper, Fluent Validation.
 - Database: SQL SERVER, MongoDB.
 - Cache: Redis.
+- Message Queue: Kafka.
 - Frontend: Angular, Typescript, HTML5, CSS, JS, Bootstrap.
 - Tool: Git, Github, Postman.
 
