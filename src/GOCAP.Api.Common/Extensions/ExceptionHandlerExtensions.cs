@@ -16,9 +16,10 @@ public static class ExceptionHandlerExtensions
 {
     public static IApplicationBuilder UseCustomExceptionHandler(this IApplicationBuilder app)
     {
-        app.UseExceptionHandler(errorApp =>
+        app.UseExceptionHandler(new ExceptionHandlerOptions
         {
-            errorApp.Run(async context =>
+            AllowStatusCode404Response = true,
+            ExceptionHandler = async context =>
             {
                 context.Response.OnStarting(PopulateSecurityHeaders, context);
                 var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
@@ -31,25 +32,28 @@ public static class ExceptionHandlerExtensions
                     ErrorMessage = "Unexpected error has occurred.",
                     ErrorCode = (int)ErrorCode.InternalError
                 };
-                if (exception is not null && exception is ValidationException validationException)
+
+                if (exception is ValidationException validationException)
                 {
                     errorModel.ErrorMessage = "Validation failed.";
                     errorModel.ErrorCode = (int)ErrorCode.InvalidRequest;
                     errorModel.ErrorDetails = validationException.Errors.Select(error => error.ErrorMessage).ToList();
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 }
-                if (exception is not null && exception is ApiExceptionBase apiException)
+                else if (exception is ApiExceptionBase apiException)
                 {
                     errorModel.ErrorMessage = apiException.Message;
                     errorModel.ErrorCode = apiException.ErrorCode;
                     context.Response.StatusCode = (int)apiException.StatusCode;
                 }
+
                 context.Response.ContentType = MediaTypeNames.Application.Json;
                 var responseText = JsonSerializer.Serialize(errorModel);
                 context.Response.ContentLength = Encoding.UTF8.GetByteCount(responseText);
                 await context.Response.WriteAsync(responseText);
-            });
+            }
         });
+
         return app;
     }
 
