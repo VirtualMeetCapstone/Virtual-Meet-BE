@@ -1,6 +1,4 @@
-﻿
-
-namespace GOCAP.Repository;
+﻿namespace GOCAP.Repository;
 
 [RegisterService(typeof(IFollowRepository))]
 internal class FollowRepository

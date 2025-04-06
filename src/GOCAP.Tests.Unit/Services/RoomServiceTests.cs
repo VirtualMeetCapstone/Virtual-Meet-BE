@@ -284,7 +284,7 @@ public class RoomServiceTests
         {
             Id = roomId,
             OwnerId = Guid.NewGuid(), // Different owner
-            Medias = JsonHelper.Serialize(new List<Media> { new Media { Url = "https://example.com/media1" } }),
+            Medias = JsonHelper.Serialize(new List<Media> { new() { Url = "https://example.com/media1" } }),
             Topic = "Old Room",
             Description = "Old Description",
             MaximumMembers = 50,
@@ -426,7 +426,7 @@ public class RoomServiceTests
         {
             Id = roomId,
             OwnerId = _userContextServiceMock.Object.Id,
-            Medias = JsonHelper.Serialize(new List<Media> { new Media { Url = "https://example.com/media1" } })
+            Medias = JsonHelper.Serialize(new List<Media> { new() { Url = "https://example.com/media1" } })
         };
 
         _repositoryMock.Setup(r => r.GetByIdAsync(roomId, false)).ReturnsAsync(room);

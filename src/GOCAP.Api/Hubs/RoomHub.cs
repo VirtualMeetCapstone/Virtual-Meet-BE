@@ -24,7 +24,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         {
             // Xóa kết nối cũ
             _logger.LogInformation("[INFO] Removing old connection for user '{Username}'", userId);
-            await Clients.Client(existingPeer.PeerId).SendAsync("Disconnect");
+            await Clients.Client(existingPeer.PeerId ?? "").SendAsync("Disconnect");
             await Clients.Group(roomId).SendAsync(
                "PeerDisconnected",
                Context.ConnectionId,
@@ -67,7 +67,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
         {
             if (peer.PeerId != Context.ConnectionId)
             {
-                await Clients.Client(peer.PeerId).SendAsync(
+                await Clients.Client(peer.PeerId ?? "").SendAsync(
                     "NewPeer",
                     Context.ConnectionId,
                     peerInfo.UserName,
@@ -236,7 +236,7 @@ public partial class RoomHub(ILogger<RoomHub> _logger,
             var peer = room.Value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
             if (peer != null)
             {
-                senderName = peer.UserName;
+                senderName = peer.UserName ?? "";
                 break;
             }
         }
