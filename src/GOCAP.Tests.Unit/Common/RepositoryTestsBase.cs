@@ -1,10 +1,10 @@
 ﻿namespace GOCAP.Tests.Unit;
 
-public abstract class RepositoryBaseTests
+public abstract class RepositoryTestsBase
 {
     protected readonly Mock<IAppConfiguration> _configurationMock;
     protected readonly AppSqlDbContext _dbContext;
-    protected RepositoryBaseTests()
+    protected RepositoryTestsBase()
     {
         // Mock configuration
         _configurationMock = new Mock<IAppConfiguration>();

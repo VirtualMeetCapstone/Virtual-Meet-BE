@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Tests.Unit;
 
-public class RoomRepositoryTests : RepositoryBaseTests
+public class RoomRepositoryTests : RepositoryTestsBase
 {
     private readonly RoomRepository _roomRepository;
     public RoomRepositoryTests()

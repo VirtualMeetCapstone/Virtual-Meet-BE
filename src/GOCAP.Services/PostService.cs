@@ -22,7 +22,7 @@ internal class PostService(
     {
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
             {
                 Query = queryInfo.SearchText,
                 UserId = _userContextService.Id,
@@ -78,7 +78,7 @@ internal class PostService(
         {
             var entity = _mapper.Map<PostEntity>(post);
             var postEntity = await _repository.AddAsync(entity);
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {
                 Type = NotificationType.Post,
                 ActionType = ActionType.Add,

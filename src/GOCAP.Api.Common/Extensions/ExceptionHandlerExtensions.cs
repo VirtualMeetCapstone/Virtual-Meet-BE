@@ -37,7 +37,7 @@ public static class ExceptionHandlerExtensions
                 {
                     errorModel.ErrorMessage = "Validation failed.";
                     errorModel.ErrorCode = (int)ErrorCode.InvalidRequest;
-                    errorModel.ErrorDetails = validationException.Errors.Select(error => error.ErrorMessage).ToList();
+                    errorModel.ErrorDetails = [.. validationException.Errors.Select(error => error.ErrorMessage)];
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 }
                 else if (exception is ApiExceptionBase apiException)

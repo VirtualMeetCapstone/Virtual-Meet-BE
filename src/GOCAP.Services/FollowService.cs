@@ -42,7 +42,7 @@ internal class FollowService(
             var entity = _mapper.Map<UserFollowEntity>(domain);
             entity.FollowerId = _userContextService.Id;
             await _repository.AddAsync(entity);
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {
                 Type = NotificationType.Follow,
                 ActionType = ActionType.Add,

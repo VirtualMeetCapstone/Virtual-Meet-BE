@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Tests.Unit;
 
-public class FollowRepositoryTests : RepositoryBaseTests
+public class FollowRepositoryTests : RepositoryTestsBase
 {
     private readonly FollowRepository _repository;
     public FollowRepositoryTests()

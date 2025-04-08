@@ -50,7 +50,7 @@ internal class CommentService(
 
         var entity = _mapper.Map<CommentEntity>(domain);
         var result = await _repository.AddAsync(entity);
-        await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+        _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
         {
             Type = NotificationType.Comment,
             ActionType = ActionType.Add,
@@ -61,6 +61,7 @@ internal class CommentService(
                 Type = SourceType.Post,
             }
         });
+
         return _mapper.Map<Comment>(result);
     }
     public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)

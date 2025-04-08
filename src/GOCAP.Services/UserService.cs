@@ -72,7 +72,7 @@ internal class UserService(
         var entities = await _repository.GetByPageAsync(queryInfo);
 		if (!string.IsNullOrEmpty(queryInfo.SearchText))
 		{
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
             {
                 Query = queryInfo.SearchText,
                 UserId = _userContextService.Id,

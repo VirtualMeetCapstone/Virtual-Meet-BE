@@ -80,7 +80,6 @@ internal class RoomRepository(
         };
     }
 
-
     public async Task<RoomCount> GetRoomCountsAsync()
     {
         var counts = await _context.Rooms

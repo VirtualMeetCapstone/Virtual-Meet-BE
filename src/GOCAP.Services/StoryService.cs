@@ -38,7 +38,7 @@ internal class StoryService(
         {
             var entity = _mapper.Map<StoryEntity>(story);
             var result = await _repository.AddAsync(entity);
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {
                 Type = NotificationType.Story,
                 ActionType = ActionType.Add,
