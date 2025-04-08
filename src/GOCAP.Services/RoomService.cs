@@ -36,16 +36,14 @@ internal class RoomService(
         var entity = _mapper.Map<RoomEntity>(room);
         entity.OwnerId = _userContextService.Id;
         var result = await _repository.AddAsync(entity);
-        await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+        _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
         {
             Type = NotificationType.Room,
             ActionType = ActionType.Add,
-            Source = new NotificationSource
-            {
-                Id = result.Id
-            },
+            Source = new NotificationSource { Id = result.Id },
             ActorId = result.OwnerId
         });
+
         return _mapper.Map<Room>(result);
     }
 
@@ -132,7 +130,7 @@ internal class RoomService(
     {
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
             {
                 Query = queryInfo.SearchText,
                 UserId = _userContextService.Id,

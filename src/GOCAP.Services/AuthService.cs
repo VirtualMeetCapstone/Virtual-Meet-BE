@@ -63,14 +63,14 @@ internal class AuthService(
                     });
                 }
                 await _unitOfWork.CommitTransactionAsync();
-                await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.UserLogin,
-                    new UserLoginEvent
-                    {
-                        Email = newUser.Email,
-                        Username = newUser.Name,
-                        LoginTime = newUser.CreateTime
-                    }
-                );
+                _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.UserLogin,
+                        new UserLoginEvent
+                        {
+                            Email = newUser.Email,
+                            Username = newUser.Name,
+                            LoginTime = newUser.CreateTime
+                        });
+
             }
             catch (Exception ex)
             {

@@ -1,17 +1,10 @@
-﻿using FluentAssertions;
-using GOCAP.Api.Model;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿namespace GOCAP.Tests.Integration;
 
-namespace GOCAP.Tests.Integration;
-
-public class RoomsControllerTests(WebApplicationFactory<Api.Program> factory) : IClassFixture<WebApplicationFactory<Api.Program>>
+public class RoomsControllerTests(WebApplicationFactory<Api.Program> factory) : ApiControllerTestsBase
 {
     private readonly HttpClient _client = factory.CreateClient();
     private Guid _testRoomId;
-    private readonly string _accessToken = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJwaWN0dXJlIjoie1wiVXJsXCI6XCJodHRwczovL3N0b3JhZ2UuZGVyYXBpLmlvLnZuL2NhcGNhcC9nb2NhcC9hZDdhM2M5ZC0zMWU4LTQwYjQtODgxNy00NzhjZGUzODRmMWMtMjAyNTAzMTAxODA5LUltYWdlLnBuZ1wiLFwiVHlwZVwiOjEsXCJUaHVtYm5haWxVcmxcIjpudWxsfSIsInVuaXF1ZV9uYW1lIjoiR8OidSBHw6J1IiwiZW1haWwiOiJicmlnaHRzdW50bmMyMDAzQGdtYWlsLmNvbSIsImlkIjoiOWQ4NWU0OWMtYjZiNi00OWRlLTg2Y2EtNTJlYzExMzZlY2ZlIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3NDM5NjYxMzUsImV4cCI6MTc0Mzk3MzMzNSwiaWF0IjoxNzQzOTY2MTM1LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MDM1IiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NzAzNSJ9.vEHUMOZ31kgJXDaRiiumpFd8u7CJh8Qpms8Xlp0kobElj7WTp5VA8j9Opr19Fq6b4lm_VK3dkTh8SE37fth0kw";
+    
     [Fact]
     public async Task GetWithPaging_ReturnsOkResult()
     {
@@ -59,6 +52,33 @@ public class RoomsControllerTests(WebApplicationFactory<Api.Program> factory) : 
 
         _testRoomId = createdRoom!.Id; 
     }
+
+    [Fact]
+    public async Task CreateRoom_ShouldReturnBadRequest_WhenTopicIsMissing()
+    {
+        // Arrange
+        var model = new RoomCreationModel
+        {
+            Topic = "", 
+            Description = "This room has no topic",
+            MaximumMembers = 10
+        };
+
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", $"{_accessToken}");
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/rooms", model);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var error = await response.Content.ReadFromJsonAsync<ErrorModel>();
+        error.Should().NotBeNull();
+
+        error.ErrorMessage.Should().Be("Validation failed.");
+        error.ErrorDetails.Should().ContainSingle("Topic is required.");
+    }
+
 
     [Fact]
     public async Task DeleteRoom_ShouldReturnNotFound_WhenRoomDoesNotExist()

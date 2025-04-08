@@ -37,7 +37,7 @@ internal class StoryReactionService(
             domain.InitCreation();
             var entity = _mapper.Map<StoryReactionEntity>(domain);
             await _repository.AddAsync(entity);
-            await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {
                 Type = NotificationType.Reaction,
                 ActionType = ActionType.Add,
