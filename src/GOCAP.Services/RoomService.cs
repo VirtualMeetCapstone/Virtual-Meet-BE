@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Services;
+﻿using StackExchange.Redis;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
@@ -8,16 +10,13 @@ internal class RoomService(
     IUserContextService _userContextService,
     IUnitOfWork _unitOfWork,
     IKafkaProducer _kafkaProducer,
+    IRedisService _redisService,
     IMapper _mapper,
     ILogger<RoomService> _logger
     ) : ServiceBase<Room, RoomEntity>(_repository, _mapper, _logger), IRoomService
 {
     private readonly IMapper _mapper = _mapper;
-    /// <summary>
-    /// Create a new roomMd
-    /// </summary>
-    /// <param name="room"></param>
-    /// <returns></returns>
+    private readonly string _redisKey = "Room:Password:";
     public override async Task<Room> AddAsync(Room room)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Room).Name);
@@ -35,23 +34,42 @@ internal class RoomService(
         room.InitCreation();
         var entity = _mapper.Map<RoomEntity>(room);
         entity.OwnerId = _userContextService.Id;
-        var result = await _repository.AddAsync(entity);
-        _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
-        {
-            Type = NotificationType.Room,
-            ActionType = ActionType.Add,
-            Source = new NotificationSource { Id = result.Id },
-            ActorId = result.OwnerId
-        });
 
-        return _mapper.Map<Room>(result);
+        if (!string.IsNullOrEmpty(room.Password))
+        {
+            _logger.LogInformation("Storing password for Room ID: {RoomId} in Redis.", room.Id);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(room.Password);
+            var redisKey = $"{_redisKey}{room.Id}";
+            var isCreatedPassword = await _redisService.SetAsync(redisKey, passwordHash);
+            if (!isCreatedPassword)
+            {
+                throw new ParameterInvalidException("Failed to store room password.");
+            }
+        }
+
+        try
+        {
+            var result = await _repository.AddAsync(entity);
+
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Room,
+                ActionType = ActionType.Add,
+                Source = new NotificationSource { Id = result.Id },
+                ActorId = result.OwnerId
+            });
+
+            return _mapper.Map<Room>(result);
+        }
+        catch (Exception ex)
+        {
+            var redisKey = $"{_redisKey}{room.Id}";
+            _logger.LogWarning(ex, "Room creation failed. Deleting password in Redis for Room ID: {RoomId}", room.Id);
+            await _redisService.DeleteAsync(redisKey);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Delete a room by id.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
@@ -71,6 +89,11 @@ internal class RoomService(
         }
         try
         {
+            // Delete password in redis cache.
+            _logger.LogInformation("Delete password for Room ID: {RoomId} in Redis.", room.Id);
+            var redisKey = $"{_redisKey}{id}";
+            await _redisService.DeleteAsync(redisKey);
+
             // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
@@ -111,6 +134,14 @@ internal class RoomService(
                 }
             }
             entity.Medias = JsonHelper.Serialize(domain.Medias);
+        }
+        if (!string.IsNullOrEmpty(domain.Password))
+        {
+            _logger.LogInformation("Update password for Room ID: {RoomId} in Redis.", domain.Id);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(domain.Password);
+            var redisKey = $"{_redisKey}{id}";
+            await _redisService.DeleteAsync(redisKey);
+            await _redisService.SetAsync(redisKey, passwordHash);
         }
 
         entity.Topic = domain.Topic;

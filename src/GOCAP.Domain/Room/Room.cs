@@ -10,7 +10,7 @@ public class Room : DateTrackingBase
     public int MaximumMembers { get; set; }
     public List<Media>? Medias { get; set; } = null;
     public RoomStatusType? Status { get; set; }
-    public string? PasswordHash { get; set; }
+    public string? Password { get; set; }
     public bool RequireApproval { get; set; }
     public string? WelcomeMessage { get; set; }
     public IEnumerable<User> Members { get; set; } = [];
