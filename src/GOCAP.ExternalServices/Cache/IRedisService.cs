@@ -5,7 +5,7 @@ public interface IRedisService
     /// <summary>
     /// Stores a value in Redis as JSON with a specific key.
     /// </summary>
-    Task SetAsync<T>(string key, T value, TimeSpan? expiry = null);
+    Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null);
 
     /// <summary>
     /// Retrieves a value from Redis and deserializes it into a specific type.
@@ -15,7 +15,7 @@ public interface IRedisService
     /// <summary>
     /// Deletes a key from Redis.
     /// </summary>
-    Task DeleteAsync(string key);
+    Task<bool> DeleteAsync(string key);
 
     /// <summary>
     /// Checks whether a key exists in Redis.

@@ -1,18 +1,32 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public partial class RoomHub(ILogger<RoomHub> _logger,
+public partial class RoomHub (
+    ILogger<RoomHub> _logger,
     IUserService _userService, 
     IMessageService _service,
+    IRedisService _redisService,
     IMessageReactionService _messageReactionService,
-    IMapper _mapper) : Hub
+    IMapper _mapper ) : Hub
 {
 
-    public async Task JoinRoom(string userId, string roomId)
+    public async Task JoinRoom(string userId, string roomId, string password = "")
     {
         _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", userId, roomId);
 
         if (string.IsNullOrEmpty(roomId))
             throw new HubException("Room ID cannot be empty");
+
+        var redisKey = $"Room:Password:{roomId}";
+        var passwordHash = await _redisService.GetAsync<string>(redisKey);
+        if (!string.IsNullOrEmpty(passwordHash))
+        {
+            var isValidPassword = BCrypt.Net.BCrypt.Verify(password, passwordHash);
+            if (!isValidPassword)
+            {
+                _logger.LogWarning("User '{UserId}' provided incorrect password for room '{RoomId}'.", userId, roomId);
+                throw new ForbiddenException("Incorrect room password.");
+            }
+        }
 
         // Initialize room if it doesn't exist
         if (!RoomStateManager.roomPeers.ContainsKey(roomId))

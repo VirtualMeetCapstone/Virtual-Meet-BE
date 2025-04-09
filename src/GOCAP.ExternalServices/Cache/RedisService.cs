@@ -6,10 +6,10 @@ public class RedisService(IConnectionMultiplexer redisConnection) : IRedisServic
    
     private IDatabase GetDatabase() => _redis.GetDatabase();
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
+    public async Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null)
     {
         var json = JsonHelper.Serialize(value);
-        await GetDatabase().StringSetAsync(key, json, expiry).ConfigureAwait(false);
+        return await GetDatabase().StringSetAsync(key, json, expiry).ConfigureAwait(false);
     }
 
     public async Task<T?> GetAsync<T>(string key)
@@ -18,7 +18,7 @@ public class RedisService(IConnectionMultiplexer redisConnection) : IRedisServic
         return value.HasValue ? JsonHelper.Deserialize<T>(value!) : default;
     }
 
-    public async Task DeleteAsync(string key) => await GetDatabase().KeyDeleteAsync(key).ConfigureAwait(false);
+    public async Task<bool> DeleteAsync(string key) => await GetDatabase().KeyDeleteAsync(key).ConfigureAwait(false);
     
     public async Task<bool> ExistsAsync(string key) => await GetDatabase().KeyExistsAsync(key).ConfigureAwait(false);
     

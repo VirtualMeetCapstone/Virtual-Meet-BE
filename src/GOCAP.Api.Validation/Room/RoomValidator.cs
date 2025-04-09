@@ -16,5 +16,17 @@ public class RoomValidator : ValidatorBase<RoomCreationModel>
 			.NotNull()
 			.NotEmpty().WithMessage(ValidationMessage.Required)
 			.GreaterThan(0).WithMessage(ValidationMessage.GreaterThan);
+
+        RuleFor(x => x.Password)
+            .MaximumLength(10).WithMessage(ValidationMessage.MaxLength);
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage(ValidationMessage.Required)
+            .When(x => x.Privacy == PrivacyType.Private);
+
+        RuleFor(x => x.Password)
+			.Must(string.IsNullOrEmpty)
+			.WithMessage("Password must be empty for public rooms.")
+			.When(x => x.Privacy == PrivacyType.Public);
 	}
 }
