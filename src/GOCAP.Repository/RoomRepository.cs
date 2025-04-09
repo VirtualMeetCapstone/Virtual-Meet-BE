@@ -17,7 +17,9 @@ internal class RoomRepository(
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
             var keyword = queryInfo.SearchText.Trim();
-            query = query.Where(r => EF.Functions.Collate(r.Topic, "Latin1_General_CI_AI").Contains(keyword));
+            query = query.Where(r => EF.Functions.Like(
+                EF.Functions.Collate(r.Topic, "Latin1_General_CI_AI"),
+                $"%{keyword}%"));
         }
 
         // Total count
@@ -49,7 +51,6 @@ internal class RoomRepository(
                     Members = members.ToList()
                 })
             .ToListAsync();
-        Console.WriteLine(query.ToQueryString());
         // Now deserialize outside EF (C# land)
         var resultRooms = roomData.Select(r => new Room
         {

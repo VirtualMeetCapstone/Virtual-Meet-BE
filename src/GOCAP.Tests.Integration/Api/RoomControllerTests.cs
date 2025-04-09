@@ -68,17 +68,14 @@ public class RoomsControllerTests(WebApplicationFactory<Api.Program> factory) : 
 
         // Act
         var response = await _client.PostAsJsonAsync("/rooms", model);
+        var error = await response.Content.ReadFromJsonAsync<ErrorModel>();
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-        var error = await response.Content.ReadFromJsonAsync<ErrorModel>();
         error.Should().NotBeNull();
-
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         error.ErrorMessage.Should().Be("Validation failed.");
         error.ErrorDetails.Should().ContainSingle("Topic is required.");
     }
-
 
     [Fact]
     public async Task DeleteRoom_ShouldReturnNotFound_WhenRoomDoesNotExist()
