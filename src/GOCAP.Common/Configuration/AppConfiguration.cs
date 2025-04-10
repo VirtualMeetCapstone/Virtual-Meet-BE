@@ -65,6 +65,16 @@ public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _h
     }
 
     /// <summary>
+    /// Get LiveKit settings.
+    /// </summary>
+    public YoutubeSettings GetYoutubeSettings()
+    {
+        var ytb = new YoutubeSettings();
+        _configuration.GetSection("Youtube").Bind(ytb);
+        return ytb;
+    }
+
+    /// <summary>
     /// Get current enviroment.
     /// </summary>
     /// <returns></returns>

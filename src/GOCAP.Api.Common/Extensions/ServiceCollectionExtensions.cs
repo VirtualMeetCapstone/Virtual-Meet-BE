@@ -19,6 +19,9 @@ public static class ServiceCollectionExtensions
         // Configure LiveKit settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetLiveKitSettings());
 
+        // Configure Youtube settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetYoutubeSettings());
+
         // Configure azure blob storage.
         services.AddBlobStorageService(configuration);
 
