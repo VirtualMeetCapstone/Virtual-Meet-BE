@@ -8,5 +8,6 @@ public interface IAppConfiguration
     FileSettings GetFileSettings();
     string GetDefaultDomain();
     LiveKitSettings GetLiveKitSettings();
+    YoutubeSettings GetYoutubeSettings();
     string? GetEnvironment();
 }

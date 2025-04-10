@@ -28,6 +28,7 @@ builder.Services.AddCorsPolicy()
                 ;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 var isProductionEnviroment = app.Environment.IsProduction();
