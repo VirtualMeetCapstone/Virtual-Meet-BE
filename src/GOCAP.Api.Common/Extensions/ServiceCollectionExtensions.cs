@@ -5,6 +5,8 @@ using GOCAP.Messaging.Producer;
 using GOCAP.Repository;
 using GOCAP.Repository.Intention;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Net.payOS;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -21,6 +23,9 @@ public static class ServiceCollectionExtensions
 
         // Configure Youtube settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetYoutubeSettings());
+
+        // Configure PayOS settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetPayOsSettings());
 
         // Configure azure blob storage.
         services.AddBlobStorageService(configuration);
@@ -52,6 +57,13 @@ public static class ServiceCollectionExtensions
         // Configure unit of work.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        services.AddSingleton<PayOS>(sp =>
+        {
+            var settings = sp.GetRequiredService<IAppConfiguration>().GetPayOsSettings();
+            return new PayOS(settings.ClientId, settings.ApiKey, settings.CheckSumKey);
+        });
+
+        services.AddScoped<IVipPaymentService, VipPaymentService>();
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),
             Assembly.Load("gocap.services"),

@@ -1,8 +1,7 @@
 ﻿namespace GOCAP.Api.Controllers
 {
     [Route("ytb")]
-    [ApiController]
-    public class YoutubeController : ControllerBase
+    public class YoutubeController : ApiControllerBase
     {
         private readonly HttpClient _httpClient;
         private readonly YoutubeSettings _settings;

@@ -9,6 +9,7 @@ public class AppMongoDbContext
     public IMongoCollection<SearchHistoryEntity> SearchHistories { get; set; }
     public IMongoCollection<MessageEntity> Messages { get; set; }
     public IMongoCollection<NotificationEntity> Notifications { get; set; }
+    public IMongoCollection<UserVip> UserVips { get; set; }
     public AppMongoDbContext(string databaseName, string connectionString)
     {
         _client = new MongoClient(connectionString);
@@ -18,6 +19,7 @@ public class AppMongoDbContext
         SearchHistories = GetCollection<SearchHistoryEntity>();
         Messages = GetCollection<MessageEntity>();
         Notifications = GetCollection<NotificationEntity>();
+        UserVips = GetCollection<UserVip>();
     }
 
     public IMongoDatabase GetDatabase() => _database;

@@ -9,5 +9,6 @@ public interface IAppConfiguration
     string GetDefaultDomain();
     LiveKitSettings GetLiveKitSettings();
     YoutubeSettings GetYoutubeSettings();
+    PayOsSettings GetPayOsSettings();
     string? GetEnvironment();
 }
