@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-
-namespace GOCAP.Domain;
+﻿namespace GOCAP.Domain;
 
 public class NotificationEvent
 {
@@ -9,5 +7,5 @@ public class NotificationEvent
     public ActionType? ActionType { get; set; }
     public NotificationSource? Source { get; set; }
     public Guid ActorId { get; set; }
-    public BsonDocument? Metadata { get; set; }
+    public Dictionary<string, string>? Metadata { get; set; }
 }
