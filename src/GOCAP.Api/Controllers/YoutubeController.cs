@@ -1,40 +1,33 @@
-﻿namespace GOCAP.Api.Controllers
+﻿namespace GOCAP.Api.Controllers;
+
+[Route("ytb")]
+public class YoutubeController(IHttpClientFactory httpClientFactory, YoutubeSettings settings) : ApiControllerBase
 {
-    [Route("ytb")]
-    public class YoutubeController : ApiControllerBase
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private readonly YoutubeSettings _settings = settings;
+
+    [HttpGet("trending")]
+    public async Task<IActionResult> GetTrendingVideos([FromQuery] string pageToken = "")
     {
-        private readonly HttpClient _httpClient;
-        private readonly YoutubeSettings _settings;
+        var url = $"{_settings.API_URL}/videos?part=snippet&chart=mostPopular&regionCode=VN&maxResults=10&key={_settings.API_KEY}";
 
-        public YoutubeController(IHttpClientFactory httpClientFactory, YoutubeSettings settings)
+        if (!string.IsNullOrEmpty(pageToken))
         {
-            _httpClient = httpClientFactory.CreateClient();
-            _settings = settings;
+            url += $"&pageToken={pageToken}";
         }
 
-        [HttpGet("trending")]
-        public async Task<IActionResult> GetTrendingVideos([FromQuery] string pageToken = "")
-        {
-            var url = $"{_settings.API_URL}/videos?part=snippet&chart=mostPopular&regionCode=VN&maxResults=10&key={_settings.API_KEY}";
+        var response = await _httpClient.GetAsync(url);
+        var content = await response.Content.ReadAsStringAsync();
+        return Content(content, "application/json");
+    }
 
-            if (!string.IsNullOrEmpty(pageToken))
-            {
-                url += $"&pageToken={pageToken}";
-            }
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchVideos([FromQuery] string q)
+    {
+        var url = $"{_settings.API_URL}/search?part=snippet&q={q}&type=video&maxResults=10&key={_settings.API_KEY}";
 
-            var response = await _httpClient.GetAsync(url);
-            var content = await response.Content.ReadAsStringAsync();
-            return Content(content, "application/json");
-        }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchVideos([FromQuery] string q)
-        {
-            var url = $"{_settings.API_URL}/search?part=snippet&q={q}&type=video&maxResults=10&key={_settings.API_KEY}";
-
-            var response = await _httpClient.GetAsync(url);
-            var content = await response.Content.ReadAsStringAsync();
-            return Content(content, "application/json");
-        }
+        var response = await _httpClient.GetAsync(url);
+        var content = await response.Content.ReadAsStringAsync();
+        return Content(content, "application/json");
     }
 }

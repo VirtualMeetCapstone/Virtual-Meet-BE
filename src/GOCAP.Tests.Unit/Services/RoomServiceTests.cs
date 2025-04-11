@@ -8,6 +8,7 @@ public class RoomServiceTests
     private readonly Mock<IUserContextService> _userContextServiceMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IKafkaProducer> _kafkaProducerMock;
+    private readonly Mock<IRedisService> _redisServiceMock;
     private readonly Mock<IMapper> _mapperMock;
 
     private readonly RoomService _roomService;
@@ -20,6 +21,7 @@ public class RoomServiceTests
         _userContextServiceMock = new Mock<IUserContextService>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _kafkaProducerMock = new Mock<IKafkaProducer>();
+        _redisServiceMock = new Mock<IRedisService>();
         _mapperMock = new Mock<IMapper>();
 
         _userContextServiceMock.Setup(u => u.Id).Returns(Guid.NewGuid());
@@ -31,6 +33,7 @@ public class RoomServiceTests
             _userContextServiceMock.Object,
             _unitOfWorkMock.Object,
             _kafkaProducerMock.Object,
+            _redisServiceMock.Object,
             _mapperMock.Object,
             NullLogger<RoomService>.Instance
         );
