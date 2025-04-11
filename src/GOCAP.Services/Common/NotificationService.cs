@@ -7,6 +7,7 @@ internal class NotificationService(
     IUserRepository _userRepository,
     IFollowRepository _followRepository,
     IPostRepository _postRepository,
+    IEmailService _emailService,
     IMapper _mapper,
     ILogger<NotificationService> _logger
     ) : ServiceBase<Notification, NotificationEntity>(_repository, _mapper, _logger), INotificationService
@@ -14,6 +15,38 @@ internal class NotificationService(
     private readonly IMapper _mapper = _mapper;
     public async Task<Notification> HandleNotificationEvent(NotificationEvent notificationEvent)
     {
+        if (notificationEvent.Type == NotificationType.System)
+        {
+            var users = await _userRepository.GetAllAsync();
+
+            string subject = "[No Subject]";
+            string content = "[No Content]";
+
+            if (notificationEvent.Metadata != null)
+            {
+                if (notificationEvent.Metadata.TryGetValue("Subject", out var s))
+                    subject = s;
+
+                if (notificationEvent.Metadata.TryGetValue("Content", out var c))
+                    content = c;
+            }
+
+            var sendEmailTasks = users
+                    .Where(u => !string.IsNullOrWhiteSpace(u.Email))
+                    .Select(user =>
+                        _emailService.SendMailAsync(new EmailContent
+                        {
+                            To = user.Email,
+                            Subject = subject,
+                            Body = content
+                        })
+                    );
+
+            await Task.WhenAll(sendEmailTasks);
+
+            return null!;
+        }
+
         var actor = await _userRepository.GetByIdAsync(notificationEvent.ActorId);
         var notification = new Notification
         {
@@ -29,7 +62,7 @@ internal class NotificationService(
         };
         var notificationMessage = new NotificationMessageBuilder()
                                                         .SetAction(GetAction(notificationEvent.Type))
-                                                        .SetTarget(GetTarget(notificationEvent.Type,          notificationEvent.Source))
+                                                        .SetTarget(GetTarget(notificationEvent.Type, notificationEvent.Source))
                                                         .Build();
         notification.Content = notificationMessage;
         notification.InitCreation();
