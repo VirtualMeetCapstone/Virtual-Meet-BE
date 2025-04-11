@@ -1,6 +1,5 @@
 ﻿namespace GOCAP.Api.Controllers;
 
-[ApiController]
 public class NotificationsController (INotificationService _service, IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
