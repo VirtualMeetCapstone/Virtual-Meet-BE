@@ -1,6 +1,4 @@
-﻿using StackExchange.Redis;
-
-namespace GOCAP.Services;
+﻿namespace GOCAP.Services;
 
 [RegisterService(typeof(IRoomService))]
 internal class RoomService(
@@ -137,7 +135,7 @@ internal class RoomService(
         }
         if (!string.IsNullOrEmpty(domain.Password))
         {
-            _logger.LogInformation("Update password for Room ID: {RoomId} in Redis.", domain.Id);
+            _logger.LogInformation("Update password for Room Id: {RoomId} in Redis.", domain.Id);
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(domain.Password);
             var redisKey = $"{_redisKey}{id}";
             await _redisService.DeleteAsync(redisKey);
