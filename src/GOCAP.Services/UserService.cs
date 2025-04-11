@@ -3,7 +3,8 @@
 [RegisterService(typeof(IUserService))]
 internal class UserService(
 	IUserRepository _repository,
-	IBlobStorageService _blobStorageService,
+    IUserVipRepository _vipRepository,
+    IBlobStorageService _blobStorageService,
 	IKafkaProducer _kafkaProducer,
 	IUserContextService _userContextService,
 	IMapper _mapper,
@@ -79,5 +80,17 @@ internal class UserService(
             });
         }
         return _mapper.Map<QueryResult<User>>(entities);
+    }
+
+
+    public async Task<UserVip> GetUserVipLevelAsync(Guid userId)
+    {
+        return await _vipRepository.GetUserVipLevel(userId);
+    }
+
+
+    public async Task AddOrUpdateUserVipAsync(Guid userId, string level, DateTime? expireAt)
+    {
+        await _vipRepository.AddOrUpdateUserVipAsync(userId, level, expireAt);
     }
 }

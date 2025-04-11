@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Api.AutoMapper;
+﻿using GOCAP.Database;
+
+namespace GOCAP.Api.AutoMapper;
 
 public class UserModelMapperProfile : ModelMapperProfileBase
 {
@@ -19,5 +21,6 @@ public class UserModelMapperProfile : ModelMapperProfileBase
 		CreateMap<UserBlockCreationModel, UserBlock>().ReverseMap();
 		CreateMap<UserBlock, UserBlockModel>().ReverseMap();
 		CreateMap<User, UserSearchModel>().ReverseMap();
-	}
+        CreateMap<UserVip, UserVipModel>();
+    }
 }

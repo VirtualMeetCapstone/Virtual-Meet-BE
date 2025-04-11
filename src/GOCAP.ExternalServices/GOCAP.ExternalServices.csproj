@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="payOS" Version="1.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
+    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
   </ItemGroup>
 
 </Project>

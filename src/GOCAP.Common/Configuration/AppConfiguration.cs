@@ -65,13 +65,23 @@ public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _h
     }
 
     /// <summary>
-    /// Get LiveKit settings.
+    /// Get Youtube settings.
     /// </summary>
     public YoutubeSettings GetYoutubeSettings()
     {
         var ytb = new YoutubeSettings();
         _configuration.GetSection("Youtube").Bind(ytb);
         return ytb;
+    }
+
+    /// <summary>
+    /// Get PayOS settings.
+    /// </summary>
+    public PayOsSettings GetPayOsSettings()
+    {
+        var payOS = new PayOsSettings();
+        _configuration.GetSection("PAYOS").Bind(payOS);
+        return payOS;
     }
 
     /// <summary>
