@@ -11,4 +11,14 @@ internal class ReportService (IReportRepository _reportRepository) : IReportServ
     {
         return await _reportRepository.GetPostReportAsync(domain);
     }
+
+    public async Task<byte[]> ExportUserReportAsync(DateRange range)
+    {
+        return await _reportRepository.ExportUserReportAsync(range);
+    }
+
+    public async Task<byte[]> ExportPostReportAsync(DateRange range)
+    {
+        return await _reportRepository.ExportPostReportAsync(range);
+    }
 }
