@@ -5,6 +5,8 @@ namespace GOCAP.Api.Common;
 
 public static class JwtBearerAuthenticationExtensions
 {
+    private const string NameClaimType = "id";
+
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration _configuration)
     {
         var keyBytes = Convert.FromBase64String(_configuration["Jwt:SecretKey"] ?? "");
@@ -29,7 +31,8 @@ public static class JwtBearerAuthenticationExtensions
                     ValidIssuer = issuer,
                     ValidAudience = audience,
                     IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    NameClaimType = NameClaimType,
                 };
             })
             ;

@@ -8,7 +8,7 @@ namespace GOCAP.Api.Model
 {
     public class UserVipModel
     {
-        public string Level { get; set; } = "free";
+        public int PackageId { get; set; }
         public DateTime? ExpireAt { get; set; }
     }
 }

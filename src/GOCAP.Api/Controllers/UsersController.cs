@@ -119,8 +119,15 @@ public class UsersController(IUserService _userService,
         [FromRoute] Guid userId,
         [FromBody] UserVipModel model)
     {
-        await _userService.AddOrUpdateUserVipAsync(userId, model.Level, model.ExpireAt);
+        var hasPaid = await _userService.HasUserPaidForVipAsync(userId, model.PackageId);
+        if (!hasPaid)
+        {
+            return BadRequest("Bạn cần thanh toán trước khi nâng cấp VIP.");
+        }
+
+        await _userService.AddOrUpdateUserVipAsync(userId, model.PackageId, model.ExpireAt);
         return Ok();
     }
+
 
 }
