@@ -39,7 +39,7 @@ public class VipPaymentService : IVipPaymentService
             new(package.Name, 1, package.Price)
             },
             cancelUrl: $"{_domain}?status=failed&orderId={orderId}",
-            returnUrl: $"{_domain}?status=success&orderId={orderId}&totalAmount={package.Price}"
+            returnUrl: $"{_domain}?status=success&orderId={orderId}&totalAmount={package.Price}&packageId={packageId}"
         );
 
         return await _payOS.createPaymentLink(paymentData);
