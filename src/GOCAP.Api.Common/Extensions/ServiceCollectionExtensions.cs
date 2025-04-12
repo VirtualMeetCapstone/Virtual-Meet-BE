@@ -18,6 +18,9 @@ public static class ServiceCollectionExtensions
         // Configure email service.
         services.AddEmailService(configuration);
 
+        //add export excel
+        services.AddScoped<IExcelExportService, ExcelExportService>();
+
         // Configure LiveKit settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetLiveKitSettings());
 
