@@ -1,12 +1,14 @@
 ﻿
+using GOCAP.Repository.Intention;
+
 namespace GOCAP.ExternalServices;
 
 [RegisterService(typeof(VipPaymentService), ServiceLifetime.Scoped)]
 public class VipPaymentService : IVipPaymentService
 {
-    private readonly PayOsSettings _payOsSettings;
     private readonly PayOS _payOS;
     private readonly string _domain;
+    private readonly IVipPaymentRepository _vipPaymentRepository;
 
     private static readonly List<VipPackageItem> AvailablePackages = new()
     {
@@ -15,14 +17,14 @@ public class VipPaymentService : IVipPaymentService
         new VipPackageItem { Id = 3, Name = "VIP 1 tháng", Price = 100000, DurationDays = 30 },
     };
 
-    public VipPaymentService(PayOsSettings payOsSettings, PayOS payOS)
+    public VipPaymentService(PayOsSettings payOsSettings, PayOS payOS, IVipPaymentRepository vipPaymentRepository)
     {
-        _payOsSettings = payOsSettings;
         _payOS = payOS;
         _domain = "https://fe.dev-vmeet.site/up-vip";
+        _vipPaymentRepository = vipPaymentRepository;
     }
 
-    public async Task<CreatePaymentResult> CreateVipPaymentAsync(int packageId)
+    public async Task<CreatePaymentResult> CreateVipPaymentAsync(Guid userId, int packageId)
     {
         var package = AvailablePackages.FirstOrDefault(p => p.Id == packageId);
         if (package == null)
@@ -42,7 +44,39 @@ public class VipPaymentService : IVipPaymentService
             returnUrl: $"{_domain}?status=success&orderId={orderId}&totalAmount={package.Price}&packageId={packageId}"
         );
 
-        return await _payOS.createPaymentLink(paymentData);
+        var paymentResult = await _payOS.createPaymentLink(paymentData);
+
+        var paymentHistory = new PaymentHistory
+        {
+            UserId = userId,
+            Level = package.Name,
+            PackageId = package.Id,
+            Amount = package.Price,
+            OrderCode = orderCode.ToString(),
+            IsPaid = false,
+        };
+
+        await _vipPaymentRepository.AddPaymentAsync(paymentHistory);
+
+        return paymentResult;
     }
+
+
+    public async Task<bool> MarkPaymentAsPaidAsync(string orderCode)
+    {
+        var payment = await _vipPaymentRepository.GetByOrderCodeAsync(orderCode);
+        if (payment == null || payment.IsPaid) return false;
+
+        var status = await _payOS.getPaymentLinkInformation(long.Parse(orderCode));
+
+        if (status == null || status.status != "PAID")
+            return false;
+
+    
+        payment.IsPaid = true;
+        await _vipPaymentRepository.UpdatePaymentAsync(payment);
+        return true;
+    }
+
 
 }

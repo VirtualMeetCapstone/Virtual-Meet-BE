@@ -2,6 +2,6 @@
 
 public interface IVipPaymentService
 {
-    Task<CreatePaymentResult> CreateVipPaymentAsync(int packageId);
-
+    Task<CreatePaymentResult> CreateVipPaymentAsync(Guid userId, int packageId);
+    Task<bool> MarkPaymentAsPaidAsync(string orderCode);
 }

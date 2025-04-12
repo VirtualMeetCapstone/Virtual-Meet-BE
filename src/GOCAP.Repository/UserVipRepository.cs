@@ -4,7 +4,7 @@
     internal class UserVipRepository(AppMongoDbContext _context)
         : MongoRepositoryBase<UserVip>(_context), IUserVipRepository
     {
-        public async Task AddOrUpdateUserVipAsync(Guid userId, string level, DateTime? expireAt = null)
+        public async Task AddOrUpdateUserVipAsync(Guid userId, int packageId, DateTime? expireAt = null)
         {
             var filter = Builders<UserVip>.Filter.Eq(x => x.UserId, userId);
 
@@ -12,7 +12,7 @@
 
             if (existing != null)
             {
-                existing.Level = level;
+                existing.PackageId = packageId;
                 existing.ExpireAt = expireAt;
                 existing.LastModifyTime = DateTime.Now.Ticks;
                 await _context.UserVips.ReplaceOneAsync(filter, existing);
@@ -23,9 +23,9 @@
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
-                    Level = level,
+                    PackageId = packageId,  
                     ExpireAt = expireAt,
-                    CreateTime = DateTime.Now.Ticks
+                    CreateTime = DateTime.Now.Ticks,
                 };
 
                 await _context.UserVips.InsertOneAsync(newUserVip);
@@ -39,14 +39,23 @@
                 .Find(x => x.UserId == userId)
                 .FirstOrDefaultAsync();
 
+            if (userVip == null)
+            {
+                return new UserVip
+                {
+                    PackageId = 0,
+                    ExpireAt = null
+                };
+            }
+
             var result = new UserVip
             {
-                Level = userVip?.Level ?? "free",
-                ExpireAt = userVip?.ExpireAt
+                PackageId = userVip.PackageId, 
+                ExpireAt = userVip.ExpireAt
             };
 
             return result;
-
         }
+
     }
 }

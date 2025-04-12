@@ -7,7 +7,8 @@ internal class UserService(
     IBlobStorageService _blobStorageService,
 	IKafkaProducer _kafkaProducer,
 	IUserContextService _userContextService,
-	IMapper _mapper,
+    IVipPaymentRepository _vipPaymentRepository,
+    IMapper _mapper,
 	ILogger<UserService> _logger
 	) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
 {
@@ -89,8 +90,14 @@ internal class UserService(
     }
 
 
-    public async Task AddOrUpdateUserVipAsync(Guid userId, string level, DateTime? expireAt)
+    public async Task AddOrUpdateUserVipAsync(Guid userId, int packageId, DateTime? expireAt)
     {
-        await _vipRepository.AddOrUpdateUserVipAsync(userId, level, expireAt);
+        await _vipRepository.AddOrUpdateUserVipAsync(userId, packageId, expireAt);
+    }
+
+    public async Task<bool> HasUserPaidForVipAsync(Guid userId, int packageID)
+    {
+        var payment = await _vipPaymentRepository.GetPaymentByUserAndPackageIdAsync(userId, packageID);
+        return payment != null && payment.IsPaid;
     }
 }
