@@ -142,6 +142,7 @@ internal class RoomService(
             await _redisService.SetAsync(redisKey, passwordHash);
         }
 
+        entity.Privacy = domain.Privacy;
         entity.Topic = domain.Topic;
         entity.Description = domain.Description;
         entity.MaximumMembers = domain.MaximumMembers;
