@@ -8,8 +8,7 @@ internal class SystemService(IKafkaProducer _kafkaProducer) : ISystemService
         var metadata = new Dictionary<string, string>
         {
             { "Subject", subject },
-            { "Content", content },
-            { "Target", "AllUsers" }
+            { "Content", content }
         };
 
         var notificationEvent = new NotificationEvent

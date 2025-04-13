@@ -11,11 +11,6 @@ public partial class RoomHub (
 
     public async Task JoinRoom(string userId, string roomId, string password = "")
     {
-        _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", userId, roomId);
-
-        if (string.IsNullOrEmpty(roomId))
-            throw new HubException("Room ID cannot be empty");
-
         var redisKey = $"Room:Password:{roomId}";
         var passwordHash = await _redisService.GetAsync<string>(redisKey);
         if (!string.IsNullOrEmpty(passwordHash))
@@ -23,10 +18,16 @@ public partial class RoomHub (
             var isValidPassword = BCrypt.Net.BCrypt.Verify(password, passwordHash);
             if (!isValidPassword)
             {
-                _logger.LogWarning("User '{UserId}' provided incorrect password for room '{RoomId}'.", userId, roomId);
-                throw new ForbiddenException("Incorrect room password.");
+                _logger.LogWarning("User {UserId} provided incorrect password for room '{RoomId}'.", userId, roomId);
+                await Clients.Caller.SendAsync("JoinFailed", "WrongPassword");
+                return;
             }
         }
+
+        _logger.LogInformation("[INFO] User '{Username}' joined Room '{RoomId}'", userId, roomId);
+
+        if (string.IsNullOrEmpty(roomId))
+            throw new HubException("Room ID cannot be empty");
 
         // Initialize room if it doesn't exist
         if (!RoomStateManager.roomPeers.ContainsKey(roomId))

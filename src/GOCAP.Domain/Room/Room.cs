@@ -3,7 +3,7 @@
 public class Room : DateTrackingBase
 {
     public Guid OwnerId { get; set; }
-    public PrivacyType Privacy { get; set; } = PrivacyType.Public;
+    public PrivacyType Privacy { get; set; } 
     public User? Owner { get; set; }
     public string Topic { get; set; } = string.Empty;
     public string? Description { get; set; }

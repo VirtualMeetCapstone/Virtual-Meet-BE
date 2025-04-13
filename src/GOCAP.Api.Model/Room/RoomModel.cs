@@ -5,6 +5,7 @@ public class RoomModel : EntityDateTrackingBase<Guid>
     public override Guid Id { get; set; }
     public Guid? OwnerId { get; set; }
     public RoomMemberModel? Owner { get; set; }
+    public PrivacyType Privacy { get; set; }
     public string Topic { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int MaximumMembers { get; set; }
