@@ -98,6 +98,18 @@ public class UsersController(IUserService _userService,
         var results = _mapper.Map<List<UserBlockModel>>(userBlocks);
         return results;
     }
+
+
+    [HttpPost("check-block")]
+    public async Task<ActionResult<bool>> GetBlockOrBlockedAsync([FromBody] UserBlockCreationModel model)
+    {
+        var domain = _mapper.Map<UserBlock>(model);
+        var result = await _userBlockService.GetBlockOrBlockedAsync(domain);
+
+        return Ok(result != null);
+    }
+
+
     [HttpGet("search")]
     public async Task<List<UserSearchModel>> SearchUsers([FromQuery] string userName, [FromQuery] int limit = 10)
     {
