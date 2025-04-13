@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GOCAP.Repository.Intention
+﻿namespace GOCAP.Repository.Intention
 {
     public interface IVipPaymentRepository
     {
@@ -12,6 +6,7 @@ namespace GOCAP.Repository.Intention
         Task AddPaymentAsync(PaymentHistory payment);
         Task<PaymentHistory?> GetByOrderCodeAsync(string orderCode);
         Task UpdatePaymentAsync(PaymentHistory payment);
-
+        Task<QueryResult<PaymentHistoryModel>> GetAllPaymentsAsync(QueryInfo queryInfo);
+        Task<QueryResult<PaymentHistoryModel>> GetPaymentsByUserIdAsync(Guid userId, QueryInfo queryInfo);
     }
 }
