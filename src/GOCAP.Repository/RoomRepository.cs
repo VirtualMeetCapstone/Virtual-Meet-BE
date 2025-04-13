@@ -61,6 +61,7 @@ internal class RoomRepository(
                 Name = r.Owner.Name,
                 Picture = JsonHelper.Deserialize<Media>(r.Owner.Picture)
             } : null,
+            Privacy = r.Room.Privacy,
             Topic = r.Room.Topic,
             Description = r.Room.Description,
             MaximumMembers = r.Room.MaximumMembers,

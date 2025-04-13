@@ -20,11 +20,11 @@ public class KafkaConsumerService(
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("⏳ Waiting for API to fully start...");
+        _logger.LogInformation("Waiting for API to fully start...");
 
         _appLifetime.ApplicationStarted.Register(() =>
         {
-            _logger.LogInformation("🚀 API started! Starting Kafka Consumers...");
+            _logger.LogInformation("API started! Starting Kafka Consumers...");
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             _scope = _serviceProvider.CreateScope();
@@ -42,7 +42,7 @@ public class KafkaConsumerService(
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("🛑 Stopping Kafka Consumers...");
+        _logger.LogInformation("Stopping Kafka Consumers...");
         _cts?.Cancel();
 
         // Wait consumers stop.
