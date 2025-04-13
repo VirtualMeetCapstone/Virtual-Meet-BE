@@ -1,7 +1,7 @@
 ﻿using GOCAP.Database;
 namespace GOCAP.Api.Controllers;
 
-[Authorize]
+
 [Route("/vip-payment")]
 [ApiController]
 public class VipPaymentController : ControllerBase
@@ -13,6 +13,22 @@ public class VipPaymentController : ControllerBase
         _vipPaymentService = vipPaymentService;
     }
 
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllPayments([FromQuery] QueryInfo queryInfo)
+    {
+        var result = await _vipPaymentService.GetAllPaymentsAsync(queryInfo);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetPaymentsByUserId([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
+    {
+        var result = await _vipPaymentService.GetPaymentsByUserIdAsync(userId, queryInfo);
+        return Ok(result);
+    }
+
+    [Authorize]
     [HttpPost("create")]
     public async Task<IActionResult> CreateVipPayment([FromBody] PaymentRequest request)
     {
@@ -20,10 +36,11 @@ public class VipPaymentController : ControllerBase
         {
             return Forbid("Bạn không có quyền thực hiện hành động này.");
         }
-        var result = await _vipPaymentService.CreateVipPaymentAsync(request.UserId,request.PackageId);
+        var result = await _vipPaymentService.CreateVipPaymentAsync(request.UserId, request.PackageId);
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost("mark-paid")]
     public async Task<IActionResult> MarkAsPaid([FromQuery] string orderCode)
     {

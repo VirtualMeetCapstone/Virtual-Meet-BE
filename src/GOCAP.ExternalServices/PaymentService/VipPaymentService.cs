@@ -78,5 +78,14 @@ public class VipPaymentService : IVipPaymentService
         return true;
     }
 
+    public async Task<QueryResult<PaymentHistoryModel>> GetAllPaymentsAsync(QueryInfo queryInfo)
+    {
+        return await _vipPaymentRepository.GetAllPaymentsAsync(queryInfo);
+    }
+
+    public async Task<QueryResult<PaymentHistoryModel>> GetPaymentsByUserIdAsync(Guid userId, QueryInfo queryInfo)
+    {
+        return await _vipPaymentRepository.GetPaymentsByUserIdAsync(userId, queryInfo);
+    }
 
 }
