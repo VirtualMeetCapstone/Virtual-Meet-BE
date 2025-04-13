@@ -123,6 +123,7 @@ internal class RoomRepository(
                         Picture = JsonHelper.Deserialize<Media>(u.Picture),
                     })
                     .FirstOrDefault(),
+                Privacy = r.Privacy,
                 Topic = r.Topic,
                 Description = r.Description,
                 MaximumMembers = r.MaximumMembers,
