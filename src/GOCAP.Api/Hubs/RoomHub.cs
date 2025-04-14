@@ -18,7 +18,7 @@ public partial class RoomHub (
             var isValidPassword = BCrypt.Net.BCrypt.Verify(password, passwordHash);
             if (!isValidPassword)
             {
-                _logger.LogWarning("User {UserId} provided incorrect password for room '{RoomId}'.", userId, roomId);
+                _logger.LogWarning("User {UserId} provided incorrect password for room {RoomId}.", userId, roomId);
                 await Clients.Caller.SendAsync("JoinFailed", "WrongPassword");
                 return;
             }
@@ -30,11 +30,11 @@ public partial class RoomHub (
             throw new HubException("Room ID cannot be empty");
 
         // Initialize room if it doesn't exist
-        if (!RoomStateManager.roomPeers.ContainsKey(roomId))
-            RoomStateManager.roomPeers[roomId] = [];
+        if (!RoomStateManager.RoomPeers.ContainsKey(roomId))
+            RoomStateManager.RoomPeers[roomId] = [];
 
         // Kiểm tra nếu user đã tồn tại trong phòng
-        var existingPeer = RoomStateManager.roomPeers[roomId].FirstOrDefault(p => p.UserId == userId);
+        var existingPeer = RoomStateManager.RoomPeers[roomId].FirstOrDefault(p => p.UserId == userId);
         if (existingPeer != null)
         {
             // Xóa kết nối cũ
@@ -43,9 +43,9 @@ public partial class RoomHub (
             await Clients.Group(roomId).SendAsync(
                "PeerDisconnected",
                Context.ConnectionId,
-               RoomStateManager.roomPeers[roomId].Count
+               RoomStateManager.RoomPeers[roomId].Count
            );
-            RoomStateManager.roomPeers[roomId].Remove(existingPeer);
+            RoomStateManager.RoomPeers[roomId].Remove(existingPeer);
         }
 
         // Cập nhật danh sách kết nối mới của user
@@ -67,10 +67,10 @@ public partial class RoomHub (
         };
 
         // Gửi danh sách peers hiện tại cho người mới
-        await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.roomPeers[roomId]);
+        await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.RoomPeers[roomId]);
 
         // Thêm peer mới vào room
-        RoomStateManager.roomPeers[roomId].Add(peerInfo);
+        RoomStateManager.RoomPeers[roomId].Add(peerInfo);
 
         // Thêm kết nối mới vào nhóm SignalR
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
@@ -78,7 +78,7 @@ public partial class RoomHub (
         await SendRoomState(roomId, Context.ConnectionId);
 
         // Thông báo cho các peer khác về user mới
-        foreach (var peer in RoomStateManager.roomPeers[roomId])
+        foreach (var peer in RoomStateManager.RoomPeers[roomId])
         {
             if (peer.PeerId != Context.ConnectionId)
             {
@@ -86,13 +86,13 @@ public partial class RoomHub (
                     "NewPeer",
                     Context.ConnectionId,
                     peerInfo.UserName,
-                    RoomStateManager.roomPeers[roomId].Count
+                    RoomStateManager.RoomPeers[roomId].Count
                 );
             }
         }
 
         _logger.LogInformation("[ROOM STATE] Danh sách peers trong Room '{RoomId}':", roomId);
-        foreach (var peer in RoomStateManager.roomPeers[roomId])
+        foreach (var peer in RoomStateManager.RoomPeers[roomId])
         {
             _logger.LogInformation("- PeerId: {PeerId}, UserName: {UserName}", peer.PeerId, peer.UserName);
         }
@@ -101,25 +101,25 @@ public partial class RoomHub (
 
     public async Task LeaveRoom(string roomId)
     {
-        if (RoomStateManager.roomPeers.TryGetValue(roomId, out List<RoomPeerModel>? value))
+        if (RoomStateManager.RoomPeers.TryGetValue(roomId, out List<RoomPeerModel>? value))
         {
             var peer = value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
 
             if (peer != null)
             {
-                RoomStateManager.roomPeers[roomId].Remove(peer);
+                RoomStateManager.RoomPeers[roomId].Remove(peer);
 
                 await Clients.Group(roomId).SendAsync(
                     "PeerDisconnected",
                     Context.ConnectionId,
-                    RoomStateManager.roomPeers[roomId].Count
+                    RoomStateManager.RoomPeers[roomId].Count
                 );
 
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
 
-                if (RoomStateManager.roomPeers[roomId].Count == 0)
+                if (RoomStateManager.RoomPeers[roomId].Count == 0)
                 {
-                    RoomStateManager.roomPeers.TryRemove(roomId, out _);
+                    RoomStateManager.RoomPeers.TryRemove(roomId, out _);
 
                     // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
@@ -233,7 +233,7 @@ public partial class RoomHub (
 
     public static int GetRoomUserCount(string roomId)
     {
-        if (RoomStateManager.roomPeers.TryGetValue(roomId, out var peers))
+        if (RoomStateManager.RoomPeers.TryGetValue(roomId, out var peers))
         {
             return peers.Count;
         }
@@ -246,7 +246,7 @@ public partial class RoomHub (
     {
         // Find the sender's room and username
         string senderName = "Anonymous";
-        foreach (var room in RoomStateManager.roomPeers)
+        foreach (var room in RoomStateManager.RoomPeers)
         {
             var peer = room.Value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
             if (peer != null)
@@ -296,7 +296,7 @@ public partial class RoomHub (
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         // Find which rooms the user is in
-        foreach (var room in RoomStateManager.roomPeers)
+        foreach (var room in RoomStateManager.RoomPeers)
         {
             await LeaveRoom(room.Key);
         }

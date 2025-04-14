@@ -8,5 +8,8 @@ public class MessageModelMapperProfile : ModelMapperProfileBase
         CreateMap<Message, MessageModel>().ReverseMap();
         CreateMap<MessageReaction, MessageReactionCreationModel>().ReverseMap();
         CreateMap<MessageReaction, MessageReactionModel>().ReverseMap();
+
+        CreateMap<Conversation, ConversationModel>().ReverseMap();
+        CreateMap<QueryResult<Conversation>, QueryResult<ConversationModel>>().ReverseMap();
     }
 }
