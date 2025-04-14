@@ -7,6 +7,7 @@ internal class MessageService(
     IRoomRepository _roomRepository,
     IGroupRepository _groupRepository,
     IBlobStorageService _blobStorageService,
+    IUserContextService _userContextService,
     IMapper _mapper,
     ILogger<MessageService> _logger
     ) : ServiceBase<Message, MessageEntity>(_repository, _mapper, _logger), IMessageService
@@ -32,6 +33,11 @@ internal class MessageService(
         await ValidateMessage(domain);
         var entity = _mapper.Map<MessageEntity>(domain);
         return new OperationResult(await _repository.UpdateAsync(entity));
+    }
+
+    public async Task<QueryResult<Conversation>> GetConversations(QueryInfo queryInfo)
+    {
+        return await _repository.GetConversations(_userContextService.Id, queryInfo);
     }
 
     private async Task ValidateMessage(Message domain)

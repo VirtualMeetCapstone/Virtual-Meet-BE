@@ -1,74 +1,135 @@
 ﻿namespace GOCAP.Api.Hubs;
 
-public class ChatHub(IMessageService _service, IMapper _mapper) : Hub
+public class ChatHub(
+    IMessageService _service,
+    IMessageReactionService _messageReactionService,
+    IMapper _mapper) : Hub
 {
-    private static readonly string ReceiveMessage = "ReceiveMessage";
-    private static readonly string DeleteMessage  = "DeleteMessage";
-    private static readonly string UpdateMessage  = "UpdateMessage";
+    private static readonly string ReceiveMessageRoom = "ReceiveMessage";
+    private static readonly string DeleteMessageRoom = "DeleteMessage";
+    private static readonly string UpdateMessageRoom = "UpdateMessage";
 
-    public async Task Send(Guid targetId, MessageType messageType, MessageCreationModel model)
-    {
-        var domain = _mapper.Map<Message>(model);
-        domain.InitCreation();
-        AssignTarget(domain, messageType, targetId);
-        await BroadcastEvent(targetId, messageType, ReceiveMessage, domain);
-        await _service.AddAsync(domain);
-    }
-    public async Task Delete(MessageType messageType, Guid targetId, Guid messageId)
-    {
-        await BroadcastEvent(targetId, messageType, DeleteMessage, messageId);
-        await _service.DeleteByIdAsync(messageId);
-    }
+    private static readonly string ReceiveMessageReactionRoom = "ReceiveMessageReaction";
+    private static readonly string DeleteMessageReactionRoom = "DeleteMessageReaction";
+    private static readonly string UpdateMessageReactionRoom = "UpdateMessageReaction";
 
-    public async Task Update(MessageType messageType, Guid targetId, Guid messageId, MessageCreationModel model
-    ) 
+    public async Task SendMessage(Guid roomId, MessageCreationModel model)
     {
-        var domain = _mapper.Map<Message>(model);
-        domain.UpdateModify();
-        domain.IsEdited = true;
-        if (model.IsPinned)
+        await ExecuteWithErrorHandling(async () =>
         {
-            domain.IsPinned = model.IsPinned;
-        }
-        AssignTarget(domain, messageType, targetId);
-        await BroadcastEvent(targetId, messageType, UpdateMessage, domain);
-        await _service.UpdateAsync(messageId, domain);
-    }
-    public async Task JoinRoom(string roomId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-        Console.WriteLine($"🔹 User {Context.ConnectionId} joined room {roomId}");
-    }
-    private async Task BroadcastEvent(Guid targetId, MessageType messageType, string eventName, object data)
-    {
-        switch (messageType)
-        {
-            case MessageType.Room:
-            case MessageType.Group:
-                await Clients.Group(targetId.ToString()).SendAsync(eventName, data);
-                break;
-            case MessageType.Direct:
-                await Clients.User(targetId.ToString()).SendAsync(eventName, data);
-                break;
-        }
+            var result = new MessageModel
+            {
+                Id = Guid.NewGuid(),
+                SenderId = model.SenderId,
+                Content = model.Content,
+                Attachments = model.Attachments,
+                IsPinned = model.IsPinned,
+                ParentId = model.ParentId,
+                Type = MessageType.Room,
+                RoomId = roomId,
+                CreateTime = DateTime.Now.Ticks,
+            };
+            await BroadcastEvent(roomId, ReceiveMessageRoom, result);
+            ValidateMessage(roomId, null, model);
+            var domain = _mapper.Map<Message>(result);
+            await _service.AddAsync(domain);
+        }, "Failed to send message");
     }
 
-    private static void AssignTarget(Message domain, MessageType messageType, Guid targetId)
+    public async Task DeleteMessage(Guid roomId, Guid messageId)
     {
-        domain.Type = messageType;
-        switch (messageType)
+        await ExecuteWithErrorHandling(async () =>
         {
-            case MessageType.Room:
-                domain.RoomId = targetId;
-                break;
-            case MessageType.Direct:
-                domain.ReceiverId = targetId;
-                break;
-            case MessageType.Group:
-                domain.GroupId = targetId;
-                break;
-            default: throw new ParameterInvalidException();
-        }
+            await BroadcastEvent(roomId, DeleteMessageRoom, messageId);
+            ValidateMessage(roomId, messageId);
+            await _service.DeleteByIdAsync(messageId);
+        }, "Failed to delete message");
     }
 
+    public async Task UpdateMessage(Guid roomId, Guid messageId, MessageCreationModel model)
+    {
+        await ExecuteWithErrorHandling(async () =>
+        {
+            var result = new MessageModel
+            {
+                Id = messageId,
+                SenderId = model.SenderId,
+                Content = model.Content,
+                Attachments = model.Attachments,
+                IsPinned = model.IsPinned,
+                ParentId = model.ParentId,
+                Type = MessageType.Room,
+                RoomId = roomId,
+                IsEdited = true,
+                LastModifyTime = DateTime.Now.Ticks,
+            };
+            await BroadcastEvent(roomId, UpdateMessageRoom, result);
+            ValidateMessage(roomId, messageId, model);
+            var domain = _mapper.Map<Message>(result);
+            await _service.UpdateAsync(messageId, domain);
+        }, "Failed to update message");
+    }
+
+    public async Task SendMessageReaction(Guid roomId, MessageReactionCreationModel model)
+    {
+        ValidateMessage(roomId, null, model);
+        await ExecuteWithErrorHandling(async () =>
+        {
+            var domain = _mapper.Map<MessageReaction>(model);
+            domain.InitCreation();
+            var result = _mapper.Map<MessageReactionModel>(domain);
+            await BroadcastEvent(roomId, ReceiveMessageReactionRoom, result);
+            await _messageReactionService.AddAsync(domain);
+        }, "Failed to send message reaction");
+    }
+
+    public async Task DeleteMessageReaction(Guid roomId, Guid reactionId)
+    {
+        ValidateMessage(roomId, reactionId);
+        await ExecuteWithErrorHandling(async () =>
+        {
+            await BroadcastEvent(roomId, DeleteMessageReactionRoom, reactionId);
+            await _messageReactionService.DeleteByIdAsync(reactionId);
+        }, "Failed to delete message reaction");
+    }
+
+    public async Task UpdateMessageReaction(Guid roomId, Guid reactionId, MessageReactionCreationModel model)
+    {
+        ValidateMessage(roomId, reactionId, model);
+        await ExecuteWithErrorHandling(async () =>
+        {
+            var domain = _mapper.Map<MessageReaction>(model);
+            domain.Id = reactionId;
+            domain.UpdateModify();
+            var result = _mapper.Map<MessageReactionModel>(domain);
+            await BroadcastEvent(roomId, UpdateMessageReactionRoom, result);
+            await _messageReactionService.UpdateAsync(reactionId, domain);
+        }, "Failed to update message reaction");
+    }
+
+    private async Task BroadcastEvent(Guid roomId, string eventName, object data)
+    {
+        await Clients.Group(roomId.ToString()).SendAsync(eventName, data);
+    }
+    private async Task ExecuteWithErrorHandling(Func<Task> action, string errorMessage)
+    {
+        try
+        {
+            await action();
+        }
+        catch (Exception ex)
+        {
+            await Clients.Caller.SendAsync("Error", $"{errorMessage}: {ex.Message}");
+            throw;
+        }
+    }
+    private static void ValidateMessage(Guid roomId, Guid? targetId = null, object? model = null)
+    {
+        if (roomId == Guid.Empty ||
+            (targetId.HasValue && targetId.Value == Guid.Empty) ||
+            (model != null && model == null))
+        {
+            throw new ParameterInvalidException();
+        }
+    }
 }

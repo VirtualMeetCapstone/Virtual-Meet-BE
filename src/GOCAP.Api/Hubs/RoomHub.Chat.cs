@@ -6,9 +6,9 @@ public partial class RoomHub
     private static readonly string DeleteMessageRoom = "DeleteMessage";
     private static readonly string UpdateMessageRoom = "UpdateMessage";
 
-    private static readonly string ReceiveMessageReactionRoom = "ReceiveMessageReactionRoom";
-    private static readonly string DeleteMessageReactionRoom = "DeleteMessageReactionRoom";
-    private static readonly string UpdateMessageReactionRoom = "UpdateMessageReactionRoom";
+    private static readonly string ReceiveMessageReactionRoom = "ReceiveMessageReaction";
+    private static readonly string DeleteMessageReactionRoom = "DeleteMessageReaction";
+    private static readonly string UpdateMessageReactionRoom = "UpdateMessageReaction";
 
     public async Task SendMessage(Guid roomId, MessageCreationModel model)
     {
