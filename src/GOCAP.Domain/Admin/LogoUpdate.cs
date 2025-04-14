@@ -1,6 +1,6 @@
 ﻿namespace GOCAP.Domain;
 
-public class LogoUpdate
+public class LogoUpdate : DateTrackingBase
 {
-    public required Media Media { get; set; }
+    public required MediaUpload Media { get; set; }
 }
