@@ -37,7 +37,8 @@ internal class MessageService(
 
     public async Task<QueryResult<Conversation>> GetConversations(QueryInfo queryInfo)
     {
-        return await _repository.GetConversations(_userContextService.Id, queryInfo);
+        //return await _repository.GetConversations(_userContextService.Id, queryInfo); thay error cai nay
+        return await _repository.GetMessagesByCurrentUserId(_userContextService.Id, queryInfo);
     }
 
     private async Task ValidateMessage(Message domain)
