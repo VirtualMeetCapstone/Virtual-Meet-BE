@@ -62,12 +62,13 @@ public partial class RoomHub (
         var peerInfo = new RoomPeerModel
         {
             PeerId = Context.ConnectionId,
-            UserName = user.Name,
+            UserName = userId,
             UserId = userId
         };
 
         // Gửi danh sách peers hiện tại cho người mới
         await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.RoomPeers[roomId]);
+        await Clients.Caller.SendAsync("ConnectionId", Context.ConnectionId);
 
         // Thêm peer mới vào room
         RoomStateManager.RoomPeers[roomId].Add(peerInfo);
@@ -98,6 +99,35 @@ public partial class RoomHub (
         }
 
     }
+
+    public async Task MuteUser(string roomId, string targetUserId, bool muted)
+    {
+        await Clients.Group(roomId).SendAsync("HostMutedUser", new
+        {
+            userId = targetUserId,
+            muted = muted
+        });
+    }
+
+    public async Task MuteVideoUser(string roomId, string targetUserId, bool muted)
+    {
+        await Clients.Group(roomId).SendAsync("HostMutedVideoUser", new
+        {
+            userId = targetUserId,
+            muted = muted
+        });
+    }
+
+    public async Task UpdateMicStatus(string roomId, string userId, bool isMicOn)
+    {
+        await Clients.Group(roomId).SendAsync("ReceiveMicStatusUpdate", userId, isMicOn);
+    }
+
+    public async Task UpdateCameraStatus(string roomId, string userId, bool isCamOn)
+    {
+        await Clients.Group(roomId).SendAsync("ReceiveCameraStatusUpdate", userId, isCamOn);
+    }
+
 
     public async Task LeaveRoom(string roomId)
     {
