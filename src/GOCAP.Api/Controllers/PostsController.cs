@@ -63,10 +63,10 @@ public class PostsController(
     /// <returns></returns>
     [HttpGet("users-reaction/{postId}")]
     [AllowAnonymous]
-    public async Task<QueryResult<UserReactionPostModel>> GetUserReactionsByPostIdAsync([FromRoute] Guid postId, [FromQuery] QueryInfo queryInfo)
+    public async Task<UserReactionPostQueryResult> GetUserReactionsByPostIdAsync([FromRoute] Guid postId, [FromQuery] QueryInfo queryInfo)
     {
         var domain = await _postReactionService.GetUserReactionsByPostIdAsync(postId, queryInfo);
-        var result = _mapper.Map<QueryResult<UserReactionPostModel>>(domain);
+        var result = _mapper.Map<UserReactionPostQueryResult>(domain);
         return result;
     }
 

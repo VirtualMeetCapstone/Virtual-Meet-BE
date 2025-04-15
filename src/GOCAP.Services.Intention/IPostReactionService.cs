@@ -3,5 +3,5 @@
 public interface IPostReactionService
 {
     Task<OperationResult> ReactOrUnreactedAsync(PostReaction postReaction);
-    Task<QueryResult<UserReactionPost>> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo);
+    Task<UserReactionPostQueryResult> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo);
 }

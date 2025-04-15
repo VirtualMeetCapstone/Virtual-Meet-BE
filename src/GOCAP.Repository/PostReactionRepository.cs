@@ -49,12 +49,12 @@ internal class PostReactionRepository(AppSqlDbContext context) :
              .ToListAsync();
     }
 
-    public async Task<QueryResult<UserReactionPost>> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo)
+    public async Task<UserReactionPostQueryResult> GetUserReactionsByPostIdAsync(Guid postId, QueryInfo queryInfo)
     {
         var reactions = await (from reaction in _context.PostReactions.AsNoTracking()
                                join user in _context.Users.AsNoTracking()
                                on reaction.UserId equals user.Id into userGroup
-                               from user in userGroup.DefaultIfEmpty() 
+                               from user in userGroup.DefaultIfEmpty()
                                where reaction.PostId == postId
                                orderby reaction.CreateTime descending
                                select new UserReactionPost
@@ -69,12 +69,18 @@ internal class PostReactionRepository(AppSqlDbContext context) :
             ? await _context.PostReactions.Where(r => r.PostId == postId).CountAsync()
             : 0;
 
-        return new QueryResult<UserReactionPost>
+        var grouped = reactions
+            .GroupBy(r => r.ReactionType)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return new UserReactionPostQueryResult
         {
             Data = reactions,
-            TotalCount = totalItems
+            TotalCount = totalItems,
+            Reactions = grouped
         };
     }
+
     public async Task<PostReactionEntity> GetByPostAndUserAsync(Guid postId, Guid userId)
     {
         return await _context.PostReactions

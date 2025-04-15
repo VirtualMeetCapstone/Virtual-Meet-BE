@@ -12,5 +12,5 @@ public class UserEntityMapperProfile : EntityMapperProfileBase
         CreateMap<QueryResult<User>, QueryResult<UserEntity>>().ReverseMap();
         CreateMap<Notification, NotificationEntity>().ReverseMap();
 		CreateMap<UserBlockEntity, UserBlock>().ReverseMap();
-	}
+    }
 }

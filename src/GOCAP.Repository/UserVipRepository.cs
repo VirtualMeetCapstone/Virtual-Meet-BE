@@ -39,7 +39,7 @@
                 .Find(x => x.UserId == userId)
                 .FirstOrDefaultAsync();
 
-            if (userVip == null)
+            if (userVip == null || (userVip.ExpireAt.HasValue && userVip.ExpireAt.Value <= DateTime.UtcNow))
             {
                 return new UserVip
                 {
@@ -47,15 +47,13 @@
                     ExpireAt = null
                 };
             }
-
-            var result = new UserVip
+            return new UserVip
             {
-                PackageId = userVip.PackageId, 
+                PackageId = userVip.PackageId,
                 ExpireAt = userVip.ExpireAt
             };
-
-            return result;
         }
+
 
     }
 }

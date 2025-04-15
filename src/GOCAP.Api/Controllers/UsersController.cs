@@ -91,15 +91,7 @@ public class UsersController(IUserService _userService,
     {
         return await _userService.DeleteByIdAsync(id);
     }
-    [HttpGet("{userId}/blocked")]
-    public async Task<List<UserBlockModel>> GetUserBlocks([FromRoute] Guid userId)
-    {
-        var userBlocks = await _userBlockService.GetUserBlocksAsync(userId);
-        var results = _mapper.Map<List<UserBlockModel>>(userBlocks);
-        return results;
-    }
-
-
+ 
     [HttpPost("check-block")]
     public async Task<ActionResult<bool>> GetBlockOrBlockedAsync([FromBody] UserBlockCreationModel model)
     {
@@ -141,5 +133,20 @@ public class UsersController(IUserService _userService,
         return Ok();
     }
 
+    [HttpGet("{userId}/blocked")]
+    public async Task<List<UserBlockModel>> GetUserBlocks([FromRoute] Guid userId)
+    {
+        var userBlocks = await _userBlockService.GetUserBlocksAsync(userId);
+        var results = _mapper.Map<List<UserBlockModel>>(userBlocks);
+        return results;
+    }
+
+    [HttpGet("blocked-by/{userId}")]
+    public async Task<List<UserBlockModel>> GetBlockedByUsers([FromRoute] Guid userId)
+    {
+        var blockedByUsers = await _userBlockService.GetBlockedByUsersAsync(userId);
+        var results = _mapper.Map<List<UserBlockModel>>(blockedByUsers);
+        return results;
+    }
 
 }
