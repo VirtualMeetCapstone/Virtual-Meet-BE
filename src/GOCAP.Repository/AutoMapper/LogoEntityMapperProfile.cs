@@ -1,8 +1,8 @@
 ﻿namespace GOCAP.Repository.AutoMapper;
 
-public class AdminEntityMapperProfile : EntityMapperProfileBase
+public class LogoEntityMapperProfile : EntityMapperProfileBase
 {
-    public AdminEntityMapperProfile()
+    public LogoEntityMapperProfile()
     {
         CreateMap<Logo, LogoEntity>()
             .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => JsonHelper.Serialize(src.Media)));
