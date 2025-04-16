@@ -17,4 +17,13 @@
     <ProjectReference Include="..\GOCAP.Api.Validation\GOCAP.Api.Validation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Data\badwords1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\badwords2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
