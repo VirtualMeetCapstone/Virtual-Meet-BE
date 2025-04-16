@@ -64,6 +64,13 @@ public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _h
         return liveKitSettings;
     }
 
+    public ModerationSettings GetModerationSettings()
+    {
+        var moderationSettings = new ModerationSettings();
+        _configuration.GetSection("Moderation").Bind(moderationSettings);
+        return moderationSettings;
+    }
+
     /// <summary>
     /// Get Youtube settings.
     /// </summary>

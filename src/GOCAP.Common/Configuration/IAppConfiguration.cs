@@ -11,4 +11,5 @@ public interface IAppConfiguration
     YoutubeSettings GetYoutubeSettings();
     PayOsSettings GetPayOsSettings();
     string? GetEnvironment();
+    ModerationSettings GetModerationSettings();
 }
