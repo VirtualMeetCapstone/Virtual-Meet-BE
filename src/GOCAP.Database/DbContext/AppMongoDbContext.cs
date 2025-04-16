@@ -11,7 +11,7 @@ public class AppMongoDbContext
     public IMongoCollection<NotificationEntity> Notifications { get; set; }
     public IMongoCollection<UserVip> UserVips { get; set; }
     public IMongoCollection<PaymentHistory> PaymentHistorys { get; set; }
-    public IMongoCollection<AdminLogoEntity> AdminLogos { get; set; }
+    public IMongoCollection<LogoEntity> Logos { get; set; }
 
     public AppMongoDbContext(string databaseName, string connectionString)
     {
@@ -24,7 +24,7 @@ public class AppMongoDbContext
         Notifications = GetCollection<NotificationEntity>();
         UserVips = GetCollection<UserVip>();
         PaymentHistorys = GetCollection<PaymentHistory>();
-        AdminLogos = GetCollection<AdminLogoEntity>();
+        Logos = GetCollection<LogoEntity>();
     }
 
     public IMongoDatabase GetDatabase() => _database;

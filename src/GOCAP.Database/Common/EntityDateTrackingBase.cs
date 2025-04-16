@@ -11,4 +11,8 @@ public abstract class EntityDateTrackingBase<TKey> : EntityBase<TKey>, IDateTrac
         CreateTime = DateTime.Now.Ticks;
         LastModifyTime = DateTime.Now.Ticks;
     }
+    public void UpdateModify()
+    {
+        LastModifyTime = DateTime.Now.Ticks;
+    }
 }
