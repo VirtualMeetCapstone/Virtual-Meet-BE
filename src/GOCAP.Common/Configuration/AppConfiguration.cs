@@ -14,7 +14,7 @@ public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _h
     {
         return _configuration.GetConnectionString(AppConstants.SqlServerConnection)
             ?? throw new InternalException();
-    }   
+    }
 
     /// <summary>
     /// Get google client id string.
@@ -71,6 +71,12 @@ public class AppConfiguration(IConfiguration _configuration, IHostEnvironment _h
         return moderationSettings;
     }
 
+    public OpenAISettings GetOpenAISettings()
+    {
+        var openAISettings = new OpenAISettings();
+        _configuration.GetSection("OpenAI").Bind(openAISettings);
+        return openAISettings;
+    }
     /// <summary>
     /// Get Youtube settings.
     /// </summary>

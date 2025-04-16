@@ -24,8 +24,12 @@ public static class ServiceCollectionExtensions
         // Configure LiveKit settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetLiveKitSettings());
 
-        // Configure OpenAI settings.
+        // Configure OpenAI_MODE1 settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetModerationSettings());
+
+
+        // Configure OpenAI_MODE2 settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetOpenAISettings());
 
         // Configure Youtube settings.
         services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetYoutubeSettings());

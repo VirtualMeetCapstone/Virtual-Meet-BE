@@ -12,4 +12,5 @@ public interface IAppConfiguration
     PayOsSettings GetPayOsSettings();
     string? GetEnvironment();
     ModerationSettings GetModerationSettings();
+    OpenAISettings GetOpenAISettings();
 }
