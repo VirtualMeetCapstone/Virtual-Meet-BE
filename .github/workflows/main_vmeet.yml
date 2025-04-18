@@ -49,7 +49,7 @@ jobs:
           dotnet build ./src/GOCAP.sln
 
       - name: Run Unit Tests
-        run: dotnet test GOCAP.Tests.Unit/GOCAP.Tests.Unit.csproj --no-build --configuration Release
+        run: dotnet test ./src/GOCAP.Tests.Unit/GOCAP.Tests.Unit.csproj --no-build --configuration Release
 
       - name: End SonarQube analysis
         shell: powershell
