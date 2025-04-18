@@ -15,10 +15,24 @@ public class ModerationController : ApiControllerBase
     private readonly OpenAISettings _openAISettings;
     private const ModerationModel CURRENT_MODEL = ModerationModel.RapidAPI;
     private const ModerationModel CURRENT_MODEL_FOR_CHAT = ModerationModel.RapidAPI;
+
+    private const string MODERATION_PROMPT_TEMPLATE = @"Bạn là hệ thống kiểm duyệt nội dung chuyên nghiệp. Quốc gia chủ yếu của bạn là Việt Nam, 
+                                vì vậy bạn cần nhận biết đúng các nội dung nhạy cảm đặc thù trong văn hóa và chính trị Việt Nam.
+                                Hãy phân tích đoạn văn dưới đây (tiếng Việt hoặc tiếng Anh) và trả lời duy nhất ở định dạng JSON ((KHÔNG được thêm giải thích, không được dùng ```json hoặc bất kỳ ký tự markdown nào)):
+                                {{""status"": true}} nếu nội dung vi phạm
+                                {{""status"": false}} nếu nội dung phù hợp
+                                Trả về true nếu đoạn văn có nội dung không phù hợp như:
+                                - 18+, khiêu dâm, tục tĩu
+                                - Bạo lực, tự tử
+                                - Chính trị nhạy cảm, xúc phạm lãnh tụ hoặc các lãnh tụ chính trị, hoặc gây hiểu lầm về chính sách quốc gia Việt Nam.
+                                - Tin giả, lừa đảo
+
+                                Đoạn văn: ""{0}""";
+
     private enum ModerationModel
     {
         OpenAI,
-        RapidAPI
+        RapidAPI,
     }
 
     // Singleton pattern for thread-safe lazy initialization
@@ -148,23 +162,14 @@ public class ModerationController : ApiControllerBase
                 new
                 {
                     role = "user",
-                    content = @$"Bạn là hệ thống kiểm duyệt nội dung chuyên nghiệp. Quốc gia chủ yếu của bạn là Việt Nam, 
-                                vì vậy bạn cần nhận biết đúng các nội dung nhạy cảm đặc thù trong văn hóa và chính trị Việt Nam.
-                                Hãy phân tích đoạn văn dưới đây (tiếng Việt hoặc tiếng Anh) và trả lời duy nhất ở định dạng JSON:
-
-                                {{""status"": true | false}}
-
-                                Trả về true nếu đoạn văn có nội dung không phù hợp như:
-                                - 18+, khiêu dâm, tục tĩu
-                                - Bạo lực, tự tử
-                                - Chính trị nhạy cảm, xúc phạm lãnh tụ hoặc các lãnh tụ chính trị, hoặc gây hiểu lầm về chính sách quốc gia
-                                - Tin giả, lừa đảo
-
-                                Đoạn văn: ""{text}""
-"
+                    content = string.Format(MODERATION_PROMPT_TEMPLATE, text)
                 }
             },
-            temperature = 0.2
+            temperature = 0.3,
+            top_k = 1,
+            top_p = 0.7,
+
+            web_access = false
         };
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, _openAISettings.OpenAIUrl)
@@ -203,23 +208,13 @@ public class ModerationController : ApiControllerBase
                 new
                 {
                     role = "user",
-                    content = @$"Bạn là hệ thống kiểm duyệt nội dung chuyên nghiệp. Quốc gia chủ yếu của bạn là Việt Nam, 
-                                vì vậy bạn cần nhận biết đúng các nội dung nhạy cảm đặc thù trong văn hóa và chính trị Việt Nam.
-                                Hãy phân tích đoạn văn dưới đây (tiếng Việt hoặc tiếng Anh) và trả lời duy nhất ở định dạng JSON:
-
-                                {{""status"": true | false}}
-
-                                Trả về true nếu đoạn văn có nội dung không phù hợp như:
-                                - 18+, khiêu dâm, tục tĩu
-                                - Bạo lực, tự tử
-                                - Chính trị nhạy cảm, xúc phạm lãnh tụ hoặc các lãnh tụ chính trị, hoặc gây hiểu lầm về chính sách quốc gia
-                                - Tin giả, lừa đảo
-
-                                Đoạn văn: ""{text}""
-"
+                    content = string.Format(MODERATION_PROMPT_TEMPLATE, text)
                 }
             },
-            web_access = false
+            temperature = 0.3,
+            top_k = 1,
+            top_p = 0.7,
+
         };
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, _settings.ApiUrl)
@@ -314,9 +309,9 @@ public class ModerationController : ApiControllerBase
                     bot_id = "OEXJ8qFp5E5AwRwymfPts90vrHnmr8yZgNE171101852010w2S0bCtN3THp448W7kDSfyTf3OpW5TUVefz",
                     messages,
                     user_id = "",
-                    temperature = 0.9,
-                    top_k = 5,
-                    top_p = 0.9,
+                    temperature = 0.3,
+                    top_k = 1,
+                    top_p = 0.7,
                     max_tokens = 256,
                     model = "gpt 3.5"
                 };

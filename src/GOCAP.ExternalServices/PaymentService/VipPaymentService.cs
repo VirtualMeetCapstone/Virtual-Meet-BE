@@ -54,6 +54,7 @@ public class VipPaymentService : IVipPaymentService
             Amount = package.Price,
             OrderCode = orderCode.ToString(),
             IsPaid = false,
+            CreateTime = DateTime.UtcNow.Ticks,
         };
 
         await _vipPaymentRepository.AddPaymentAsync(paymentHistory);
