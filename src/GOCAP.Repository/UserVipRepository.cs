@@ -4,6 +4,7 @@
     internal class UserVipRepository(AppMongoDbContext _context)
         : MongoRepositoryBase<UserVip>(_context), IUserVipRepository
     {
+        private readonly AppMongoDbContext _context = _context;
         public async Task AddOrUpdateUserVipAsync(Guid userId, int packageId, DateTime? expireAt = null)
         {
             var filter = Builders<UserVip>.Filter.Eq(x => x.UserId, userId);
