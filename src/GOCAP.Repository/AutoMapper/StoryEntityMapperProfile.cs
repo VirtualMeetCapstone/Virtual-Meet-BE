@@ -19,6 +19,6 @@ public class StoryEntityMapperProfile : EntityMapperProfileBase
         CreateMap<StoryView, StoryViewEntity>().ReverseMap();
 
         // Story hight light
-        CreateMap<StoryHightLight, StoryHightLightEntity>().ReverseMap();
+        CreateMap<StoryHighlight, StoryHightLightEntity>().ReverseMap();
     }
 }

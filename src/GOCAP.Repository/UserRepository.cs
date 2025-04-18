@@ -9,6 +9,7 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
     => await _context.Users
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.Email == email);
+
     public async Task<UserCount> GetUserCountsAsync()
     {
         var counts = await _context.Users
@@ -81,18 +82,19 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
 
     public override async Task<bool> UpdateAsync(UserEntity entity)
     {
-        var userEntity = await GetEntityByIdAsync(entity.Id);
-        if (!string.IsNullOrEmpty(userEntity.Picture))
-        {
-            var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
-            await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
-        }
+        var userEntity = await GetByIdAsync(entity.Id, false);
+        
         if (!string.IsNullOrEmpty(entity.Name))
         {
             userEntity.Name = entity.Name;
         }
         if (!string.IsNullOrEmpty(entity.Picture))
         {
+            if (!string.IsNullOrEmpty(userEntity.Picture))
+            {
+                var media = JsonHelper.Deserialize<Media>(userEntity.Picture);
+                await _blobStorageService.DeleteFilesByUrlsAsync([media?.Url]);
+            }
             userEntity.Picture = entity.Picture;
         }
         if (entity.Bio != null)
@@ -132,4 +134,8 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
             })
             .ToListAsync();
     }
+
+    protected override IQueryable<UserEntity> GenerateWhereString(IQueryable<UserEntity> query, QueryInfo queryInfo)
+    => query.AsNoTracking().Where(u => EF.Functions.Collate(u.Name, "Latin1_General_CI_AI").Contains(queryInfo.SearchText.Trim())
+                    && !u.IsDeleted);
 }

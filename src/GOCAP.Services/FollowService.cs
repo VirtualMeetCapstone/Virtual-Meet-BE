@@ -2,10 +2,9 @@
 
 [RegisterService(typeof(IFollowService))]
 internal class FollowService(
-    IUnitOfWork _unitOfWork,
-    IUserRepository _userRepository,
-    IUserNotificationRepository _userNotificationRepository,
+    IUserContextService _userContextService,
     IFollowRepository _repository,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<FollowService> _logger
     ) : ServiceBase<Follow, UserFollowEntity>(_repository, _mapper, _logger), IFollowService
@@ -25,19 +24,8 @@ internal class FollowService(
             throw new ParameterInvalidException();
         }
 
-        if (!await _userRepository.CheckExistAsync(domain.FollowerId))
-        {
-            throw new ResourceNotFoundException($"User {domain.FollowerId} was not found.");
-        }
-
-        if (!await _userRepository.CheckExistAsync(domain.FollowingId))
-        {
-            throw new ResourceNotFoundException($"User {domain.FollowingId} was not found.");
-        }
-
         var result = new OperationResult(true);
-
-        var follow = await _repository.GetByFollowerAndFollowingAsync(domain.FollowerId, domain.FollowingId);
+        var follow = await _repository.GetByFollowerAndFollowingAsync(_userContextService.Id, domain.FollowingId);
 
         // If existing then remove the follow ( unfollow )
         if (follow != null)
@@ -50,44 +38,28 @@ internal class FollowService(
         else
         {
             _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Follow).Name);
-            try
+            domain.InitCreation();
+            var entity = _mapper.Map<UserFollowEntity>(domain);
+            entity.FollowerId = _userContextService.Id;
+            await _repository.AddAsync(entity);
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
             {
-                var sender = await _userRepository.GetByIdAsync(domain.FollowerId);
-                
-                // Begin the transaction. 
-                await _unitOfWork.BeginTransactionAsync();
-
-                // Insert the follow into db.
-                domain.InitCreation();
-                var entity = _mapper.Map<UserFollowEntity>(domain);
-                await _repository.AddAsync(entity);
-
-                // Insert the notification into db.
-                var notification = new UserNotification
-                {
-                    UserId = domain.FollowingId,
-                    Sender = _mapper.Map<User>(sender),
-                    Content = string.Format(NotificationMessage.Follow, sender.Name),
-                    Type = NotificationType.Follow,
-                    ReferenceId = domain.FollowerId,
-                };
-                notification.InitCreation();
-                var notificationEntity = _mapper.Map<UserNotificationEntity>(notification);
-                await _userNotificationRepository.AddAsync(notificationEntity);
-
-                // Complete the transaction.
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while deleting entity of type {EntityType}.", typeof(Follow).Name);
-                // Rollback the transaction if occuring the exception.
-                await _unitOfWork.RollbackTransactionAsync();
-                throw new InternalException();
-            };
+                Type = NotificationType.Follow,
+                ActionType = ActionType.Add,
+                UserId = entity.FollowingId,
+                ActorId = entity.FollowerId
+            });
         }
-
         return result;
     }
 
+    public async Task<bool> IsFollowingAsync(Guid followingId)
+    {
+        var domain = new Follow
+        {
+            FollowerId = _userContextService.Id,
+            FollowingId = followingId
+        };
+        return await _repository.IsFollowingAsync(domain);
+    }
 }

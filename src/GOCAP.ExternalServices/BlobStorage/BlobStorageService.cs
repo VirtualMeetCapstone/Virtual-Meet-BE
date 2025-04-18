@@ -2,13 +2,15 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using Microsoft.Extensions.Logging;
 
 namespace GOCAP.ExternalServices;
 
-public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobStorageService
+public class BlobStorageService(BlobServiceClient _blobServiceClient, ILogger<BlobStorageService> _logger) : IBlobStorageService
 {
-    public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)
+    public async Task<Media> UploadFileAsync(MediaUpload mediaUpload)   
     {
+        _logger.LogInformation("Start uploading a new media file.");
         if (mediaUpload?.FileStream == null || mediaUpload.FileStream.Length == 0)
         {
             throw new ParameterInvalidException("File stream cannot be null or empty.");
@@ -24,11 +26,11 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
         string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-        string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
-        string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
-        var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+        string fileName = $"{mediaUpload.ContainerName}/{Guid.NewGuid()}-{timestamp}-{mediaUpload.Type}{Path.GetExtension(mediaUpload.FileName)}";
+        var blobClient = blobContainerClient.GetBlobClient(fileName);
 
         await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
+        _logger.LogInformation("Complete uploading a new media file.");
 
         return new Media
         {
@@ -39,6 +41,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
 
     public async Task<List<Media>> UploadFilesAsync(List<MediaUpload> mediaUploads)
     {
+        _logger.LogInformation("Start uploading new media files.");
         if (mediaUploads == null || mediaUploads.Count == 0)
         {
             throw new ParameterInvalidException("File stream cannot be null or empty.");
@@ -64,9 +67,8 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
                 var blobContainerClient = await GetContainerClientAsync(mediaUpload.ContainerName);
 
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                string fileName = $"{Guid.NewGuid()}_{mediaUpload.Type}{timestamp}_{mediaUpload.FileName}";
-                string fileNameWithPath = $"{mediaUpload.ContainerName}/{fileName}";
-                var blobClient = blobContainerClient.GetBlobClient(fileNameWithPath);
+                string fileName = $"{mediaUpload.ContainerName}/{Guid.NewGuid()}-{timestamp}-{mediaUpload.Type}{Path.GetExtension(mediaUpload.FileName)}";
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
 
                 await blobClient.UploadAsync(mediaUpload.FileStream, overwrite: false);
 
@@ -79,6 +81,7 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         }
 
         var uploadedFiles = await Task.WhenAll(result);
+        _logger.LogInformation("Complete uploading a new media file.");
         return [.. uploadedFiles];
     }
 
@@ -117,47 +120,70 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         return results.All(r => r);
     }
 
-    public async Task<bool> DeleteFilesByUrlsAsync(List<string?>? fileUrls)
+    public async Task<bool> DeleteFilesByUrlsAsync(List<string> fileUrls)
     {
+        _logger.LogInformation("Start deleting media files by urls.");
         if (fileUrls == null || fileUrls.Count == 0)
         {
             throw new ParameterInvalidException("File URLs cannot be null or empty.");
         }
 
-        var deleteTasks = new List<Task<Response<bool>>>();
-        foreach (var fileUrl in fileUrls)
+        try
         {
-            if (fileUrl is null)
+            var deleteTasks = new List<Task<Response<bool>>>();
+            foreach (var fileUrl in fileUrls)
             {
-                continue;
+                if (fileUrl is null)
+                {
+                    continue;
+                }
+                var uri = new Uri(fileUrl);
+                string[] segments = uri.AbsolutePath.Trim('/').Split('/');
+
+                if (segments.Length < 2)
+                {
+                    throw new ParameterInvalidException($"Invalid Azure Blob Storage URL format: {fileUrl}");
+                }
+
+                string containerName = segments[0];
+                string blobName = string.Join("/", segments.Skip(1));
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+                if (await blobClient.ExistsAsync())
+                {
+                    deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+                }
+                else
+                {
+                    continue;
+                }
             }
-            var uri = new Uri(fileUrl);
-            string[] segments = uri.AbsolutePath.Trim('/').Split('/');
 
-            if (segments.Length < 2)
-            {
-                throw new ParameterInvalidException($"Invalid Azure Blob Storage URL format: {fileUrl}");
-            }
-
-            string containerName = segments[0];
-            string blobName = string.Join("/", segments.Skip(1));
-
-            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = blobContainerClient.GetBlobClient(blobName);
-
-            deleteTasks.Add(blobClient.DeleteIfExistsAsync());
+            var results = await Task.WhenAll(deleteTasks);
+            _logger.LogInformation("Complete deleting media files by urls.");
+            return results.All(result => result.Value);
         }
-
-        var results = await Task.WhenAll(deleteTasks);
-        return results.All(result => result.Value);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected errors occured while deleting.");
+            return false;
+        }
     }
 
     public async Task<bool> CheckFileExistsAsync(string containerName, string fileName)
     {
-        ValidateInput(containerName, fileName);
-        var blobContainerClient = await GetContainerClientAsync(containerName);
-        var blobClient = blobContainerClient.GetBlobClient(fileName);
-        return await blobClient.ExistsAsync();
+        try
+        {
+            ValidateInput(containerName, fileName);
+            var blobContainerClient = await GetContainerClientAsync(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(fileName);
+            return await blobClient.ExistsAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected errors occured while checking file exists or not.");
+            return false;
+        }
     }
 
     public async Task<IEnumerable<string>> GetListFilesAsync(string containerName)
@@ -266,6 +292,50 @@ public class BlobStorageService(BlobServiceClient _blobServiceClient) : IBlobSto
         {
             throw new ParameterInvalidException("File name cannot be null or empty.");
         }
+    }
+
+    public async Task<bool> CheckFilesExistByUrlsAsync(List<string> fileUrls)
+    {
+        if (fileUrls == null || fileUrls.Count == 0)
+        {
+            throw new ParameterInvalidException("File URLs cannot be null or empty.");
+        }
+
+        foreach (var fileUrl in fileUrls)
+        {
+            if (fileUrl is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var uri = new Uri(fileUrl);
+                string[] segments = uri.AbsolutePath.Trim('/').Split('/');
+
+                if (segments.Length < 2)
+                {
+                    return false;
+                }
+
+                string containerName = segments[0];
+                string blobName = string.Join("/", segments.Skip(1));
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                if (!await blobClient.ExistsAsync())
+                {
+                    return false; 
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking file existence: {message}", ex.Message);
+                return false; 
+            }
+        }
+
+        return true; 
     }
 
 }

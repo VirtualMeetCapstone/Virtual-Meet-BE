@@ -1,12 +1,17 @@
-﻿namespace GOCAP.Services;
+﻿using GOCAP.Services.Intention;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IPostService))]
 internal class PostService(
     IPostRepository _repository,
     IPostReactionRepository _postReactionRepository,
+    ICommentRepository _commentRepository,
     IUserRepository _userRepository,
     IBlobStorageService _blobStorageService,
+    IUserContextService _userContextService,
     IUnitOfWork _unitOfWork,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<PostService> _logger
     ) : ServiceBase<Post, PostEntity>(_repository, _mapper, _logger), IPostService
@@ -14,7 +19,34 @@ internal class PostService(
     private readonly IMapper _mapper = _mapper;
 
     public async Task<QueryResult<Post>> GetWithPagingAsync(QueryInfo queryInfo)
-    => await _repository.GetWithPagingAsync(queryInfo);
+    {
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
+        var queryResult = await _repository.GetWithPagingAsync(queryInfo);
+        var posts = queryResult.Data;
+
+        var postIds = posts.Select(p => p.Id).ToList();
+
+        var commentCounts = await _commentRepository.GetCommentCountsByPostIdsAsync(postIds);
+
+        var updatedPosts = posts.Select(p =>
+        {
+            p.CommentCount = commentCounts.TryGetValue(p.Id, out var count) ? count : 0;
+            return p;
+        }).ToList();
+
+        return new QueryResult<Post>
+        {
+            Data = updatedPosts,
+            TotalCount = queryResult.TotalCount
+        };
+    }
 
 
     public async Task<Post> GetDetailByIdAsync(Guid id)
@@ -45,8 +77,18 @@ internal class PostService(
         try
         {
             var entity = _mapper.Map<PostEntity>(post);
-            var PostDomain = await _repository.AddAsync(entity);
-            return _mapper.Map<Post>(PostDomain);
+            var postEntity = await _repository.AddAsync(entity);
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Post,
+                ActionType = ActionType.Add,
+                Source = new NotificationSource
+                {
+                    Id = postEntity.Id
+                },
+                ActorId = postEntity.UserId
+            });
+            return _mapper.Map<Post>(postEntity);
         }
         catch (Exception ex)
         {

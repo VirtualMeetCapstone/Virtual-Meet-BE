@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="payOS" Version="1.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
+    <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
+    <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
   </ItemGroup>
 
 </Project>

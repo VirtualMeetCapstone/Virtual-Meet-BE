@@ -129,4 +129,24 @@ internal class CommentRepository(AppMongoDbContext context)
             TotalCount = (int)totalComments
         };
     }
+    public async Task<Dictionary<Guid, int>> GetCommentCountsByPostIdsAsync(List<Guid> postIds)
+    {
+        var filter = Builders<CommentEntity>.Filter.And(
+            Builders<CommentEntity>.Filter.In(c => c.PostId, postIds),
+            Builders<CommentEntity>.Filter.Or(
+                Builders<CommentEntity>.Filter.Eq(c => c.ParentId, null),
+                Builders<CommentEntity>.Filter.Eq(c => c.ParentId, Guid.Empty)
+            )
+        );
+
+        var commentCounts = await _context.Comments
+            .Aggregate()
+            .Match(filter)
+            .Group(c => c.PostId, g => new { PostId = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        return commentCounts.ToDictionary(x => x.PostId, x => x.Count);
+    }
+
+
 }

@@ -31,7 +31,7 @@ public static class WebHostBuilderExtensions
             kestrelOptions.Limits.MaxRequestBodySize = Int32.MaxValue;
         });
 
-    private static Byte[] PemBytes(String fileName) => Convert.FromBase64String(
+    private static Byte[] PemBytes(string fileName) => Convert.FromBase64String(
         File.ReadAllLines(fileName)
             .Where(l => !l.Contains('-')).Where(l => !l.Contains(' '))
             .Aggregate("", (current, next) => current + next)

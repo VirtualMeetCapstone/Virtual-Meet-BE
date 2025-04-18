@@ -7,7 +7,7 @@ public class PermissionsControlMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next;
 
-    public async Task Invoke(HttpContext context, IPermissionService permissionService)
+    public async Task Invoke(HttpContext context, IPermissionService permissionService, IUserContextService userContextService)
     {
         // Get current action endpoint
         var endpoint = context.GetEndpoint();
@@ -28,7 +28,7 @@ public class PermissionsControlMiddleware(RequestDelegate next)
                                                       .Distinct()
                                                       .ToList();
         // Get user id from jwt token
-        var userId = Guid.Parse("132550D4-998F-4ADB-A546-330AA5AB78E4");
+        var userId = userContextService.Id;
         var userPermissions = await permissionService.GetUserPermissionsByUserIdAsync(userId);
         var userPermissionTypes = userPermissions.Select(x => x.Type).ToList();
 

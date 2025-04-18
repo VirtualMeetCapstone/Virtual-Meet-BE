@@ -1,0 +1,14 @@
+﻿global using AutoMapper;
+global using FluentAssertions;
+global using GOCAP.Common;
+global using GOCAP.Domain;
+global using GOCAP.ExternalServices;
+global using GOCAP.Messaging.Producer;
+global using GOCAP.Repository;
+global using GOCAP.Repository.Intention;
+global using GOCAP.Services;
+global using GOCAP.Services.Intention;
+global using Microsoft.Extensions.Logging.Abstractions;
+global using Moq;
+global using GOCAP.Database;
+global using Microsoft.EntityFrameworkCore;

@@ -12,8 +12,4 @@
     <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Admin\DashBoard\" />
-  </ItemGroup>
-
 </Project>

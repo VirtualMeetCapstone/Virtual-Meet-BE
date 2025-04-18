@@ -8,3 +8,4 @@ global using Microsoft.EntityFrameworkCore;
 global using MongoDB.Bson;
 global using MongoDB.Driver;
 global using System.Linq.Expressions;
+global using ClosedXML.Excel;

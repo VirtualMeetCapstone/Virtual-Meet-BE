@@ -3,13 +3,17 @@
 [RegisterService(typeof(IUserService))]
 internal class UserService(
 	IUserRepository _repository,
-	IBlobStorageService _blobStorageService,
-	IUserNotificationRepository _userNotificationRepository,
-	IMapper _mapper,
+    IUserVipRepository _vipRepository,
+    IBlobStorageService _blobStorageService,
+	IKafkaProducer _kafkaProducer,
+	IUserContextService _userContextService,
+    IVipPaymentRepository _vipPaymentRepository,
+    IMapper _mapper,
 	ILogger<UserService> _logger
 	) : ServiceBase<User, UserEntity>(_repository, _mapper, _logger), IUserService
 {
 	private readonly IMapper _mapper = _mapper;
+
 	public async Task<User> GetUserProfileAsync(Guid id)
 	{
 		return await _repository.GetUserProfileAsync(id);
@@ -32,11 +36,13 @@ internal class UserService(
 		}
 		catch (Exception ex)
 		{
-			if (domain.PictureUpload != null)
+            _logger.LogError(ex, "An error occurred: {Message}", ex.Message);
+            if (domain.PictureUpload != null)
 			{
+				_logger.LogInformation("Start deleting media files if occurring errors.");
 				await MediaHelper.DeleteMediaFilesIfError([domain.PictureUpload], _blobStorageService);
 			}
-			throw new InternalException(ex.Message);
+			throw new InternalException();
 		}
 
 	}
@@ -52,11 +58,6 @@ internal class UserService(
 		return _mapper.Map<User?>(entity);
     }
 
-	public async Task<List<UserNotification>> GetNotificationsByUserIdAsync(Guid userId)
-	{
-		return await _userNotificationRepository.GetNotificationsByUserIdAsync(userId);
-	}
-
 	public async Task<UserCount> GetUserCountsAsync()
 	{
 		return await _repository.GetUserCountsAsync() ?? new UserCount();
@@ -67,4 +68,36 @@ internal class UserService(
 
 		return await _repository.SearchUsersAsync(userName, limit);
 	}
+
+    public override async Task<QueryResult<User>> GetByPageAsync(QueryInfo queryInfo)
+    {
+        var entities = await _repository.GetByPageAsync(queryInfo);
+		if (!string.IsNullOrEmpty(queryInfo.SearchText))
+		{
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
+        return _mapper.Map<QueryResult<User>>(entities);
+    }
+
+
+    public async Task<UserVip> GetUserVipLevelAsync(Guid userId)
+    {
+        return await _vipRepository.GetUserVipLevel(userId);
+    }
+
+
+    public async Task AddOrUpdateUserVipAsync(Guid userId, int packageId, DateTime? expireAt)
+    {
+        await _vipRepository.AddOrUpdateUserVipAsync(userId, packageId, expireAt);
+    }
+
+    public async Task<bool> HasUserPaidForVipAsync(Guid userId, int packageID)
+    {
+        var payment = await _vipPaymentRepository.GetPaymentByUserAndPackageIdAsync(userId, packageID);
+        return payment != null && payment.IsPaid;
+    }
 }

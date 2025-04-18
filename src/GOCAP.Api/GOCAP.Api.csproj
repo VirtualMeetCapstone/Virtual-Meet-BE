@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+    <PackageReference Include="Livekit.Server.Sdk.Dotnet" Version="1.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
@@ -14,6 +16,15 @@
     <ProjectReference Include="..\GOCAP.Api.Common\GOCAP.Api.Common.csproj" />
     <ProjectReference Include="..\GOCAP.Api.Model\GOCAP.Api.Model.csproj" />
     <ProjectReference Include="..\GOCAP.Api.Validation\GOCAP.Api.Validation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Data\badwords1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Data\badwords2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -4,16 +4,12 @@ public class MessageModelMapperProfile : ModelMapperProfileBase
 {
     public MessageModelMapperProfile()
     {
-        // Room 
-        CreateMap<RoomMessage, RoomMessageModel>().ReverseMap();
-        CreateMap<RoomMessage, RoomMessageCreationModel>().ReverseMap();
+        CreateMap<Message, MessageCreationModel>().ReverseMap();
+        CreateMap<Message, MessageModel>().ReverseMap();
+        CreateMap<MessageReaction, MessageReactionCreationModel>().ReverseMap();
+        CreateMap<MessageReaction, MessageReactionModel>().ReverseMap();
 
-        // User
-        CreateMap<UserMessage, UserMessageModel>().ReverseMap();
-        CreateMap<UserMessage, UserMessageCreationModel>().ReverseMap();
-
-        //Group
-        CreateMap<GroupMessage, GroupMessageModel>().ReverseMap();
-        CreateMap<GroupMessage, GroupMessageCreationModel>().ReverseMap();
+        CreateMap<Conversation, ConversationModel>().ReverseMap();
+        CreateMap<QueryResult<Conversation>, QueryResult<ConversationModel>>().ReverseMap();
     }
 }

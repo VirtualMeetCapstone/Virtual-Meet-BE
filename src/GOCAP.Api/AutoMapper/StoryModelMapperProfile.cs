@@ -9,16 +9,17 @@ public class StoryModelMapperProfile : ModelMapperProfileBase
         CreateMap<Story, StoryCreationModel>().ReverseMap();
 
         CreateMap<Story, StoryCreationModel>()
-            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaToFormFile(src.MediaUpload)));
+            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaHelper.ConvertMediaToFormFile(src.MediaUpload)));
 
         CreateMap<StoryCreationModel, Story>()
-            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertFormFileToMedia(src.MediaUpload)));
+            .ForMember(dest => dest.MediaUpload, opt => opt.MapFrom(src => ConvertMediaHelper.ConvertFormFileToMedia(src.MediaUpload)));
 
-        CreateMap<User, StoryUserModel>().ReverseMap();
+        CreateMap<User, UserStoryModel>().ReverseMap();
         CreateMap<QueryResult<Story>, QueryResult<StoryModel>>().ReverseMap();
 
         CreateMap<Story, StoryDetailModel>().ReverseMap();
-
+        CreateMap<Story, StoryUserModel>().ReverseMap();
+        CreateMap<QueryResult<Story>, QueryResult<StoryUserModel>>().ReverseMap();
         // Story reaction
         CreateMap<StoryReaction, StoryReactionModel>().ReverseMap();
         CreateMap<StoryReaction, StoryReactionCreationModel>().ReverseMap();
@@ -33,7 +34,7 @@ public class StoryModelMapperProfile : ModelMapperProfileBase
         CreateMap<QueryResult<StoryViewDetail>, QueryResult<StoryViewDetailModel>>().ReverseMap();
 
         // Story hight light
-        CreateMap<StoryHightLight, StoryHightLightModel>().ReverseMap();
-        CreateMap<StoryHightLight, StoryHightLightCreationModel>().ReverseMap();
+        CreateMap<StoryHighlight, StoryHighlightModel>().ReverseMap();
+        CreateMap<StoryHighlight, StoryHighlightCreationModel>().ReverseMap();
     }
 }

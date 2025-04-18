@@ -1,6 +1,5 @@
 ﻿namespace GOCAP.Api.Controllers;
 
-[Route("groups")]
 public class GroupsController(IGroupService _service,
     IGroupMemberService _groupMemberService,
     IMapper _mapper) : ApiControllerBase
@@ -10,7 +9,7 @@ public class GroupsController(IGroupService _service,
     /// </summary>
     /// <param name="queryInfo"></param>
     /// <returns></returns>
-    [HttpGet("{userId}/page")]
+    [HttpGet("users/{userId}/groups")]
     public async Task<QueryResult<GroupModel>> GetByUserIdWithPaging([FromRoute] Guid userId, [FromQuery] QueryInfo queryInfo)
     {
         var domain = await _service.GetByUserIdWithPagingAsync(userId, queryInfo);
@@ -23,7 +22,7 @@ public class GroupsController(IGroupService _service,
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{id}")]
+    [HttpGet("groups/{id}")]
     public async Task<GroupDetailModel> GetById([FromRoute] Guid id)
     {
         var group = await _service.GetDetailByIdAsync(id);
@@ -35,7 +34,7 @@ public class GroupsController(IGroupService _service,
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPost]
+    [HttpPost("groups")]
     [ValidateModel]
     public async Task<GroupModel> Create([FromForm] GroupCreationModel model)
     {
@@ -50,7 +49,7 @@ public class GroupsController(IGroupService _service,
     /// <param name="id"></param>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPatch("{id}")]
+    [HttpPatch("groups/{id}")]
     public async Task<OperationResult> Update([FromRoute] Guid id, [FromBody] GroupUpdationModel model)
     {
         var domain = _mapper.Map<Group>(model);
@@ -62,7 +61,7 @@ public class GroupsController(IGroupService _service,
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpDelete("{id}")]
+    [HttpDelete("groups/{id}")]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
         return await _service.DeleteByIdAsync(id);
@@ -73,16 +72,17 @@ public class GroupsController(IGroupService _service,
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPost("member")]
+    [HttpPost("groups/{groupId}/members")]
     [ValidateModel]
-    public async Task<OperationResult> AddOrRemoveMember(GroupMemberCreationModel model)
+    public async Task<OperationResult> AddOrRemoveMember([FromRoute] Guid groupId, GroupMemberCreationModel model)
     {
         var domain = _mapper.Map<GroupMember>(model);
+        domain.GroupId = groupId;
         var result = await _groupMemberService.AddOrRemoveMemberAsync(domain);
         return result;
     }
 
-    [HttpPatch("transfer")]
+    [HttpPatch("groups/transfer")]
     [ValidateModel]
     public async Task<OperationResult> TransferGroup(TransferGroupModel model)
     {

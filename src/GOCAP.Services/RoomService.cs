@@ -4,67 +4,99 @@
 internal class RoomService(
     IRoomRepository _repository,
     IRoomMemberRepository _roomMemberRepository,
-    IUserRepository _userRepository,
-    IUnitOfWork _unitOfWork,
     IBlobStorageService _blobStorageService,
+    IUserContextService _userContextService,
+    IUnitOfWork _unitOfWork,
+    IKafkaProducer _kafkaProducer,
+    IRedisService _redisService,
     IMapper _mapper,
     ILogger<RoomService> _logger
     ) : ServiceBase<Room, RoomEntity>(_repository, _mapper, _logger), IRoomService
 {
     private readonly IMapper _mapper = _mapper;
-    /// <summary>
-    /// Create a new roomMd
-    /// </summary>
-    /// <param name="room"></param>
-    /// <returns></returns>
+    private readonly string _redisKey = "Room:Password:";
     public override async Task<Room> AddAsync(Room room)
     {
         _logger.LogInformation("Start adding a new entity of type {EntityType}.", typeof(Room).Name);
 
-        if (!await _userRepository.CheckExistAsync(room.OwnerId))
+        if (room.Medias != null && room.Medias.Count > 0)
         {
-            throw new ResourceNotFoundException($"User {room.OwnerId} was not found.");
+            var urls = room.Medias.Select(x => x.Url).ToList();
+            var isExists = await _blobStorageService.CheckFilesExistByUrlsAsync(urls);
+            if (!isExists)
+            {
+                throw new ParameterInvalidException("At least one media file uploaded is invalid.");
+            }
+            room.Medias.ToList().ForEach(x => x.Type = ConvertMediaHelper.GetMediaTypeFromUrl(x.Url));
         }
-
-        // Upload file to azure.
-        if (room.MediaUploads?.Count > 0)
-        {
-            var medias = await _blobStorageService.UploadFilesAsync(room.MediaUploads);
-            room.Medias = medias;
-        }
-
         room.InitCreation();
+        var entity = _mapper.Map<RoomEntity>(room);
+        entity.OwnerId = _userContextService.Id;
+
+        if (!string.IsNullOrEmpty(room.Password))
+        {
+            _logger.LogInformation("Storing password for Room ID: {RoomId} in Redis.", room.Id);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(room.Password);
+            var redisKey = $"{_redisKey}{room.Id}";
+            var isCreatedPassword = await _redisService.SetAsync(redisKey, passwordHash);
+            if (!isCreatedPassword)
+            {
+                throw new ParameterInvalidException("Failed to store room password.");
+            }
+        }
+
         try
         {
-            var entity = _mapper.Map<RoomEntity>(room);
             var result = await _repository.AddAsync(entity);
+
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+            {
+                Type = NotificationType.Room,
+                ActionType = ActionType.Add,
+                Source = new NotificationSource { Id = result.Id },
+                ActorId = result.OwnerId
+            });
+
             return _mapper.Map<Room>(result);
         }
         catch (Exception ex)
         {
-            if (room.MediaUploads != null && room.MediaUploads.Count > 0)
-            {
-                await MediaHelper.DeleteMediaFilesIfError(room.MediaUploads, _blobStorageService);
-            }
-            throw new InternalException(ex.Message);
+            var redisKey = $"{_redisKey}{room.Id}";
+            _logger.LogWarning(ex, "Room creation failed. Deleting password in Redis for Room ID: {RoomId}", room.Id);
+            await _redisService.DeleteAsync(redisKey);
+            throw;
         }
     }
 
-    /// <summary>
-    /// Delete a room by id.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     public override async Task<OperationResult> DeleteByIdAsync(Guid id)
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
+        var room = await _repository.GetByIdAsync(id);
+        if (room.OwnerId != _userContextService.Id)
+        {
+            throw new ForbiddenException("You are not the owner of this room.");
+        }
+        var medias = JsonHelper.Deserialize<List<Media>>(room.Medias);
+        if (medias != null && medias.Count > 0)
+        {
+            var isFileDeleted = await _blobStorageService.DeleteFilesByUrlsAsync([.. medias.Select(x => x.Url)]);
+            if (!isFileDeleted)
+            {
+                return new OperationResult(isFileDeleted, "Unexpected error occurs while deleting media file.");
+            }
+        }
         try
         {
+            // Delete password in redis cache.
+            _logger.LogInformation("Delete password for Room ID: {RoomId} in Redis.", room.Id);
+            var redisKey = $"{_redisKey}{id}";
+            await _redisService.DeleteAsync(redisKey);
+
             // Begin transaction by unit of work to make sure the consistency
             await _unitOfWork.BeginTransactionAsync();
 
             await _roomMemberRepository.DeleteByRoomIdAsync(id);
-            var result = await _repository.DeleteByIdAsync(id);
+            var result = await _repository.DeleteByEntityAsync(room);
 
             // Commit if success
             await _unitOfWork.CommitTransactionAsync();
@@ -82,26 +114,41 @@ internal class RoomService(
     public override async Task<OperationResult> UpdateAsync(Guid id, Room domain)
     {
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
-        if (domain.MediaUploads?.Count > 0)
-        {
-            var medias = await _blobStorageService.UploadFilesAsync(domain.MediaUploads);
-            domain.Medias = medias;
-        }
         domain.UpdateModify();
-        try
+        var entity = await _repository.GetByIdAsync(domain.Id, false);
+        if (entity.OwnerId != _userContextService.Id)
         {
-            var entity = _mapper.Map<RoomEntity>(domain);
-            return new OperationResult(await _repository.UpdateAsync(entity));
+            throw new ForbiddenException("You are not the owner of this room.");
         }
-        catch (Exception ex)
+        if (domain.Medias != null && domain.Medias.Count > 0)
         {
-            if (domain.MediaUploads != null && domain.MediaUploads.Count > 0)
+            if (!string.IsNullOrEmpty(entity.Medias))
             {
-                await MediaHelper.DeleteMediaFilesIfError(domain.MediaUploads, _blobStorageService);
+                var medias = JsonHelper.Deserialize<List<Media>>(entity.Medias);
+                if (medias != null && medias.Count > 0)
+                {
+                    var urls = medias.Select(m => m.Url).ToList();
+                    await _blobStorageService.DeleteFilesByUrlsAsync(urls);
+                }
             }
-            
-            throw new InternalException(ex.Message);
+            entity.Medias = JsonHelper.Serialize(domain.Medias);
         }
+        if (!string.IsNullOrEmpty(domain.Password))
+        {
+            _logger.LogInformation("Update password for Room Id: {RoomId} in Redis.", domain.Id);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(domain.Password);
+            var redisKey = $"{_redisKey}{id}";
+            await _redisService.DeleteAsync(redisKey);
+            await _redisService.SetAsync(redisKey, passwordHash);
+        }
+
+        entity.Privacy = domain.Privacy;
+        entity.Topic = domain.Topic;
+        entity.Description = domain.Description;
+        entity.MaximumMembers = domain.MaximumMembers;
+        entity.LastModifyTime = domain.LastModifyTime;
+
+        return new OperationResult(await _repository.UpdateAsync(entity));
     }
 
     public async Task<RoomCount> GetRoomCountsAsync()
@@ -110,8 +157,18 @@ internal class RoomService(
     }
 
     public async Task<QueryResult<Room>> GetWithPagingAsync(QueryInfo queryInfo)
-    => await _repository.GetWithPagingAsync(queryInfo);
+    {
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.SearchHistory, new SearchHistory
+            {
+                Query = queryInfo.SearchText,
+                UserId = _userContextService.Id,
+            });
+        }
+        return await _repository.GetWithPagingAsync(queryInfo);
+    }
 
-    public async Task<Room> GetDetailIdAsync(Guid id)
-    => await _repository.GetDetailIdAsync(id);
+    public async Task<Room> GetDetailByIdAsync(Guid id)
+    => await _repository.GetDetailByIdAsync(id) ?? throw new ResourceNotFoundException($"Room {id} was not found.");
 }

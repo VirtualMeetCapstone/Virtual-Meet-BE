@@ -6,6 +6,7 @@ Welcome to GOCAP Social Media, where we connect and grow our community through e
 - Backend: ASP.NET CORE API 8, C#, Entity Framework Core, LINQ, DI, AutoMapper, Fluent Validation.
 - Database: SQL SERVER, MongoDB.
 - Cache: Redis.
+- Message Queue: Kafka.
 - Frontend: Angular, Typescript, HTML5, CSS, JS, Bootstrap.
 - Tool: Git, Github, Postman.
 
@@ -29,7 +30,7 @@ To install this project, follow these steps:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/TranNgocChi/GOCAP.git
+   git clone https://github.com/VirtualMeetCapstone/Virtual-Meet-BE.git
 
 2. When clone done, create a branch base on master:
    ```sh

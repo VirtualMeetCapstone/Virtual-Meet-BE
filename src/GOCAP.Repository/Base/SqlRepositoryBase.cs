@@ -37,15 +37,14 @@ internal abstract class SqlRepositoryBase<TEntity>
 
     public virtual async Task<TEntity> GetByIdAsync(Guid id)
     {
-        var entity = await GetEntityByIdAsync(id);
-        return entity;
+        return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
     }
 
     public virtual async Task<TEntity> GetByIdAsync(Guid id, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default)
     {
         if (includes == null)
         {
-            return await GetEntityByIdAsync(id);
+            return await GetByIdAsync(id);
         }
 
         var query = _context.Set<TEntity>().AsQueryable();
@@ -56,7 +55,7 @@ internal abstract class SqlRepositoryBase<TEntity>
                 query = query.Include(include);
             }
         }
-        var entity = await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+        var entity = await query.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         return entity ?? throw new ResourceNotFoundException($"Entity with {id} was not found.");
     }
 
@@ -68,9 +67,12 @@ internal abstract class SqlRepositoryBase<TEntity>
 
     public virtual async Task<QueryResult<TEntity>> GetByPageAsync(QueryInfo queryInfo)
     {
-        var query = _context.Set<TEntity>().AsQueryable();
+        var query = _context.Set<TEntity>().AsNoTracking().AsQueryable();
 
-        GenerateWhereString(query, queryInfo);
+        if (!string.IsNullOrEmpty(queryInfo.SearchText))
+        {
+            query = GenerateWhereString(query, queryInfo);
+        }
 
         if (!string.IsNullOrWhiteSpace(queryInfo.OrderBy))
         {
@@ -104,7 +106,13 @@ internal abstract class SqlRepositoryBase<TEntity>
 
     public virtual async Task<int> DeleteByIdAsync(Guid id)
     {
-        var entity = await GetEntityByIdAsync(id);
+        var entity = await GetByIdAsync(id);
+        _context.Set<TEntity>().Remove(entity);
+        return await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task<int> DeleteByEntityAsync(TEntity entity)
+    {
         _context.Set<TEntity>().Remove(entity);
         return await _context.SaveChangesAsync();
     }
@@ -126,10 +134,14 @@ internal abstract class SqlRepositoryBase<TEntity>
         return exists;
     }
 
-    protected virtual async Task<TEntity> GetEntityByIdAsync(Guid id)
-    {
-        return await _context.Set<TEntity>().FindAsync(id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
-    }
-
     protected virtual IQueryable<TEntity> GenerateWhereString(IQueryable<TEntity> query, QueryInfo queryInfo) => query;
+
+    public async Task<TEntity> GetByIdAsync(Guid id, bool isAsNoTracking = false)
+    {
+        if (isAsNoTracking)
+        {
+            return await GetByIdAsync(id);
+        }
+        return await _context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id) ?? throw new ResourceNotFoundException($"Entity with id {id} not found");
+    }
 }

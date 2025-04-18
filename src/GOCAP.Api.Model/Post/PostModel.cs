@@ -8,5 +8,6 @@ public class PostModel : EntityDateTrackingBase<Guid>
     public List<Media>? Medias { get; set; } = null;
     public PrivacyType? Privacy { get; set; }
     public int TotalReactions { get; set; }
+    public int CommentCount { get; set; }
     public Dictionary<int, int> ReactionCounts { get; set; } = [];
 }

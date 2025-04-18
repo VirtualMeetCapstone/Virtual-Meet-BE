@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Services;
+﻿
+namespace GOCAP.Services;
 
 [RegisterService(typeof(IUserBlockService))]
 internal class UserBlockService
@@ -40,9 +41,21 @@ internal class UserBlockService
 			return new OperationResult(true);
 		}
 	}
-	public async Task<List<UserBlock>> GetUserBlocksAsync(Guid userId)
+
+    public async Task<UserBlock?> GetBlockOrBlockedAsync(UserBlock domain)
+    {
+        var result = await _repository.GetBlockOrBlockedAsync(domain);
+        return result;
+    }
+
+    public async Task<List<UserBlock>> GetUserBlocksAsync(Guid userId)
 	{
 		var result = await _repository.GetUserBlocksAsync(userId);
 		return result;
 	}
+
+    public async Task<List<UserBlock>> GetBlockedByUsersAsync(Guid userId)
+    {
+        return await _repository.GetBlockedByUsersAsync(userId);
+    }
 }

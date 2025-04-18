@@ -1,14 +1,12 @@
-﻿using Azure.Storage;
-using Azure.Storage.Blobs;
-using GOCAP.Common;
-using GOCAP.Database;
+﻿using GOCAP.Database;
+using GOCAP.ExternalServices;
+using GOCAP.Messaging.Consumer;
+using GOCAP.Messaging.Producer;
 using GOCAP.Repository;
 using GOCAP.Repository.Intention;
-using GOCAP.ExternalServices;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StackExchange.Redis;
+using Net.payOS;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -17,10 +15,38 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new BlobServiceClient(configuration.GetConnectionString(AppConstants.AzureBlobStorage)));
-        services.AddSingleton<IBlobStorageService, BlobStorageService>();
+        // Configure email service.
+        services.AddEmailService(configuration);
 
-        // Add for using sql server
+        //add export excel
+        services.AddScoped<IExcelExportService, ExcelExportService>();
+
+        // Configure LiveKit settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetLiveKitSettings());
+
+        // Configure OpenAI_MODE1 settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetModerationSettings());
+
+
+        // Configure OpenAI_MODE2 settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetOpenAISettings());
+
+        // Configure Youtube settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetYoutubeSettings());
+
+        // Configure PayOS settings.
+        services.AddSingleton(sp => sp.GetRequiredService<IAppConfiguration>().GetPayOsSettings());
+
+        // Configure azure blob storage.
+        services.AddBlobStorageService(configuration);
+
+        // Configure kafka producer service.
+        services.AddKafkaProducerServices(configuration);
+
+        // Configure cache service.
+        services.AddCacheService(configuration);
+
+        // Configure sql server.
         services
             .AddSingleton<IAppConfiguration, AppConfiguration>()
             .AddDbContext<AppSqlDbContext>((serviceProvider, options) =>
@@ -29,8 +55,8 @@ public static class ServiceCollectionExtensions
                 var connectionString = configuration.GetSqlServerConnectionString();
                 options.UseSqlServer(connectionString);
             });
-        
-        // Add for using MongoDB
+
+        // Configure mongodb.
         services.AddSingleton(sp =>
         {
             var databaseName = AppConstants.DatabaseName;
@@ -38,24 +64,31 @@ public static class ServiceCollectionExtensions
             return new AppMongoDbContext(databaseName, connectionString);
         });
 
-        // Add for using unit of work pattern
+        // Configure unit of work.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Add for using Redis
-        // services.AddDistributedMemoryCache();
-        // services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString(GOCAPConstants.RedisConnection) ?? string.Empty));
+        services.AddSingleton<PayOS>(sp =>
+        {
+            var settings = sp.GetRequiredService<IAppConfiguration>().GetPayOsSettings();
+            return new PayOS(settings.ClientId, settings.ApiKey, settings.CheckSumKey);
+        });
 
+        services.AddScoped<IVipPaymentService, VipPaymentService>();
         services.AddServicesFromAssembly([
             Assembly.GetEntryAssembly() ?? Assembly.Load(""),
             Assembly.Load("gocap.services"),
             Assembly.Load("gocap.repository")
         ]);
+
+        // Configure kafka consumer service.
+        services.AddKafkaConsumerServices();
+
         return services;
     }
 
     public static IServiceCollection AddServicesFromAssembly(this IServiceCollection services, List<Assembly> assemblies)
     {
-        assemblies?.ForEach(assembly => services.ScanTypes(assembly.GetTypes().Where(type => type.IsClass && !type.IsAbstract).ToList()));
+        assemblies?.ForEach(assembly => services.ScanTypes([.. assembly.GetTypes().Where(type => type.IsClass && !type.IsAbstract)]));
         return services;
     }
 

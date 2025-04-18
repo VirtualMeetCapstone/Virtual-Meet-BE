@@ -1,6 +1,4 @@
-﻿﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace GOCAP.Api.Common;
+﻿namespace GOCAP.Api.Common;
 
 public static class CorsServiceCollectionExtensions
 {
@@ -14,6 +12,7 @@ public static class CorsServiceCollectionExtensions
                        .AllowAnyMethod()
                        .SetPreflightMaxAge(TimeSpan.FromDays(1))
                        .SetIsOriginAllowed(origin => true)
+                       .AllowCredentials()
                        .AllowAnyHeader()
                         ;
             });

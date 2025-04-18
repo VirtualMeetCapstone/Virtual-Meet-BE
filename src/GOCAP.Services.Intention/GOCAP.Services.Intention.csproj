@@ -11,5 +11,4 @@
     <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
     <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
   </ItemGroup>
-
 </Project>

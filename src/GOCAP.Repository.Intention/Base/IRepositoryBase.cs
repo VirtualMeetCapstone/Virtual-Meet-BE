@@ -74,7 +74,6 @@ public interface IRepositoryBase<TEntity>
     /// <param name="id">domain model id</param>
     /// <returns>True:succeed, False:failed.</returns>
     Task<int> DeleteByIdAsync(Guid id);
-
     /// <summary>
     /// Check the record exist or not by id and name
     /// </summary>

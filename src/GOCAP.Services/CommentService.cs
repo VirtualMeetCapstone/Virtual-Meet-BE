@@ -6,6 +6,7 @@ internal class CommentService(
     IPostRepository _postRepository,
     IUserRepository _userRepository,
     ICommentReactionRepository _commentReactionRepository,
+    IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<CommentService> _logger
     ) : ServiceBase<Comment, CommentEntity>(_repository, _mapper, _logger), ICommentService
@@ -44,11 +45,23 @@ internal class CommentService(
         {
             Id = author.Id,
             Name = author.Name,
-            Picture = author.Picture
+            Picture = JsonHelper.Deserialize<Media>(author.Picture)
         };
 
         var entity = _mapper.Map<CommentEntity>(domain);
         var result = await _repository.AddAsync(entity);
+        _ = _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, new NotificationEvent
+        {
+            Type = NotificationType.Comment,
+            ActionType = ActionType.Add,
+            ActorId = entity.Author?.Id ?? Guid.Empty,
+            Source = new NotificationSource
+            {
+                Id = entity.PostId,
+                Type = SourceType.Post,
+            }
+        });
+
         return _mapper.Map<Comment>(result);
     }
     public async Task<QueryResult<Comment>> GetByPostIdWithPagingAsync(Guid postId, QueryInfo queryInfo)

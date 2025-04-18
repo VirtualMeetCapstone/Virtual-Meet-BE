@@ -1,6 +1,4 @@
-﻿using GOCAP.Database.Common.Entities;
-
-namespace GOCAP.Domain;
+﻿namespace GOCAP.Domain;
 
 public abstract class DateTrackingBase : DomainBase, IDateTracking
 {

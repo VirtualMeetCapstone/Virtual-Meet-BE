@@ -7,17 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Admin\**" />
-    <EmbeddedResource Remove="Admin\**" />
-    <None Remove="Admin\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\GOCAP.Common\GOCAP.Common.csproj" />
     <ProjectReference Include="..\GOCAP.Database\GOCAP.Database.csproj" />
     <ProjectReference Include="..\GOCAP.Domain\GOCAP.Domain.csproj" />
     <ProjectReference Include="..\GOCAP.ExternalServices\GOCAP.ExternalServices.csproj" />
+    <ProjectReference Include="..\GOCAP.Messaging.Producer\GOCAP.Messaging.Producer.csproj" />
     <ProjectReference Include="..\GOCAP.Repository.Intention\GOCAP.Repository.Intention.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="GOCAP.Tests.Unit" />
+	</ItemGroup>
 </Project>
