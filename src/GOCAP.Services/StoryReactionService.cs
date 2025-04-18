@@ -3,8 +3,6 @@
 [RegisterService(typeof(IStoryReactionService))]
 internal class StoryReactionService(
     IStoryReactionRepository _repository,
-    IStoryRepository _storyRepository,
-    IUserRepository _userRepository,
     IKafkaProducer _kafkaProducer,
     IMapper _mapper,
     ILogger<StoryReactionService> _logger
@@ -13,16 +11,6 @@ internal class StoryReactionService(
     private readonly IMapper _mapper = _mapper;
     public async Task<OperationResult> CreateOrDeleteAsync(StoryReaction domain)
     {
-        if (!await _storyRepository.CheckExistAsync(domain.StoryId))
-        {
-            throw new ResourceNotFoundException($"Story {domain.StoryId} was not found.");
-        }
-
-        if (!await _userRepository.CheckExistAsync(domain.UserId))
-        {
-            throw new ResourceNotFoundException($"User {domain.UserId} was not found.");
-        }
-
         var result = new OperationResult(true);
         var storyReaction = await _repository.GetByStoryAndUserAsync(domain.StoryId, domain.UserId);
         if (storyReaction != null)
