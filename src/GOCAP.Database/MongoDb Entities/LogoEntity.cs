@@ -1,5 +1,7 @@
 ﻿namespace GOCAP.Database;
-public class AdminLogoEntity : EntityMongoBase
+
+[BsonCollection("Logos")]
+public class LogoEntity : EntityMongoBase
 {
     public required string Picture { get; set; } 
 }

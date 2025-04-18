@@ -5,6 +5,7 @@ namespace GOCAP.Repository;
 internal class VipPaymentRepository(AppMongoDbContext _context)
     : MongoRepositoryBase<UserVip>(_context), IVipPaymentRepository
 {
+    private readonly AppMongoDbContext _context = _context;
     public async Task<PaymentHistory?> GetPaymentByUserAndPackageIdAsync(Guid userId, int packageId)
     {
         return await _context.PaymentHistorys

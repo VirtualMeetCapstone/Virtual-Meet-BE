@@ -35,8 +35,6 @@ public class ModerationController : ApiControllerBase
         RapidAPI,
     }
 
-
-
     // Singleton pattern for thread-safe lazy initialization
     private static readonly Lazy<Dictionary<string, int>> _badWords1 = new Lazy<Dictionary<string, int>>(() => LoadBadWordsDict1());
     private static readonly Lazy<Dictionary<string, JsonElement>> _badWords2 = new Lazy<Dictionary<string, JsonElement>>(() => LoadBadWordsDict2());

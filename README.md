@@ -30,7 +30,7 @@ To install this project, follow these steps:
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/TranNgocChi/GOCAP.git
+   git clone https://github.com/VirtualMeetCapstone/Virtual-Meet-BE.git
 
 2. When clone done, create a branch base on master:
    ```sh
