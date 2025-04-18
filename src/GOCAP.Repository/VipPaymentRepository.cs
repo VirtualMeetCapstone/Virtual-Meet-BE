@@ -133,7 +133,33 @@ internal class VipPaymentRepository(AppMongoDbContext _context)
         // Mapping sang model và include thêm ExpireAt từ bảng UserVip
         var result = items.Select(payment =>
         {
-            var matchedVip = userVipList.FirstOrDefault(uv => uv.PackageId == payment.PackageId);
+            DateTime? createTime = null;
+
+            try
+            {
+                // Xử lý nếu CreateTime là ticks (quá lớn để là Unix milliseconds)
+                if (payment.CreateTime > DateTime.MinValue.Ticks && payment.CreateTime <= DateTime.MaxValue.Ticks)
+                {
+                    createTime = new DateTime(payment.CreateTime, DateTimeKind.Utc);
+                }
+                // Xử lý nếu CreateTime là UnixTimeMilliseconds
+                else if (payment.CreateTime >= 0 && payment.CreateTime <= 253402300799999)
+                {
+                    createTime = DateTimeOffset.FromUnixTimeMilliseconds(payment.CreateTime).UtcDateTime;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LỖI] Không thể parse CreateTime: {payment.CreateTime} - {ex.Message}");
+            }
+
+            DateTime? expireAt = null;
+            if (payment.IsPaid)
+            {
+                var matchedVip = userVipList.FirstOrDefault(uv => uv.PackageId == payment.PackageId);
+                expireAt = matchedVip?.ExpireAt;
+            }
+
             return new PaymentHistoryModel
             {
                 Level = payment.Level,
@@ -141,12 +167,11 @@ internal class VipPaymentRepository(AppMongoDbContext _context)
                 OrderCode = payment.OrderCode,
                 IsPaid = payment.IsPaid,
                 Amount = payment.Amount,
-                CreateTime = payment.CreateTime > 0
-                    ? DateTimeOffset.FromUnixTimeMilliseconds(payment.CreateTime).DateTime
-                    : (DateTime?)null,
-                ExpireAt = matchedVip?.ExpireAt
+                CreateTime = createTime,
+                ExpireAt = expireAt
             };
         }).ToList();
+
 
         return new QueryResult<PaymentHistoryModel>
         {
@@ -154,5 +179,6 @@ internal class VipPaymentRepository(AppMongoDbContext _context)
             TotalCount = totalItems
         };
     }
+
 
 }
