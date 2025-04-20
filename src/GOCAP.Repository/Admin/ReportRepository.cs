@@ -19,12 +19,12 @@ internal class ReportRepository(AppSqlDbContext _context, IMapper _mapper
                         })
                         .FirstOrDefaultAsync();
 
-        if (result == null) 
+        if (result == null)
         {
             return new UserReport();
         }
 
-        double retentionRate = result.TotalUsers == 0 ? 0 : (double)result.BannedUsers / result.TotalUsers;
+        double retentionRate = result.TotalUsers == 0 ? 0 : 1 - ((double)result.BannedUsers / result.NewUsers);
         double growthRate = result.TotalUsers == 0 ? 0 : (double)result.NewUsers / result.TotalUsers;
 
         return new UserReport
@@ -50,7 +50,7 @@ internal class ReportRepository(AppSqlDbContext _context, IMapper _mapper
 
         if (result == null)
         {
-            return new PostReport(); 
+            return new PostReport();
         }
 
         double growthRate = result.TotalPosts == 0 ? 0 : (double)result.NewPosts / result.TotalPosts;
@@ -166,6 +166,40 @@ internal class ReportRepository(AppSqlDbContext _context, IMapper _mapper
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);
         return stream.ToArray();
+    }
+
+    public async Task<UserReport> GetUserReportNewAsync(DateRange domain)
+    {
+        var result = await _context.Users
+            .GroupBy(u => 1)
+            .Select(g => new
+            {
+                TotalUsers = g.Count(),
+                NewUsers = g.Count(u => u.CreateTime >= domain.From && u.CreateTime <= domain.To),
+                BannedUsers = g.Count(u => u.IsDeleted && u.DeleteTime >= domain.From && u.DeleteTime <= domain.To)
+            })
+            .FirstOrDefaultAsync();
+
+        if (result == null)
+            return new UserReport();
+
+        double retainedUsers = result.TotalUsers - result.NewUsers;
+        double previousPeriodUsers = retainedUsers + result.BannedUsers;
+
+        double retentionRate = previousPeriodUsers == 0 ? 0 :
+            (double)retainedUsers / previousPeriodUsers;
+
+        double growthRate = result.TotalUsers == 0 ? 0 :
+            (double)result.NewUsers / result.TotalUsers;
+
+        return new UserReport
+        {
+            TotalUsers = result.TotalUsers,
+            NewUsers = result.NewUsers,
+            BannedUsers = result.BannedUsers,
+            RetentionRate = retentionRate,
+            GrowthRate = growthRate
+        };
     }
 
 

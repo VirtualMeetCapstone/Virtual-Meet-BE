@@ -1,13 +1,13 @@
 ﻿namespace GOCAP.Api.Controllers;
 
 [Route("report")]
-public class ReportsController (IMapper _mapper, IReportService _service) : ApiControllerBase
+public class ReportsController(IMapper _mapper, IReportService _service) : ApiControllerBase
 {
     [HttpGet("user")]
     public async Task<UserReportModel> GetUserReport([FromQuery] DateRangeModel model)
     {
         var domain = _mapper.Map<DateRange>(model);
-        var result = await _service.GetUserReportAsync(domain);
+        var result = await _service.GetUserReportNewAsync(domain);
         return _mapper.Map<UserReportModel>(result);
     }
 
@@ -24,7 +24,7 @@ public class ReportsController (IMapper _mapper, IReportService _service) : ApiC
     {
         var domain = _mapper.Map<DateRange>(model);
         var file = await _service.ExportUserReportAsync(domain);
-        return File(file, FormatExcel.ExcelMimeType,FormatExcel.UserReportName);
+        return File(file, FormatExcel.ExcelMimeType, FormatExcel.UserReportName);
     }
 
     [HttpGet("post/excel")]

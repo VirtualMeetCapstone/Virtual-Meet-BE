@@ -9,4 +9,5 @@ public interface IReportRepository
     Task<List<Post>> GetPostsInRangeAsync(DateRange range);
     Task<byte[]> ExportUserReportAsync(DateRange range);
     Task<byte[]> ExportPostReportAsync(DateRange range);
+    Task<UserReport> GetUserReportNewAsync(DateRange domain);
 }
