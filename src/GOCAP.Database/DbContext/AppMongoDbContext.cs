@@ -1,4 +1,5 @@
-﻿namespace GOCAP.Database;
+﻿
+namespace GOCAP.Database;
 
 public class AppMongoDbContext
 {
@@ -12,6 +13,8 @@ public class AppMongoDbContext
     public IMongoCollection<UserVip> UserVips { get; set; }
     public IMongoCollection<PaymentHistory> PaymentHistorys { get; set; }
     public IMongoCollection<LogoEntity> Logos { get; set; }
+    public IMongoCollection<MessagesOutsideRoomEntity> MessagesOutsideRoom { get; set; }
+
 
     public AppMongoDbContext(string databaseName, string connectionString)
     {
@@ -25,6 +28,8 @@ public class AppMongoDbContext
         UserVips = GetCollection<UserVip>();
         PaymentHistorys = GetCollection<PaymentHistory>();
         Logos = GetCollection<LogoEntity>();
+        MessagesOutsideRoom = GetCollection<MessagesOutsideRoomEntity>();
+
     }
 
     public IMongoDatabase GetDatabase() => _database;
