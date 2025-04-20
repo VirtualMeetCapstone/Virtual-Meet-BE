@@ -6,4 +6,6 @@ public interface IReportService
     Task<UserReport> GetUserReportAsync(DateRange domain);
     Task<byte[]> ExportUserReportAsync(DateRange range);
     Task<byte[]> ExportPostReportAsync(DateRange range);
+    Task<UserReport> GetUserReportNewAsync(DateRange domain);
+
 }
