@@ -55,7 +55,7 @@ namespace GOCAP.Api.Controllers
                     ImageUrl = request.ReceiverImageUrl
                 };
             }
-            else // Group chat
+            else 
             {
                 message.ConversationId = request.GroupId;
                 message.GroupId = request.GroupId;
@@ -126,7 +126,6 @@ namespace GOCAP.Api.Controllers
                 .Find(m => m.Id == messageId)
                 .FirstOrDefaultAsync();
 
-            // Notify recipients
 
             return Ok(updatedMessage);
         }
@@ -170,10 +169,8 @@ namespace GOCAP.Api.Controllers
                 return NotFound();
             }
 
-            // Remove existing reaction from this user if exists
             message.Reactions.RemoveAll(r => r.UserId == request.UserId);
 
-            // Add new reaction
             message.Reactions.Add(new ReactionInfo
             {
                 UserId = request.UserId,
@@ -266,7 +263,6 @@ namespace GOCAP.Api.Controllers
         [HttpGet("chat-history/{userId}")]
         public async Task<IActionResult> GetChatHistory(string userId)
         {
-            // Lấy tất cả tin nhắn có liên quan đến user
             var messages = await _dbContext.MessagesOutsideRoom
                 .Find(m =>
                     !m.IsDeleted &&
@@ -274,7 +270,6 @@ namespace GOCAP.Api.Controllers
                 .SortByDescending(m => m.CreatedAt)
                 .ToListAsync();
 
-            // Nhóm tin nhắn theo người còn lại (người đối thoại)
             var recentContacts = messages
                 .Select(m =>
                 {

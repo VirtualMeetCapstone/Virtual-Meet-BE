@@ -41,7 +41,7 @@ public class MessagesOutsideRoomEntity
 
 public enum ConversationType
 {
-    Private,    /
+    Private,    
     Group      
 }
 
