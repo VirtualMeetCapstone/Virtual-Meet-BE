@@ -21,4 +21,8 @@ internal class ReportService (IReportRepository _reportRepository) : IReportServ
     {
         return await _reportRepository.ExportPostReportAsync(range);
     }
+     public async Task<UserReport> GetUserReportNewAsync(DateRange domain)
+    {
+        return await _reportRepository.GetUserReportNewAsync(domain);
+    }
 }
