@@ -112,6 +112,7 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
                     ?? throw new ResourceNotFoundException($"User {id} was not found.");
 
         entity.IsDeleted = true;
+        entity.DeleteTime = DateTime.Now.Ticks;
         int rowsAffected = await _context.SaveChangesAsync();
 
         return rowsAffected;
