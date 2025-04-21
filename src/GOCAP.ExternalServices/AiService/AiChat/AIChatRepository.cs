@@ -94,6 +94,68 @@ namespace GOCAP.ExternalServices
 
             return aiResponse;
         }
+
+        public async Task<string> AISummaryAsync(string fullText)
+        {
+            string promptTemplate = "Đây là nội dung của cuộc họp. Hãy đọc đoạn văn bên dưới và tóm tắt nội dung chính xác và ngắn gọn bằng tiếng Việt:\n\n{0}";
+
+            var messages = new[]
+            {
+        new { role = "user", content = string.Format(promptTemplate, fullText) }
+    };
+
+            HttpResponseMessage response;
+            string responseBody;
+
+            if (CURRENT_MODEL == ModerationModel.OpenAI)
+            {
+                var openAIPayload = new
+                {
+                    messages,
+                    temperature = 0.7,
+                    top_p = 1,
+                    model = _openAISettings.OpenAIModel
+                };
+
+                var content = new StringContent(JsonSerializer.Serialize(openAIPayload), Encoding.UTF8, "application/json");
+                response = await _openAIClient.PostAsync("", content);
+            }
+            else // RapidAPI
+            {
+                var rapidPayload = new
+                {
+                    messages,
+                    temperature = 0.3,
+                    top_k = 1,
+                    top_p = 0.7
+                };
+
+                var content = new StringContent(JsonSerializer.Serialize(rapidPayload), Encoding.UTF8, "application/json");
+                response = await _rapidAPIClient.PostAsync("", content);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error: {error}");
+            }
+
+            responseBody = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseBody);
+
+            string aiSummary = CURRENT_MODEL switch
+            {
+                ModerationModel.OpenAI => doc.RootElement
+                                               .GetProperty("choices")[0]
+                                               .GetProperty("message")
+                                               .GetProperty("content")
+                                               .GetString(),
+                _ => doc.RootElement.GetProperty("result").GetString()
+            };
+
+            return aiSummary ?? "Không có phản hồi từ AI.";
+        }
+
     }
 
 
