@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json.Linq;
+using OpenAI;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -10,7 +11,8 @@ namespace GOCAP.Api.Controllers;
 [Route("moderation")]
 public class ModerationController : ApiControllerBase
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _openAIClient;
+    private readonly HttpClient _rapidAPIClient;
     private readonly ModerationSettings _settings;
     private readonly OpenAISettings _openAISettings;
     private const ModerationModel CURRENT_MODEL = ModerationModel.RapidAPI;
@@ -31,8 +33,8 @@ public class ModerationController : ApiControllerBase
 
     private enum ModerationModel
     {
-        OpenAI,
-        RapidAPI,
+        OpenAI, //for production
+        RapidAPI, //for development
     }
 
     // Singleton pattern for thread-safe lazy initialization
@@ -45,11 +47,14 @@ public class ModerationController : ApiControllerBase
             .Select(word => word.Replace("_", " ").ToLowerInvariant())
             .ToHashSet());
 
-    public ModerationController(ModerationSettings settings, IHttpClientFactory factory, OpenAISettings openAISettings)
+    public ModerationController(ModerationSettings settings
+        , IHttpClientFactory factory
+        , OpenAISettings openAISettings)
     {
         _settings = settings;
-        _httpClient = factory.CreateClient();
         _openAISettings = openAISettings;
+        _openAIClient = factory.CreateClient("OpenAI");
+        _rapidAPIClient = factory.CreateClient("RapidAPI");
     }
 
     private static Dictionary<string, int> LoadBadWordsDict1()
@@ -154,6 +159,7 @@ public class ModerationController : ApiControllerBase
 
     private async Task<ActionResult<ModerationResponse>> CheckWithOpenAI(string text)
     {
+
         var prompt = new
         {
             model = _openAISettings.OpenAIModel,
@@ -168,18 +174,11 @@ public class ModerationController : ApiControllerBase
             temperature = 0.3,
             top_k = 1,
             top_p = 0.7,
-
             web_access = false
         };
 
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, _openAISettings.OpenAIUrl)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(prompt), Encoding.UTF8, "application/json")
-        };
-
-        httpRequest.Headers.Add("Authorization", $"Bearer {_openAISettings.OpenAIKey}");
-
-        var response = await _httpClient.SendAsync(httpRequest);
+        using var httpContent = new StringContent(JsonSerializer.Serialize(prompt), Encoding.UTF8, "application/json");
+        var response = await _openAIClient.PostAsync("", httpContent);
         var json = await response.Content.ReadAsStringAsync();
 
         using var doc = JsonDocument.Parse(json);
@@ -201,6 +200,7 @@ public class ModerationController : ApiControllerBase
 
     private async Task<ActionResult<ModerationResponse>> CheckWithRapidAPI(string text)
     {
+
         var prompt = new
         {
             messages = new[]
@@ -214,18 +214,10 @@ public class ModerationController : ApiControllerBase
             temperature = 0.3,
             top_k = 1,
             top_p = 0.7,
-
         };
 
-        using var httpRequest = new HttpRequestMessage(HttpMethod.Post, _settings.ApiUrl)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(prompt), Encoding.UTF8, "application/json")
-        };
-
-        httpRequest.Headers.Add("X-RapidAPI-Key", _settings.ApiKey);
-        httpRequest.Headers.Add("X-RapidAPI-Host", _settings.ApiHost);
-
-        using var response = await _httpClient.SendAsync(httpRequest);
+        using var httpContent = new StringContent(JsonSerializer.Serialize(prompt), Encoding.UTF8, "application/json");
+        using var response = await _rapidAPIClient.PostAsync("", httpContent);
         var json = await response.Content.ReadAsStringAsync();
 
         // Giải mã JSON chứa kết quả từ "result"
@@ -278,16 +270,18 @@ public class ModerationController : ApiControllerBase
 
         var messages = new[]
         {
-        new { role = "system", content = systemPrompt },
-        new { role = "user", content = request.Text }
-    };
+            new { role = "system", content = systemPrompt },
+            new { role = "user", content = request.Text }
+        };
 
         try
         {
-            HttpRequestMessage httpRequest;
+            HttpResponseMessage response;
+            string responseBody;
 
             if (CURRENT_MODEL_FOR_CHAT == ModerationModel.OpenAI)
             {
+           
                 var openAIPayload = new
                 {
                     messages,
@@ -296,11 +290,8 @@ public class ModerationController : ApiControllerBase
                     model = _openAISettings.OpenAIModel
                 };
 
-                httpRequest = new HttpRequestMessage(HttpMethod.Post, _openAISettings.OpenAIUrl)
-                {
-                    Content = new StringContent(JsonSerializer.Serialize(openAIPayload), Encoding.UTF8, "application/json")
-                };
-                httpRequest.Headers.Add("Authorization", $"Bearer {_openAISettings.OpenAIKey}");
+                var content = new StringContent(JsonSerializer.Serialize(openAIPayload), Encoding.UTF8, "application/json");
+                response = await _openAIClient.PostAsync("", content);
             }
             else // RapidAPI
             {
@@ -316,22 +307,17 @@ public class ModerationController : ApiControllerBase
                     model = "gpt 3.5"
                 };
 
-                httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://open-ai21.p.rapidapi.com/chatbotapi")
-                {
-                    Content = new StringContent(JsonSerializer.Serialize(rapidPayload), Encoding.UTF8, "application/json")
-                };
-                httpRequest.Headers.Add("X-RapidAPI-Key", _settings.ApiKey);
-                httpRequest.Headers.Add("X-RapidAPI-Host", _settings.ApiHost);
+                var content = new StringContent(JsonSerializer.Serialize(rapidPayload), Encoding.UTF8, "application/json");
+                response = await _rapidAPIClient.PostAsync("", content);
             }
 
-            var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
                 return StatusCode((int)response.StatusCode, new { message = error });
             }
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            responseBody = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(responseBody);
 
             string aiText;
@@ -356,11 +342,9 @@ public class ModerationController : ApiControllerBase
         }
     }
 
-
     public class UserMessage
     {
         public string Text { get; set; }
     }
-
 }
 
