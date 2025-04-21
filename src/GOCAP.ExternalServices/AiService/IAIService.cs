@@ -5,6 +5,7 @@ namespace GOCAP.ExternalServices
     {
         Task<ModerationResponse> CheckContentAsync(string text);
         Task<string> SendMessageAsync(string userInput);
+        Task<string> AISummaryAsync(string fullText);
     }
 
 }

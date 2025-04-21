@@ -39,6 +39,7 @@ namespace GOCAP.Api.Hubs
         public async Task SendLowerHand(string username, string roomId)
         {
             await Clients.OthersInGroup(roomId).SendAsync("ReceiveLowerHand", username);
+            ;
         }
 
         public async Task SendEmotion(string username, string roomId, string type, double x, double y)
@@ -73,20 +74,17 @@ namespace GOCAP.Api.Hubs
 
         }
 
-        public async Task<string> GetRoomSubtitles(string roomId)
+        public async Task SummarizeSubtitles(string roomId)
         {
-            _logger.LogInformation("Fetching subtitles for room {RoomId}", roomId);
-
-            if (_subtitleCache.TryGetValue(roomId, out var subtitles) && subtitles != null)
+            if (_subtitleCache.TryGetValue(roomId, out var subtitles) && subtitles.Count > 0)
             {
-                string serializedSubtitles = JsonConvert.SerializeObject(subtitles);
-                return serializedSubtitles;
+                string combinedText = string.Join("\n", subtitles.Select(s => $"{s.Username}: {s.Subtitle}"));
+                string summary = await aIService.AISummaryAsync(combinedText);
+                await Clients.Caller.SendAsync("ReceiveSummary", summary);
+                return;
             }
-            return JsonConvert.SerializeObject(new List<SubtitleEntry>());
+            await Clients.Caller.SendAsync("ReceiveSummary", "Không có phụ đề để tóm tắt.");
         }
-
-
-
 
 
     }

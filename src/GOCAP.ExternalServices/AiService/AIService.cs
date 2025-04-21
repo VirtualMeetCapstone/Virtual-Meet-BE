@@ -19,6 +19,15 @@ namespace GOCAP.ExternalServices
             _mode = mode;
         }
 
+        public async Task<string> AISummaryAsync(string fullText)
+        {
+            if (string.IsNullOrWhiteSpace(fullText))
+                throw new ArgumentException("Nội dung không được để trống");
+            return await _aiChatRepository.AISummaryAsync(fullText);
+
+        }
+
+
         public async Task<ModerationResponse> CheckContentAsync(string text)
         {
             if (string.IsNullOrWhiteSpace(text))

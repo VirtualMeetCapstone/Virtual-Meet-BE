@@ -6,6 +6,7 @@ public partial class RoomHub(
     IMessageService _service,
     IRedisService _redisService,
     IMessageReactionService _messageReactionService,
+    IAIService aIService,
     IMapper _mapper) : Hub
 {
 
@@ -156,7 +157,7 @@ public partial class RoomHub(
 
                     // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
-
+                    _subtitleCache.TryRemove(roomId, out _);
                     await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
                 }
             }
