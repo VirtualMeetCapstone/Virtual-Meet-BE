@@ -7,6 +7,7 @@ using GOCAP.Repository.Intention;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Net.payOS;
+using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace GOCAP.Api.Common;
@@ -83,6 +84,32 @@ public static class ServiceCollectionExtensions
         // Configure kafka consumer service.
         services.AddKafkaConsumerServices();
 
+        //Add HttpClient for OpenAI
+        services.AddHttpClient("OpenAI", (sp, client) =>
+        {
+            var openAISettings = sp.GetRequiredService<IAppConfiguration>().GetOpenAISettings();
+            client.BaseAddress = new Uri(openAISettings.OpenAIUrl);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", openAISettings.OpenAIKey);
+        });
+
+        //Add HttpClient for RapidAPI
+        services.AddHttpClient("RapidAPI", (sp, client) =>
+        {
+            var rapidApiSettings = sp.GetRequiredService<IAppConfiguration>().GetModerationSettings();
+            client.BaseAddress = new Uri(rapidApiSettings.ApiUrl);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Key", rapidApiSettings.ApiKey);
+            client.DefaultRequestHeaders.Add("X-RapidAPI-Host", rapidApiSettings.ApiHost);
+        });
+
+        services.AddScoped<IModerationRepository, ModerationRepository>();
+        services.AddScoped<IAIChatRepository, AIChatRepository>();
+
+        services.AddScoped<IAIService>(provider =>
+         {
+             var moderationRepo = provider.GetRequiredService<IModerationRepository>();
+             var chatRepo = provider.GetRequiredService<IAIChatRepository>();
+             return new AIService(moderationRepo, chatRepo, ModerationModel.RapidAPI); // hoặc OpenAI
+         });
         return services;
     }
 

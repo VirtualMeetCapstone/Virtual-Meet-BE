@@ -101,4 +101,10 @@ public interface IRedisService
     /// Retrieves a list of keys that match a pattern.
     /// </summary>
     Task<IEnumerable<string>> GetKeysByPatternAsync(string pattern);
+
+
+    /// <summary>
+    /// Retrieves all elements from a list.
+    /// </summary>
+    Task<List<string>> GetListAsync(string key);
 }
