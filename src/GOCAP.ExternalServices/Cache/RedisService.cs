@@ -62,4 +62,13 @@ public class RedisService(IConnectionMultiplexer redisConnection) : IRedisServic
         var keys = server.Keys(pattern: pattern).Select(k => k.ToString());
         return Task.FromResult(keys);
     }
+
+    public async Task<List<string>> GetListAsync(string key)
+    {
+        var db = GetDatabase();
+        var length = await db.ListLengthAsync(key).ConfigureAwait(false);
+        var items = await db.ListRangeAsync(key, 0, length - 1).ConfigureAwait(false);
+        return items.Select(x => x.ToString()).ToList();
+    }
+
 }
