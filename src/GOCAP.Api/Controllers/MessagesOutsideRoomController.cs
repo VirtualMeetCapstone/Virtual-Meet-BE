@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using GOCAP.Api.Hubs;
 using GOCAP.Database;
 using GOCAP.Domain;
@@ -214,41 +215,26 @@ namespace GOCAP.Api.Controllers
 
         #region Read Status Operations
 
-        [HttpPost("{messageId}/mark-as-read")]
-        public async Task<IActionResult> MarkAsRead(string messageId, [FromBody] MarkAsReadRequest request)
+        [HttpPost("mark-last-message-as-read")]
+        public async Task<IActionResult> MarkLastMessageAsRead([FromBody] MarkAsReadRequest request)
         {
+            // Tìm tin nhắn cuối cùng của cuộc trò chuyện
             var message = await _dbContext.MessagesOutsideRoom
-                .Find(m => m.Id == messageId)
-                .FirstOrDefaultAsync();
-
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            var existingStatus = message.ReadStatuses.FirstOrDefault(s => s.UserId == request.UserId);
-            if (existingStatus != null)
-            {
-                existingStatus.IsRead = true;
-                existingStatus.ReadAt = DateTime.UtcNow;
-            }
-            else
-            {
-                message.ReadStatuses.Add(new ReadStatus
+                 .Find(m =>
+                 !m.IsDeleted && (request.SenderId==m.Receiver.Id)&&(request.ReceiverId==m.Sender.Id)).SortByDescending(m=>m.CreatedAt).FirstOrDefaultAsync();
+            message.ReadStatuses.Add(
+                new ReadStatus
                 {
-                    UserId = request.UserId,
+                    UserId = request.SenderId,
                     IsRead = true,
-                    ReadAt = DateTime.UtcNow
+                    ReadAt = DateTime.UtcNow,
                 });
-            }
+            await _dbContext.MessagesOutsideRoom.ReplaceOneAsync(m => m.Id == message.Id, message);
 
-            message.UpdatedAt = DateTime.UtcNow;
-            await _dbContext.MessagesOutsideRoom.ReplaceOneAsync(m => m.Id == messageId, message);
+            return Ok(message);        
 
-            
-
-            return Ok(message);
         }
+
 
         #endregion
 
@@ -273,14 +259,28 @@ namespace GOCAP.Api.Controllers
             var recentContacts = messages
                 .Select(m =>
                 {
+                    bool isRead = false;
+
+                    if (m.ReadStatuses != null)
+                    {
+                        var readStatus = m.ReadStatuses.FirstOrDefault(r => r.UserId.Trim().ToLower() == userId.Trim().ToLower());
+                        if (readStatus != null)
+                        {
+                            isRead = readStatus.IsRead;
+                        }
+                    }
+                    
+                    var isYou = m.Sender.Id == userId;
                     var contact = m.Sender.Id == userId ? m.Receiver : m.Sender;
                     return new
-                    {
+                    { 
                         ContactId = contact?.Id,
                         ContactName = contact?.Name,
                         ContactImage = contact?.ImageUrl,
                         LastMessage = m.Content,
-                        LastMessageTime = m.CreatedAt
+                        LastMessageTime = m.CreatedAt,
+                        IsRead = isRead,
+                        IsYou = isYou,
                     };
                 })
                 .Where(x => x.ContactId != null)
@@ -349,9 +349,10 @@ namespace GOCAP.Api.Controllers
 
     public class MarkAsReadRequest
     {
-        [Required]
-        public string UserId { get; set; }
+        public string SenderId { get; set; }
+        public string ReceiverId { get; set; }
     }
+
 
     #endregion
 }
