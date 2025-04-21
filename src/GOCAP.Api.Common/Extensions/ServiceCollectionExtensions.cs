@@ -100,6 +100,16 @@ public static class ServiceCollectionExtensions
             client.DefaultRequestHeaders.Add("X-RapidAPI-Key", rapidApiSettings.ApiKey);
             client.DefaultRequestHeaders.Add("X-RapidAPI-Host", rapidApiSettings.ApiHost);
         });
+
+        services.AddScoped<IModerationRepository, ModerationRepository>();
+        services.AddScoped<IAIChatRepository, AIChatRepository>();
+
+        services.AddScoped<IAIService>(provider =>
+         {
+             var moderationRepo = provider.GetRequiredService<IModerationRepository>();
+             var chatRepo = provider.GetRequiredService<IAIChatRepository>();
+             return new AIService(moderationRepo, chatRepo, ModerationModel.RapidAPI); // hoặc OpenAI
+         });
         return services;
     }
 
