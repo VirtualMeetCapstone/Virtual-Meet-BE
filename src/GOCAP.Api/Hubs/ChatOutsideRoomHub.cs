@@ -17,9 +17,10 @@ namespace GOCAP.Api.Hubs
             await Clients.Group(receiverId).SendAsync("ReceivePrivateMessage", senderId, message);
             await Clients.Group(senderId).SendAsync("ReceivePrivateMessage", senderId, message);
         }
-        public async Task UserIsTyping(string user)
+        public async Task UserIsTyping(string senderId, string receiverId)
         {
-            await Clients.All.SendAsync("UserTyping", user);
+            await Clients.Group(receiverId).SendAsync("UserTyping", senderId);
         }
+
     }
 }
