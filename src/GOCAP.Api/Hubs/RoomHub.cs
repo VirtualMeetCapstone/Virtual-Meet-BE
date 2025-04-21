@@ -118,6 +118,12 @@ public partial class RoomHub (
         });
     }
 
+    public async Task KickUser(string roomId, string targetUserId, string reason)
+    {
+        await Clients.Group(roomId).SendAsync("HostKickUser", targetUserId, reason);
+    }
+
+
     public async Task UpdateMicStatus(string roomId, string userId, bool isMicOn)
     {
         await Clients.Group(roomId).SendAsync("ReceiveMicStatusUpdate", userId, isMicOn);
