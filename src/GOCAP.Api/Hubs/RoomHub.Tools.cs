@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using static GOCAP.Api.Model.RoomPollModel;
 
 namespace GOCAP.Api.Hubs
 {
@@ -84,6 +84,78 @@ namespace GOCAP.Api.Hubs
                 return;
             }
             await Clients.Caller.SendAsync("ReceiveSummary", "Không có phụ đề để tóm tắt.");
+        }
+
+
+
+        public async Task CreatePoll(UserDto user, string roomId, string question, List<string> options)
+        {
+            if (string.IsNullOrWhiteSpace(roomId) || string.IsNullOrWhiteSpace(question) || options == null || options.Count < 2)
+            {
+                _logger.LogWarning("Invalid poll data: RoomId: {RoomId}, Question: {Question}, OptionsCount: {OptionsCount}", roomId, question, options?.Count);
+                throw new HubException("Invalid poll data.");
+            }
+
+            _logger.LogInformation("Creating poll for RoomId: {RoomId} by User: {UserId}, Question: {Question}", roomId, user.Id, question);
+
+            var poll = new PollModel
+            {
+                Question = question,
+                Options = options.Select(opt => new PollOption
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Text = opt
+                }).ToList(),
+                CreatedById = user.Id,
+                CreatedByName = user.Name,
+            };
+
+            PollManager.ActivePolls[roomId] = poll;
+
+            _logger.LogInformation("Poll created successfully for RoomId: {RoomId}, PollId: {PollId}", roomId, poll.Id);
+
+            await Clients.Group(roomId).SendAsync("PollUpdated", poll);
+        }
+
+        public async Task VoteOnPoll(UserDto user, string roomId, string pollId, string optionId)
+        {
+            if (!PollManager.ActivePolls.TryGetValue(roomId, out var poll))
+            {
+                throw new HubException("No active poll found.");
+            }
+
+            if (poll.Id != pollId)
+            {
+                throw new HubException("Poll ID mismatch.");
+            }
+
+            poll.VoterNames ??= new Dictionary<string, string>();
+            poll.VoterDisplayNames ??= new Dictionary<string, string>();
+
+            var oldOptionId = poll.VoterNames.ContainsKey(user.Id) ? poll.VoterNames[user.Id] : null;
+
+            if (oldOptionId == optionId)
+                return;
+
+            if (oldOptionId != null)
+            {
+                var oldOption = poll.Options.FirstOrDefault(o => o.Id == oldOptionId);
+                if (oldOption != null) oldOption.Votes--;
+            }
+            else
+            {
+                poll.VoterIds.Add(user.Id);
+            }
+
+            var newOption = poll.Options.FirstOrDefault(o => o.Id == optionId);
+            if (newOption == null)
+                throw new HubException("Invalid option.");
+
+            newOption.Votes++;
+            poll.VoterNames[user.Id] = optionId;
+            poll.VoterDisplayNames[user.Id] = user.Name;
+
+            await Clients.Group(roomId).SendAsync("PollUpdated", poll);
         }
 
 

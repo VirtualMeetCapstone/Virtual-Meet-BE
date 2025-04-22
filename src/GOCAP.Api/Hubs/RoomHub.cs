@@ -1,4 +1,6 @@
-﻿namespace GOCAP.Api.Hubs;
+﻿using static GOCAP.Api.Model.RoomPollModel;
+
+namespace GOCAP.Api.Hubs;
 
 public partial class RoomHub(
     ILogger<RoomHub> _logger,
@@ -70,6 +72,10 @@ public partial class RoomHub(
         // Gửi danh sách peers hiện tại cho người mới
         await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.RoomPeers[roomId]);
         await Clients.Caller.SendAsync("ConnectionId", Context.ConnectionId);
+        if (PollManager.ActivePolls.TryGetValue(roomId, out var activePoll))
+        {
+            await Clients.Caller.SendAsync("PollUpdated", activePoll);
+        }
 
         // Thêm peer mới vào room
         RoomStateManager.RoomPeers[roomId].Add(peerInfo);
@@ -158,6 +164,7 @@ public partial class RoomHub(
                     // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
                     _subtitleCache.TryRemove(roomId, out _);
+                    PollManager.ActivePolls.TryRemove(roomId, out _);
                     await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
                 }
             }
