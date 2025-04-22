@@ -1,9 +1,13 @@
-﻿namespace GOCAP.Api.Controllers;
+﻿using GOCAP.Database;
+using Microsoft.EntityFrameworkCore;
+
+namespace GOCAP.Api.Controllers;
 
 [Route("users")]
 public class UsersController(IUserService _userService,
     IUserBlockService _userBlockService,
     IFollowService _followService,
+    AppSqlDbContext _dbContext,
     IMapper _mapper) : ApiControllerBase
 {
 
@@ -147,6 +151,70 @@ public class UsersController(IUserService _userService,
         var blockedByUsers = await _userBlockService.GetBlockedByUsersAsync(userId);
         var results = _mapper.Map<List<UserBlockModel>>(blockedByUsers);
         return results;
+    }
+
+    [HttpGet("followings/{userId}")]
+    public async Task<List<UserSearchModel>> GetFollowings([FromRoute] Guid userId)
+    {
+        var followings = await _dbContext.UserFollows
+        .Where(uf => uf.FollowerId == userId)
+        .Join(_dbContext.Users,
+              uf => uf.FollowingId,
+              u => u.Id,
+              (uf, u) => new UserSearchModel
+              {
+                  Id = u.Id,
+                  Name = u.Name,
+                  Picture = JsonHelper.Deserialize<Media>(u.Picture),
+              })
+        .ToListAsync();
+
+        return followings;
+    }
+
+    [HttpGet("followers/{userId}")]
+    public async Task<List<UserSearchModel>> GetFollowers([FromRoute] Guid userId)
+    {
+        var followers = await _dbContext.UserFollows
+            .Where(uf => uf.FollowingId == userId)
+            .Join(_dbContext.Users,
+                  uf => uf.FollowerId,
+                  u => u.Id,
+                  (uf, u) => new UserSearchModel
+                  {
+                      Id = u.Id,
+                      Name = u.Name,
+                      Picture = JsonHelper.Deserialize<Media>(u.Picture),
+                  })
+            .ToListAsync();
+
+        return followers;
+    }
+
+    [HttpGet("friends/{userId}")]
+    public async Task<List<UserSearchModel>> GetFriends([FromRoute] Guid userId)
+    {
+        var followingIds = _dbContext.UserFollows
+        .Where(uf => uf.FollowerId == userId)
+        .Select(uf => uf.FollowingId);
+
+        var followerIds = _dbContext.UserFollows
+            .Where(uf => uf.FollowingId == userId)
+            .Select(uf => uf.FollowerId);
+
+        var friendIds = await followingIds.Intersect(followerIds).ToListAsync();
+
+        var friends = await _dbContext.Users
+            .Where(u => friendIds.Contains(u.Id))
+            .Select(u => new UserSearchModel
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Picture = JsonHelper.Deserialize<Media>(u.Picture),
+            })
+            .ToListAsync();
+
+        return friends;
     }
 
 }
