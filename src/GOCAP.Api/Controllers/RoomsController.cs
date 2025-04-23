@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
 namespace GOCAP.Api.Controllers;
@@ -7,6 +8,8 @@ namespace GOCAP.Api.Controllers;
 public class RoomsController(IRoomService _service,
     IRoomFavouriteService _roomFavouriteService,
     IRedisService _redisService,
+    IUserContextService _userContextService,
+    IHubContext<RoomHub> _hubContext,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -105,9 +108,6 @@ public class RoomsController(IRoomService _service,
     public async Task<IActionResult> CheckRoomPassword([FromBody] CheckRoomPasswordRequest request)
     {
         var redisKey = $"Room:Password:{request.RoomId}";
-
-        // 🔁 Lấy password hash từ Redis (giả lập)
-        // Giả sử bạn có một service RedisCacheService với method GetStringAsync
         var passwordHash = await _redisService.GetAsync<string>(redisKey);
 
         if (string.IsNullOrEmpty(passwordHash))
