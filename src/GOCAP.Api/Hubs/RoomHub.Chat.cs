@@ -29,7 +29,7 @@ public partial class RoomHub
             await BroadcastEvent(roomId, ReceiveMessageRoom, result);
             ValidateMessage(roomId, null, model);
             var domain = _mapper.Map<Message>(result);
-            await _service.AddAsync(domain);
+            await _messageService.AddAsync(domain);
         }, "Failed to send message");
     }
 
@@ -39,7 +39,7 @@ public partial class RoomHub
         {
             await BroadcastEvent(roomId, DeleteMessageRoom, messageId);
             ValidateMessage(roomId, messageId);
-            await _service.DeleteByIdAsync(messageId);
+            await _messageService.DeleteByIdAsync(messageId);
         }, "Failed to delete message");
     }
 
@@ -63,7 +63,7 @@ public partial class RoomHub
             await BroadcastEvent(roomId, UpdateMessageRoom, result);
             ValidateMessage(roomId, messageId, model);
             var domain = _mapper.Map<Message>(result);
-            await _service.UpdateAsync(messageId, domain);
+            await _messageService.UpdateAsync(messageId, domain);
         }, "Failed to update message");
     }
 

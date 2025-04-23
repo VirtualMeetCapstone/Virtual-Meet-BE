@@ -5,25 +5,29 @@ namespace GOCAP.Api.Hubs;
 public partial class RoomHub(
     ILogger<RoomHub> _logger,
     IUserService _userService,
-    IMessageService _service,
+    IRoomService _service,
+    IMessageService _messageService,
     IRedisService _redisService,
     IMessageReactionService _messageReactionService,
     IAIService aIService,
     IMapper _mapper) : Hub
 {
 
-    public async Task JoinRoom(string userId, string roomId, string password = "")
+    public async Task JoinRoom(string userId, string roomId, string password = "", bool isAccepted = false)
     {
-        var redisKey = $"Room:Password:{roomId}";
-        var passwordHash = await _redisService.GetAsync<string>(redisKey);
-        if (!string.IsNullOrEmpty(passwordHash))
+        if (!isAccepted)
         {
-            var isValidPassword = BCrypt.Net.BCrypt.Verify(password, passwordHash);
-            if (!isValidPassword)
+            var redisKey = $"Room:Password:{roomId}";
+            var passwordHash = await _redisService.GetAsync<string>(redisKey);
+            if (!string.IsNullOrEmpty(passwordHash))
             {
-                _logger.LogWarning("User {UserId} provided incorrect password for room {RoomId}.", userId, roomId);
-                await Clients.Caller.SendAsync("JoinFailed", "WrongPassword");
-                return;
+                var isValidPassword = BCrypt.Net.BCrypt.Verify(password, passwordHash);
+                if (!isValidPassword)
+                {
+                    _logger.LogWarning("User {UserId} provided incorrect password for room {RoomId}.", userId, roomId);
+                    await Clients.Caller.SendAsync("JoinFailed", "WrongPassword");
+                    return;
+                }
             }
         }
 

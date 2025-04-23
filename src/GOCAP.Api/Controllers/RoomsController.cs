@@ -1,8 +1,15 @@
-﻿namespace GOCAP.Api.Controllers;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
+
+namespace GOCAP.Api.Controllers;
 
 [Route("rooms")]
 public class RoomsController(IRoomService _service,
     IRoomFavouriteService _roomFavouriteService,
+    IRedisService _redisService,
+    IUserContextService _userContextService,
+    IHubContext<RoomHub> _hubContext,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -96,4 +103,27 @@ public class RoomsController(IRoomService _service,
         var result = _mapper.Map<QueryResult<RoomFavouriteDetailModel>>(domain);
         return result;
     }
+
+    [HttpPost("check-password")]
+    public async Task<IActionResult> CheckRoomPassword([FromBody] CheckRoomPasswordRequest request)
+    {
+        var redisKey = $"Room:Password:{request.RoomId}";
+        var passwordHash = await _redisService.GetAsync<string>(redisKey);
+
+        if (string.IsNullOrEmpty(passwordHash))
+            return NotFound("Room password not found");
+
+        var isValid = BCrypt.Net.BCrypt.Verify(request.Password, passwordHash);
+
+        if (!isValid)
+            return Unauthorized("Incorrect password");
+
+        return Ok("Password is correct");
+    }
+}
+
+public class CheckRoomPasswordRequest
+{
+    public Guid RoomId { get; set; }
+    public string Password { get; set; }
 }
