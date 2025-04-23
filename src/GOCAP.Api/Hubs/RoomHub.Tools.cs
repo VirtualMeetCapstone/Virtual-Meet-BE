@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using static GOCAP.Api.Model.RoomPollModel;
 
 namespace GOCAP.Api.Hubs
 {
@@ -7,7 +7,7 @@ namespace GOCAP.Api.Hubs
     {
 
         private static ConcurrentDictionary<string, List<SubtitleEntry>> _subtitleCache = new();
-        private Timer _flushTimer;
+
 
         // Your model
         public class SubtitleEntry
@@ -87,5 +87,126 @@ namespace GOCAP.Api.Hubs
         }
 
 
+
+        public async Task CreatePoll(UserDto user, string roomId, string question, List<string> options)
+        {
+            TimeSpan? expireIn = null;
+            if (string.IsNullOrWhiteSpace(roomId) || string.IsNullOrWhiteSpace(question) || options == null || options.Count < 2)
+            {
+                _logger.LogWarning("Invalid poll data: RoomId: {RoomId}, Question: {Question}, OptionsCount: {OptionsCount}", roomId, question, options?.Count);
+                throw new HubException("Invalid poll data.");
+            }
+
+            _logger.LogInformation("Creating poll for RoomId: {RoomId} by User: {UserId}, Question: {Question}", roomId, user.Id, question);
+
+            var now = DateTime.UtcNow;
+            var poll = new PollModel
+            {
+                Question = question,
+                Options = options.Select(opt => new PollOption
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Text = opt
+                }).ToList(),
+                CreatedById = user.Id,
+                CreatedByName = user.Name,
+                RoomId = roomId,
+                CreatedAt = now,
+                ExpiresAt = now.Add(expireIn ?? TimeSpan.FromHours(24))
+            };
+
+            // Add the poll to the room using the new method
+            PollManager.AddPollToRoom(roomId, poll);
+
+            _logger.LogInformation("Poll created successfully for RoomId: {RoomId}, PollId: {PollId}", roomId, poll.Id);
+
+            // Send all polls for the room to clients
+            await UpdateRoomPolls(roomId);
+        }
+
+        public async Task VoteOnPoll(UserDto user, string roomId, string pollId, string optionId)
+        {
+            // Get the specific poll by ID
+            var poll = PollManager.GetPoll(pollId);
+
+            if (poll == null)
+            {
+                throw new HubException("Poll not found.");
+            }
+
+            if (poll.RoomId != roomId)
+            {
+                throw new HubException("Poll does not belong to this room.");
+            }
+
+            poll.VoterNames ??= new Dictionary<string, string>();
+            poll.VoterDisplayNames ??= new Dictionary<string, string>();
+
+            var oldOptionId = poll.VoterNames.ContainsKey(user.Id) ? poll.VoterNames[user.Id] : null;
+
+            if (oldOptionId == optionId)
+                return;
+
+            if (oldOptionId != null)
+            {
+                var oldOption = poll.Options.FirstOrDefault(o => o.Id == oldOptionId);
+                if (oldOption != null) oldOption.Votes--;
+            }
+            else
+            {
+                poll.VoterIds.Add(user.Id);
+            }
+
+            var newOption = poll.Options.FirstOrDefault(o => o.Id == optionId);
+            if (newOption == null)
+                throw new HubException("Invalid option.");
+
+            newOption.Votes++;
+            poll.VoterNames[user.Id] = optionId;
+            poll.VoterDisplayNames[user.Id] = user.Name;
+
+            // Update clients with all polls for the room
+            await UpdateRoomPolls(roomId);
+        }
+
+        // Helper method to send updated polls to clients
+        private async Task UpdateRoomPolls(string roomId)
+        {
+            var polls = PollManager.GetPollsForRoom(roomId);
+            await Clients.Group(roomId).SendAsync("PollUpdated", polls);
+        }
+
+        public async Task DeletePollFromRoom(string roomId, string pollId)
+        {
+            var success = PollManager.DeletePoll(pollId);
+
+            if (!success)
+                throw new HubException("Failed to delete poll.");
+
+            // Gửi danh sách poll mới đến các client trong room
+            await UpdateRoomPolls(roomId);
+        }
+
+        public async Task EndPollInRoom(string roomId, string pollId)
+        {
+            var success = PollManager.EndPoll(pollId);
+
+            if (!success)
+                throw new HubException("Failed to end poll. Maybe it's already ended?");
+
+            await UpdateRoomPolls(roomId);
+        }
+
+        public static void RemoveExpiredPolls(DateTime currentTime)
+        {
+            foreach (var kvp in PollManager.AllPolls.ToList())
+            {
+                var poll = kvp.Value;
+                if (poll.ExpiresAt.HasValue && poll.ExpiresAt.Value <= currentTime)
+                {
+                    PollManager.DeletePoll(kvp.Key);
+                }
+            }
+        }
     }
 }
