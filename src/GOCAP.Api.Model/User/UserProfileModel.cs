@@ -9,5 +9,5 @@ public class UserProfileModel
     public int FollowingsCount{ get; set; }
     public int FriendsCount { get; set; }
     public UserStatusType? Status { get; set; }
-
+    public bool IsDeleted { get; set; }
 }

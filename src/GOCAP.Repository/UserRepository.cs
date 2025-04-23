@@ -49,7 +49,8 @@ internal class UserRepository(AppSqlDbContext context, IBlobStorageService _blob
                                         Picture = string.IsNullOrEmpty(user.Picture) ?
                                                   null : JsonHelper.Deserialize<Media>(user.Picture),
                                         Bio = user.Bio,
-                                        Status = user.Status
+                                        Status = user.Status,
+                                        IsDeleted = user.IsDeleted,
                                     })
                                     .FirstOrDefaultAsync()
                                     ?? throw new ResourceNotFoundException($"User {id} was not found.");
