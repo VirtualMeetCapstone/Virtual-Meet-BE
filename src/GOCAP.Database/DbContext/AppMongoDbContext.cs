@@ -14,7 +14,8 @@ public class AppMongoDbContext
     public IMongoCollection<PaymentHistory> PaymentHistorys { get; set; }
     public IMongoCollection<LogoEntity> Logos { get; set; }
     public IMongoCollection<MessagesOutsideRoomEntity> MessagesOutsideRoom { get; set; }
-public IMongoCollection<ReportEntity> Reports => _database.GetCollection<ReportEntity>("Reports");
+    public IMongoCollection<RoomStatisticsEntity> RoomStatistic { get; set; }
+    public IMongoCollection<ReportEntity> Reports => _database.GetCollection<ReportEntity>("Reports");
 
 
     public AppMongoDbContext(string databaseName, string connectionString)
@@ -30,7 +31,7 @@ public IMongoCollection<ReportEntity> Reports => _database.GetCollection<ReportE
         PaymentHistorys = GetCollection<PaymentHistory>();
         Logos = GetCollection<LogoEntity>();
         MessagesOutsideRoom = GetCollection<MessagesOutsideRoomEntity>();
-        
+        RoomStatistic = GetCollection<RoomStatisticsEntity>();
 
     }
 
