@@ -14,4 +14,5 @@ public class RoomModel : EntityDateTrackingBase<Guid>
     public List<Guid>? TaggedUserId { get; set; }
     public List<string>? HashTags { get; set; }
     public IEnumerable<RoomMemberModel> Members { get; set; } = [];
+    public int OnlineCount {  get; set; }
 }
