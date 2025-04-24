@@ -13,7 +13,6 @@ internal class RoomRepository(
             .AsNoTracking()
             .AsQueryable();
 
-        // Filtering
         if (!string.IsNullOrEmpty(queryInfo.SearchText))
         {
             var keyword = queryInfo.SearchText.Trim();
@@ -22,10 +21,8 @@ internal class RoomRepository(
                 $"%{keyword}%"));
         }
 
-        // Total count
         var totalItems = queryInfo.NeedTotalCount ? await query.CountAsync() : 0;
 
-        // Fetch data in one query, no C# method calls inside
         var roomData = await query
             .OrderByDescending(r => r.CreateTime)
             .Skip(queryInfo.Skip)
@@ -39,6 +36,7 @@ internal class RoomRepository(
                 _context.RoomMembers.Join(_context.Users, rm => rm.UserId, u => u.Id, (rm, u) => new
                 {
                     rm.RoomId,
+                    u.Id,
                     u.Name,
                     u.Picture
                 }),
@@ -51,7 +49,7 @@ internal class RoomRepository(
                     Members = members.ToList()
                 })
             .ToListAsync();
-        // Now deserialize outside EF (C# land)
+
         var resultRooms = roomData.Select(r => new Room
         {
             Id = r.Room.Id,
@@ -70,9 +68,11 @@ internal class RoomRepository(
             CreateTime = r.Room.CreateTime,
             Members = [.. r.Members.Select(m => new User
             {
+                Id = m.Id,
                 Name = m.Name,
                 Picture = JsonHelper.Deserialize<Media>(m.Picture)
-            })]
+            })],
+            OnlineCount = r.Members.Count
         }).ToList();
 
         return new QueryResult<Room>
@@ -81,6 +81,7 @@ internal class RoomRepository(
             TotalCount = totalItems
         };
     }
+
 
     public async Task<RoomCount> GetRoomCountsAsync()
     {

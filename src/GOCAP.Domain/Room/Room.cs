@@ -16,4 +16,5 @@ public class Room : DateTrackingBase
     public IEnumerable<User> Members { get; set; } = [];
     public List<Guid>? TaggedUserId { get; set; }
     public List<string>? HashTags { get; set; }
+    public int OnlineCount { get; set; }
 }

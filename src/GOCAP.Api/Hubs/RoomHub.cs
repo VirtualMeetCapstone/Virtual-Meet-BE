@@ -1,4 +1,6 @@
-﻿using static GOCAP.Api.Model.RoomPollModel;
+﻿using GOCAP.Database;
+using GOCAP.Repository;
+using static GOCAP.Api.Model.RoomPollModel;
 
 namespace GOCAP.Api.Hubs;
 
@@ -8,6 +10,7 @@ public partial class RoomHub(
     IRoomService _service,
     IMessageService _messageService,
     IRedisService _redisService,
+    IRoomMemberRepository _roomMemberRepository,
     IMessageReactionService _messageReactionService,
     IAIService aIService,
     IMapper _mapper) : Hub 
@@ -72,6 +75,17 @@ public partial class RoomHub(
             UserName = userId,
             UserId = userId
         };
+
+        // Add member to room member
+        var roomMemberEntity = new Database.RoomMemberEntity
+        {
+            Id = Guid.NewGuid(),
+            RoomId = Guid.Parse(roomId),
+            UserId = Guid.Parse(userId),
+            CreateTime = DateTime.Now.Ticks,
+            LastModifyTime = DateTime.Now.Ticks
+        };
+        await _roomMemberRepository.AddAsync(roomMemberEntity);
 
         // Gửi danh sách peers hiện tại cho người mới
         await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.RoomPeers[roomId]);
@@ -163,6 +177,7 @@ public partial class RoomHub(
                 if (RoomStateManager.RoomPeers[roomId].Count == 0)
                 {
                     RoomStateManager.RoomPeers.TryRemove(roomId, out _);
+                    await _roomMemberRepository.DeleteByRoomIdAsync(Guid.Parse(roomId));
 
                     // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
