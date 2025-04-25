@@ -1,4 +1,7 @@
 ﻿using GOCAP.Database;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GOCAP.Api.Model;
 
@@ -10,105 +13,179 @@ public class RoomStatistics
     public string OwnerName { get; set; }
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
+    public int TotalJoins => JoinLogs.Count;
+    public int TotalLeaves => LeaveLogs.Count;
+
+
 
     public List<UserLogEntry> JoinLogs { get; set; } = new();
     public List<UserLogEntry> LeaveLogs { get; set; } = new();
 
-
     public int PeakUsers { get; set; } = 0;
     public DateTime? PeakTime { get; set; }
+
+    // Tổng số người dùng khác nhau đã tham gia phòng
+    public int TotalUniqueUsers => JoinLogs.Select(log => log.User.Id).Distinct().Count();
+    public int CurrentUsersCount => GetCurrentUserCount();
+   
+    // Thời lượng tồn tại của phòng
+    public TimeSpan? Duration => (EndTime ?? DateTime.UtcNow) - StartTime;
+
+    // Thời gian trung bình một người ở lại phòng
+    public TimeSpan? AverageUserSessionTime
+    {
+        get
+        {
+            var totalDuration = TimeSpan.Zero;
+            var userIds = JoinLogs.Select(j => j.User.Id).Distinct();
+
+            foreach (var userId in userIds)
+            {
+                var joins = JoinLogs.Where(j => j.User.Id == userId).OrderBy(j => j.Time).ToList();
+                var leaves = LeaveLogs.Where(l => l.User.Id == userId).OrderBy(l => l.Time).ToList();
+
+                for (int i = 0; i < Math.Min(joins.Count, leaves.Count); i++)
+                {
+                    totalDuration += leaves[i].Time - joins[i].Time;
+                }
+            }
+
+            return userIds.Any() ? (TimeSpan?)TimeSpan.FromTicks(totalDuration.Ticks / userIds.Count()) : null;
+        }
+    }
+
+    // Thời gian user đầu tiên join phòng
+    public DateTime? FirstJoinTime => JoinLogs.Any() ? JoinLogs.Min(j => j.Time) : (DateTime?)null;
+
+    // Thời lượng phòng có người tham gia (từ user đầu tiên join)
+    public TimeSpan? DurationFromFirstJoin => FirstJoinTime.HasValue
+        ? (EndTime ?? DateTime.UtcNow) - FirstJoinTime
+        : null;
+
+    // Số lần mỗi người vào - ra phòng
+    public Dictionary<string, int> UserSessionCounts
+    {
+        get
+        {
+            var result = new Dictionary<string, int>();
+            var userIds = JoinLogs.Select(j => j.User.Id).Union(LeaveLogs.Select(l => l.User.Id)).Distinct();
+
+            foreach (var userId in userIds)
+            {
+                var joins = JoinLogs.Where(j => j.User.Id == userId).OrderBy(j => j.Time).ToList();
+                var leaves = LeaveLogs.Where(l => l.User.Id == userId).OrderBy(l => l.Time).ToList();
+
+                // Số session là số cặp Join–Leave hợp lệ
+                int sessionCount = Math.Min(joins.Count, leaves.Count);
+                result[userId] = sessionCount;
+            }
+
+            return result;
+        }
+    }
+
+
+    public double UserParticipationRate =>
+    TotalUniqueUsers == 0 ? 0 : (double)CurrentUsersCount / TotalUniqueUsers;
+
+    public string FirstJoinUserId => JoinLogs.OrderBy(j => j.Time).FirstOrDefault()?.User.Id;
+
+    public string LastJoinUserId => JoinLogs.OrderByDescending(j => j.Time).FirstOrDefault()?.User.Id;
+
+    public TimeSpan? LongestSessionTime
+    {
+        get
+        {
+            TimeSpan maxDuration = TimeSpan.Zero;
+            var userIds = JoinLogs.Select(j => j.User.Id).Distinct();
+
+            foreach (var userId in userIds)
+            {
+                var joins = JoinLogs.Where(j => j.User.Id == userId).OrderBy(j => j.Time).ToList();
+                var leaves = LeaveLogs.Where(l => l.User.Id == userId).OrderBy(l => l.Time).ToList();
+
+                for (int i = 0; i < Math.Min(joins.Count, leaves.Count); i++)
+                {
+                    var sessionDuration = leaves[i].Time - joins[i].Time;
+                    if (sessionDuration > maxDuration)
+                        maxDuration = sessionDuration;
+                }
+            }
+
+            return maxDuration == TimeSpan.Zero ? (TimeSpan?)null : maxDuration;
+        }
+    }
 
     public void UserJoined(UserInfo user)
     {
         var now = DateTime.UtcNow;
 
-        // Kiểm tra xem người dùng đã từng vào phòng trước đó hay chưa
-        var lastJoinLog = JoinLogs.LastOrDefault(j => j.User.Id == user.Id);
-        var lastLeaveLog = LeaveLogs.LastOrDefault(l => l.User.Id == user.Id);
+        // Kiểm tra xem user đã vào nhưng chưa rời chưa
+        var lastJoin = JoinLogs.LastOrDefault(j => j.User.Id == user.Id);
+        var lastLeave = LeaveLogs.LastOrDefault(l => l.User.Id == user.Id);
 
-        // Chỉ thêm log mới khi người dùng chưa ở trong phòng
-        bool userAlreadyInRoom = false;
-        if (lastJoinLog != null && lastLeaveLog != null)
+        bool isCurrentlyInRoom = lastJoin != null && (lastLeave == null || lastJoin.Time > lastLeave.Time);
+        if (isCurrentlyInRoom)
+            return; // Tránh thêm log thừa nếu user đã trong phòng
+
+        // Thêm log vào phòng
+        JoinLogs.Add(new UserLogEntry { User = user, Time = now });
+
+        // Nếu là người đầu tiên, cập nhật thời gian bắt đầu
+        if (StartTime == null)
+            StartTime = now;
+
+        // Cập nhật số người hiện tại và kiểm tra peak
+        int currentUsers = GetCurrentUserCount();
+        if (currentUsers > PeakUsers)
         {
-            // Nếu thời gian join cuối > thời gian leave cuối, nghĩa là user đã ở trong phòng
-            userAlreadyInRoom = lastJoinLog.Time > lastLeaveLog.Time;
-        }
-        else if (lastJoinLog != null && lastLeaveLog == null)
-        {
-            // Có log join nhưng không có log leave, nghĩa là user đã ở trong phòng
-            userAlreadyInRoom = true;
+            PeakUsers = currentUsers;
+            PeakTime = now;
         }
 
-        if (!userAlreadyInRoom)
-        {
-            // Chỉ thêm log và cập nhật thống kê khi user thực sự mới vào
-            JoinLogs.Add(new UserLogEntry { User = user, Time = now });
-
-            if (StartTime == null)
-                StartTime = now;
-
-            var currentUserCount = GetCurrentUserCount();
-            if (currentUserCount > PeakUsers)
-            {
-                PeakUsers = currentUserCount;
-                PeakTime = now;
-            }
-        }
+        // Nếu có người vào lại sau khi phòng đã kết thúc trước đó, reset EndTime
+        if (EndTime != null)
+            EndTime = null;
     }
+
 
     public void UserLeft(UserInfo user)
     {
         var now = DateTime.UtcNow;
 
-        // Kiểm tra xem người dùng có thực sự đang ở trong phòng hay không
-        var lastJoinLog = JoinLogs.LastOrDefault(j => j.User.Id == user.Id);
-        var lastLeaveLog = LeaveLogs.LastOrDefault(l => l.User.Id == user.Id);
+        var lastJoin = JoinLogs.LastOrDefault(j => j.User.Id == user.Id);
+        var lastLeave = LeaveLogs.LastOrDefault(l => l.User.Id == user.Id);
 
-        bool userInRoom = false;
-        if (lastJoinLog != null)
-        {
-            if (lastLeaveLog == null)
-            {
-                // Có join log nhưng không có leave log
-                userInRoom = true;
-            }
-            else
-            {
-                // Nếu thời gian join cuối > thời gian leave cuối, nghĩa là user đang ở trong phòng
-                userInRoom = lastJoinLog.Time > lastLeaveLog.Time;
-            }
-        }
+        bool isInRoom = lastJoin != null && (lastLeave == null || lastJoin.Time > lastLeave.Time);
+        if (!isInRoom)
+            return; // Nếu không có trong phòng thì bỏ qua
 
-        if (userInRoom)
-        {
-            LeaveLogs.Add(new UserLogEntry { User = user, Time = now });
+        // Thêm log rời phòng
+        LeaveLogs.Add(new UserLogEntry { User = user, Time = now });
 
-            var currentUserCount = GetCurrentUserCount();
-            if (currentUserCount == 0)
-                EndTime = now;
-        }
+        // Nếu không còn người nào trong phòng -> cập nhật thời gian kết thúc
+        if (GetCurrentUserCount() == 0)
+            EndTime = now;
     }
 
-    // Helper method để tính số người dùng hiện tại trong phòng
+
+    // Tính số người đang trong phòng
     public int GetCurrentUserCount()
     {
         int count = 0;
         var userIds = new HashSet<string>();
 
-        // Đếm số người độc nhất đang trong phòng
         foreach (var joinLog in JoinLogs)
         {
             var userId = joinLog.User.Id;
             var joinTime = joinLog.Time;
 
-            // Tìm thời gian leave gần nhất của user này
             var lastLeaveTime = LeaveLogs
                 .Where(l => l.User.Id == userId)
                 .OrderByDescending(l => l.Time)
                 .Select(l => l.Time)
                 .FirstOrDefault();
 
-            // Nếu thời gian join > thời gian leave gần nhất (hoặc chưa có leave log), user đang trong phòng
             if (lastLeaveTime == default || joinTime > lastLeaveTime)
             {
                 if (!userIds.Contains(userId))
@@ -122,4 +199,3 @@ public class RoomStatistics
         return count;
     }
 }
-

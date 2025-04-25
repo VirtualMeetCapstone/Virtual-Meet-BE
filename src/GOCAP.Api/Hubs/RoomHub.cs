@@ -223,7 +223,8 @@ public partial class RoomHub(
                     // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
                     _subtitleCache.TryRemove(roomId, out _);
-
+                    RoomStateManager.RoomStats.TryRemove(roomId, out _);
+                    //
                     var now = DateTime.UtcNow;
                     RemoveExpiredPolls(now);
 
