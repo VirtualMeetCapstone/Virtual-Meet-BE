@@ -46,7 +46,8 @@ public class RoomStatistics
 
                 for (int i = 0; i < Math.Min(joins.Count, leaves.Count); i++)
                 {
-                    totalDuration += leaves[i].Time - joins[i].Time;
+                    totalDuration += (leaves[i].Time ?? DateTime.MinValue) - (joins[i].Time ?? DateTime.MinValue);
+
                 }
             }
 
@@ -106,10 +107,14 @@ public class RoomStatistics
 
                 for (int i = 0; i < Math.Min(joins.Count, leaves.Count); i++)
                 {
-                    var sessionDuration = leaves[i].Time - joins[i].Time;
-                    if (sessionDuration > maxDuration)
-                        maxDuration = sessionDuration;
+                    if (leaves[i].Time.HasValue && joins[i].Time.HasValue)
+                    {
+                        var sessionDuration = leaves[i].Time.Value - joins[i].Time.Value;
+                        if (sessionDuration > maxDuration)
+                            maxDuration = sessionDuration;
+                    }
                 }
+
             }
 
             return maxDuration == TimeSpan.Zero ? (TimeSpan?)null : maxDuration;

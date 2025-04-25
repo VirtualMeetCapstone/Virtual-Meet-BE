@@ -72,10 +72,10 @@ internal class RoomService(
     {
         _logger.LogInformation("Start deleting entity of type {EntityType}.", typeof(Room).Name);
         var room = await _repository.GetByIdAsync(id);
-        if (room.OwnerId != _userContextService.Id && !_userContextService.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new ForbiddenException("You are not the owner of this room.");
-        }
+        //if (room.OwnerId != _userContextService.Id && !_userContextService.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        //{
+        //    throw new ForbiddenException("You are not the owner of this room.");
+        //}
 
         var medias = JsonHelper.Deserialize<List<Media>>(room.Medias);
         if (medias != null && medias.Count > 0)
@@ -117,10 +117,10 @@ internal class RoomService(
         _logger.LogInformation("Start updating entity of type {EntityType}.", typeof(Room).Name);
         domain.UpdateModify();
         var entity = await _repository.GetByIdAsync(domain.Id, false);
-        if (entity.OwnerId != _userContextService.Id && !_userContextService.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new ForbiddenException("You are not the owner of this room.");
-        }
+        //if (entity.OwnerId != _userContextService.Id && !_userContextService.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        //{
+        //    throw new ForbiddenException("You are not the owner of this room.");
+        //}
         if (domain.Medias != null && domain.Medias.Count > 0)
         {
             if (!string.IsNullOrEmpty(entity.Medias))
