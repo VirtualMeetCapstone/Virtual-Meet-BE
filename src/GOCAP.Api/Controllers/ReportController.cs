@@ -70,5 +70,28 @@ namespace GOCAP.Api.Controllers
 
             return Ok(reports);
         }
+        [HttpDelete("report-for-ban")]
+        public async Task<IActionResult> DeleteReport([FromQuery] Guid reporterId, [FromQuery] Guid targetId)
+        {
+            var result = await _dbContext.Reports.DeleteOneAsync(r =>
+                r.ReporterId == reporterId && r.TargetId == targetId
+            );
+
+            if (result.DeletedCount == 0)
+            {
+                return NotFound(new
+                {
+                    message = "No report found with the provided reporter and target ID."
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Report deleted successfully.",
+                reporterId,
+                targetId
+            });
+        }
+
     }
 }
