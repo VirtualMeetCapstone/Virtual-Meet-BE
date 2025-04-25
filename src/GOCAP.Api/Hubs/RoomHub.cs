@@ -182,57 +182,71 @@ public partial class RoomHub(
     }
     public async Task LeaveRoom(string roomId)
     {
-        if (RoomStateManager.RoomPeers.TryGetValue(roomId, out List<RoomPeerModel>? value))
+        if (!RoomStateManager.RoomPeers.TryGetValue(roomId, out var peers))
+            return;
+
+        var peer = peers.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
+        if (peer == null)
+            return;
+
+        RoomStateManager.RoomPeers[roomId].Remove(peer);
+
+        await Clients.Group(roomId).SendAsync(
+            "PeerDisconnected",
+            Context.ConnectionId,
+            RoomStateManager.RoomPeers[roomId].Count
+        );
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
+
+        _ = Task.Run(async () =>
         {
-            var peer = value.FirstOrDefault(p => p.PeerId == Context.ConnectionId);
-
-            if (peer != null)
+            try
             {
-                RoomStateManager.RoomPeers[roomId].Remove(peer);
+                await using var scope = _scopeFactory.CreateAsyncScope();
+                var scopedUserService = scope.ServiceProvider.GetRequiredService<IUserService>();
+                var scopedRoomMemberRepo = scope.ServiceProvider.GetRequiredService<IRoomMemberRepository>();
+                var scopedRoomService = scope.ServiceProvider.GetRequiredService<IRoomService>();
 
-                await Clients.Group(roomId).SendAsync(
-                    "PeerDisconnected",
-                    Context.ConnectionId,
-                    RoomStateManager.RoomPeers[roomId].Count
-                );
-
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
-
-                // 🧠 Kiểm tra nếu đây là peer cuối cùng của user đó trong phòng
-                bool isLastPeerOfUser = !RoomStateManager.RoomPeers[roomId]
+                var isLastPeerOfUser = !RoomStateManager.RoomPeers[roomId]
                     .Any(p => p.UserId == peer.UserId && p.PeerId != peer.PeerId);
-                Guid guidID = Guid.Parse(peer.UserId);
-                var user = await _userService.GetUserProfileAsync(guidID);
+
                 if (isLastPeerOfUser && peer.UserId != null)
                 {
+                    var user = await scopedUserService.GetUserProfileAsync(Guid.Parse(peer.UserId));
                     var userInfo = new UserInfo
                     {
                         Id = peer.UserId,
-                        Name = user.Name,
-                        ImageUrl = user.Picture.Url,
+                        Name = user?.Name ?? peer.UserId,
+                        ImageUrl = user?.Picture?.Url ?? ""
                     };
 
                     await UpdateRoomStatisticsOnLeaveAsync(roomId, userInfo);
+                    await scopedRoomService.DeleteByIdAsync(Guid.Parse(roomId));
                 }
 
                 if (RoomStateManager.RoomPeers[roomId].Count == 0)
                 {
                     RoomStateManager.RoomPeers.TryRemove(roomId, out _);
-                    await _roomMemberRepository.DeleteByRoomIdAsync(Guid.Parse(roomId));
+                    await scopedRoomMemberRepo.DeleteByRoomIdAsync(Guid.Parse(roomId));
 
-                    // ✅ Xóa roomId khỏi SharingUsers nếu phòng trống
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
                     _subtitleCache.TryRemove(roomId, out _);
                     RoomStateManager.RoomStats.TryRemove(roomId, out _);
-                    //
+
                     var now = DateTime.UtcNow;
                     RemoveExpiredPolls(now);
 
                     await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
                 }
             }
-        }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during LeaveRoom cleanup for room {RoomId}", roomId);
+            }
+        });
     }
+
 
     public static int GetRoomUserCount(string roomId)
     {

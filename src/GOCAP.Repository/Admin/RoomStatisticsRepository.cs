@@ -7,7 +7,7 @@
         private readonly AppMongoDbContext _context = context;
         public async Task<QueryResult<RoomStatisticsEntity>> GetWithPagingAsync(QueryInfo queryInfo)
         {
-            var filter = Builders<RoomStatisticsEntity>.Filter.Empty;
+            var filter = Builders<RoomStatisticsEntity>.Filter.Gt(c => c.TotalJoins, 0);
 
             if (!string.IsNullOrEmpty(queryInfo.SearchText))
             {
@@ -41,14 +41,20 @@
 
         public async Task<RoomStatisticsEntity> GetByRoomIdAsync(string roomId)
         {
-            var filter = Builders<RoomStatisticsEntity>.Filter.Eq(c => c.RoomId, roomId);
+            var filter = Builders<RoomStatisticsEntity>.Filter.And(
+                Builders<RoomStatisticsEntity>.Filter.Eq(c => c.RoomId, roomId),
+                Builders<RoomStatisticsEntity>.Filter.Gt(c => c.TotalJoins, 0)
+            );
+
             return await _context.RoomStatistic.Find(filter).FirstOrDefaultAsync();
         }
+
         public async Task<IEnumerable<RoomStatisticsEntity>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             var filter = Builders<RoomStatisticsEntity>.Filter.And(
                Builders<RoomStatisticsEntity>.Filter.Gte(c => c.StartTime, startDate),
-               Builders<RoomStatisticsEntity>.Filter.Lte(c => c.EndTime, endDate)
+               Builders<RoomStatisticsEntity>.Filter.Lte(c => c.EndTime, endDate),
+               Builders<RoomStatisticsEntity>.Filter.Gt(c => c.TotalJoins, 0)
            );
 
             return await _context.RoomStatistic.Find(filter).ToListAsync();

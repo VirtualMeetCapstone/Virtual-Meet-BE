@@ -11,7 +11,7 @@ public class RoomStatisticsEntity : EntityMongoBase
     public string OwnerId { get; set; }
     public string OwnerName { get; set; }
     public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime? EndTime { get; set; }
     public int PeakUsers { get; set; }
     public DateTime? PeakTime { get; set; }
 
@@ -39,6 +39,6 @@ public class RoomStatisticsEntity : EntityMongoBase
 public class UserLogEntry
 {
     public UserInfo User { get; set; }
-    public DateTime Time { get; set; }
+    public DateTime? Time { get; set; }
 }
 
