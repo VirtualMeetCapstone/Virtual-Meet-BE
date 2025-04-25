@@ -1,7 +1,4 @@
-﻿
-using DocumentFormat.OpenXml.Drawing;
-using FluentAssertions.Extensions;
-using GOCAP.Database;
+﻿using GOCAP.Database;
 using MongoDB.Driver;
 
 namespace GOCAP.Api.Hubs
@@ -55,11 +52,31 @@ namespace GOCAP.Api.Hubs
             // Cập nhật lại Mongo DB document
             var filter = Builders<RoomStatisticsEntity>.Filter.Eq(x => x.RoomId, roomId);
             var update = Builders<RoomStatisticsEntity>.Update
-                .Set(x => x.JoinLogs, stat.JoinLogs)
-                .Set(x => x.LeaveLogs, stat.LeaveLogs)
-                .Set(x => x.PeakUsers, stat.PeakUsers)
-                .Set(x => x.PeakTime, stat.PeakTime);
+             .Set(x => x.StartTime, stat.StartTime)
+             .Set(x => x.EndTime, stat.EndTime)
+             .Set(x => x.JoinLogs, stat.JoinLogs)
+             .Set(x => x.LeaveLogs, stat.LeaveLogs)
+             .Set(x => x.PeakUsers, stat.PeakUsers)
+             .Set(x => x.PeakTime, stat.PeakTime)
+             .Set(x => x.UserSessionCounts, stat.UserSessionCounts)
+             .Set(x => x.CurrentUsersCount, stat.CurrentUsersCount)
+             // Nếu các trường này có trong entity và bạn muốn lưu:
+             .Set(x => x.TotalJoins, stat.TotalJoins)
+             .Set(x => x.TotalLeaves, stat.TotalLeaves)
+             .Set(x => x.TotalUniqueUsers, stat.TotalUniqueUsers)
+             .Set(x => x.UserParticipationRate, stat.UserParticipationRate)
+             .Set(x => x.FirstJoinTime, stat.FirstJoinTime)
+             .Set(x => x.LastJoinUserId, stat.LastJoinUserId)
+             .Set(x => x.FirstJoinUserId, stat.FirstJoinUserId)
+             .Set(x => x.DurationTicks, stat.Duration?.Ticks ?? 0)
+             .Set(x => x.AverageUserSessionTicks, stat.AverageUserSessionTime?.Ticks ?? 0)
+             .Set(x => x.DurationFromFirstJoinTicks, stat.DurationFromFirstJoin?.Ticks ?? 0)
+             .Set(x => x.LongestSessionTicks, stat.LongestSessionTime?.Ticks ?? 0);
+           
+
             await dbContext.RoomStatistic.UpdateOneAsync(filter, update);
+
+
         }
         private async Task UpdateRoomStatisticsOnLeaveAsync(string roomId, UserInfo user)
         {
@@ -88,9 +105,27 @@ namespace GOCAP.Api.Hubs
             // Cập nhật lại Mongo DB document
             var filter = Builders<RoomStatisticsEntity>.Filter.Eq(x => x.RoomId, roomId);
             var update = Builders<RoomStatisticsEntity>.Update
-                .Set(x => x.StartTime, stat.StartTime)
-                .Set(x => x.LeaveLogs, stat.LeaveLogs)
-                .Set(x => x.EndTime, stat.EndTime);
+             .Set(x => x.StartTime, stat.StartTime)
+             .Set(x => x.EndTime, stat.EndTime)
+             .Set(x => x.JoinLogs, stat.JoinLogs)
+             .Set(x => x.LeaveLogs, stat.LeaveLogs)
+             .Set(x => x.PeakUsers, stat.PeakUsers)
+             .Set(x => x.PeakTime, stat.PeakTime)
+             .Set(x => x.UserSessionCounts, stat.UserSessionCounts)
+             .Set(x => x.CurrentUsersCount, stat.CurrentUsersCount)
+             // Nếu các trường này có trong entity và bạn muốn lưu:
+             .Set(x => x.TotalJoins, stat.TotalJoins)
+             .Set(x => x.TotalLeaves, stat.TotalLeaves)
+             .Set(x => x.TotalUniqueUsers, stat.TotalUniqueUsers)
+             .Set(x => x.UserParticipationRate, stat.UserParticipationRate)
+             .Set(x => x.FirstJoinTime, stat.FirstJoinTime)
+             .Set(x => x.LastJoinUserId, stat.LastJoinUserId)
+             .Set(x => x.FirstJoinUserId, stat.FirstJoinUserId)
+             .Set(x => x.DurationTicks, stat.Duration?.Ticks ?? 0)
+             .Set(x => x.AverageUserSessionTicks, stat.AverageUserSessionTime?.Ticks ?? 0)
+             .Set(x => x.DurationFromFirstJoinTicks, stat.DurationFromFirstJoin?.Ticks ?? 0)
+             .Set(x => x.LongestSessionTicks, stat.LongestSessionTime?.Ticks ?? 0);
+
             await _dbContext.RoomStatistic.UpdateOneAsync(filter, update);
         }
     }
