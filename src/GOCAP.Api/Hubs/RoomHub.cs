@@ -191,13 +191,25 @@ public partial class RoomHub(
 
         RoomStateManager.RoomPeers[roomId].Remove(peer);
 
+        // These SignalR calls are safe here
         await Clients.Group(roomId).SendAsync(
             "PeerDisconnected",
             Context.ConnectionId,
             RoomStateManager.RoomPeers[roomId].Count
         );
-
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
+
+        bool isRoomEmpty = RoomStateManager.RoomPeers[roomId].Count == 0;
+
+      
+        if (isRoomEmpty)
+        {
+            await Clients.All.SendAsync("RoomDeleted", roomId);
+            await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
+        }
+
+    
+        string userId = peer.UserId;
 
         _ = Task.Run(async () =>
         {
@@ -209,35 +221,31 @@ public partial class RoomHub(
                 var scopedRoomService = scope.ServiceProvider.GetRequiredService<IRoomService>();
 
                 var isLastPeerOfUser = !RoomStateManager.RoomPeers[roomId]
-                    .Any(p => p.UserId == peer.UserId && p.PeerId != peer.PeerId);
+                    .Any(p => p.UserId == userId && p.PeerId != peer.PeerId);
 
-                if (isLastPeerOfUser && peer.UserId != null)
+                if (isLastPeerOfUser && userId != null)
                 {
-                    var user = await scopedUserService.GetUserProfileAsync(Guid.Parse(peer.UserId));
+                    var user = await scopedUserService.GetUserProfileAsync(Guid.Parse(userId));
                     var userInfo = new UserInfo
                     {
-                        Id = peer.UserId,
-                        Name = user?.Name ?? peer.UserId,
+                        Id = userId,
+                        Name = user?.Name ?? userId,
                         ImageUrl = user?.Picture?.Url ?? ""
                     };
-
                     await UpdateRoomStatisticsOnLeaveAsync(roomId, userInfo);
-                    await scopedRoomService.DeleteByIdAsync(Guid.Parse(roomId));
                 }
 
-                if (RoomStateManager.RoomPeers[roomId].Count == 0)
+                if (isRoomEmpty)
                 {
+                   
                     RoomStateManager.RoomPeers.TryRemove(roomId, out _);
                     await scopedRoomMemberRepo.DeleteByRoomIdAsync(Guid.Parse(roomId));
-
+                    await scopedRoomService.DeleteByIdAsync(Guid.Parse(roomId));
                     RoomStateManager.SharingUsers.TryRemove(roomId, out _);
-                    _subtitleCache.TryRemove(roomId, out _);
+                    _subtitleCache.TryRemove(roomId, out _); // Fixed the syntax here
                     RoomStateManager.RoomStats.TryRemove(roomId, out _);
-
                     var now = DateTime.UtcNow;
                     RemoveExpiredPolls(now);
-
-                    await Clients.Group(roomId).SendAsync("ReceiveRoomState", new { Sharing = false });
                 }
             }
             catch (Exception ex)
