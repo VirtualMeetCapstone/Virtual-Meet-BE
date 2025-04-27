@@ -77,16 +77,7 @@ public partial class RoomHub(
             UserId = userId
         };
 
-        // Add member to room member
-        var roomMemberEntity = new Database.RoomMemberEntity
-        {
-            Id = Guid.NewGuid(),
-            RoomId = Guid.Parse(roomId),
-            UserId = Guid.Parse(userId),
-            CreateTime = DateTime.Now.Ticks,
-            LastModifyTime = DateTime.Now.Ticks
-        };
-        await _roomMemberRepository.AddAsync(roomMemberEntity);
+       
 
         // Gửi danh sách peers hiện tại cho người mới
         await Clients.Caller.SendAsync("ExistingPeers", RoomStateManager.RoomPeers[roomId]);
@@ -126,10 +117,19 @@ public partial class RoomHub(
                 var scopedRoomService = scope.ServiceProvider.GetRequiredService<IRoomService>();
                 var scopedDbContext = scope.ServiceProvider.GetRequiredService<AppMongoDbContext>();
                 var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-
+                var scopedRoomMemberRepository = scope.ServiceProvider.GetRequiredService<IRoomMemberRepository>();
                 var guidID = Guid.Parse(userId);
                 var user = await scopedUserService.GetUserProfileAsync(guidID);
 
+                var roomMemberEntity = new Database.RoomMemberEntity
+                {
+                    Id = Guid.NewGuid(),
+                    RoomId = Guid.Parse(roomId),
+                    UserId = Guid.Parse(userId),
+                    CreateTime = DateTime.Now.Ticks,
+                    LastModifyTime = DateTime.Now.Ticks
+                };
+                await scopedRoomMemberRepository.AddAsync(roomMemberEntity);
                 var userInfo = new UserInfo
                 {
                     Id = userId,

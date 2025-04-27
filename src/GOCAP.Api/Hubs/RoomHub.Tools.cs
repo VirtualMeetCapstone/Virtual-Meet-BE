@@ -79,6 +79,7 @@ namespace GOCAP.Api.Hubs
             if (_subtitleCache.TryGetValue(roomId, out var subtitles) && subtitles.Count > 0)
             {
                 string combinedText = string.Join("\n", subtitles.Select(s => $"{s.Username}: {s.Subtitle}"));
+                _logger.LogInformation("Summarizing subtitles for RoomId: {RoomId}, CombinedText: {CombinedText}", roomId, combinedText);
                 string summary = await aIService.AISummaryAsync(combinedText);
                 await Clients.Caller.SendAsync("ReceiveSummary", summary);
                 return;

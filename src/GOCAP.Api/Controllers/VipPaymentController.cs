@@ -14,11 +14,26 @@ public class VipPaymentController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllPayments([FromQuery] QueryInfo queryInfo)
+    public async Task<ActionResult<QueryResult<PaymentHistoryModel>>> GetAllPayments([FromQuery] QueryInfo queryInfo)
     {
         var result = await _vipPaymentService.GetAllPaymentsAsync(queryInfo);
         return Ok(result);
     }
+
+
+    [HttpGet("payment-statistics")]
+    public async Task<ActionResult<QueryResult<PaymentStatisticModel>>> GetPaymentStatistics([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+    {
+        if (startDate == null || endDate == null)
+        {
+            return BadRequest(new { Message = "StartDate and EndDate are required." });
+        }
+
+        var statistics = await _vipPaymentService.GetPaymentStatisticsAsync(startDate.Value, endDate.Value);
+
+        return Ok(statistics);
+    }
+
 
     [Authorize]
     [HttpGet("user/{userId}")]
