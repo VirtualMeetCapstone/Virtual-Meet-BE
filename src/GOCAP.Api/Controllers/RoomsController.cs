@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using GOCAP.Messaging.Producer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -8,6 +9,7 @@ namespace GOCAP.Api.Controllers;
 public class RoomsController(IRoomService _service,
     IRoomFavouriteService _roomFavouriteService,
     IRedisService _redisService,
+    IKafkaProducer _kafkaProducer,
     IUserContextService _userContextService,
     IHubContext<RoomHub> _hubContext,
     IMapper _mapper) : ApiControllerBase
@@ -119,6 +121,28 @@ public class RoomsController(IRoomService _service,
             return Unauthorized("Incorrect password");
 
         return Ok("Password is correct");
+    }
+
+    [HttpPost("{roomId}/send-summary-mail")]
+    public async Task<OperationResult> SendEmailToRoomMember([FromRoute] Guid roomId, [FromQuery] string subject, [FromQuery] string content)
+    {
+        var metadata = new Dictionary<string, string>
+        {
+            { "RoomId", roomId.ToString() },
+            { "Subject", subject },
+            { "Content", content }
+        };
+
+        var notificationEvent = new NotificationEvent
+        {
+            Type = NotificationType.System,
+            ActionType = ActionType.Add,
+            Metadata = metadata
+        };
+
+        await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, notificationEvent);
+
+        return new OperationResult(true);
     }
 }
 

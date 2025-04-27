@@ -1,7 +1,10 @@
-﻿namespace GOCAP.Services;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace GOCAP.Services;
 
 [RegisterService(typeof(INotificationService))]
 internal class NotificationService(
+    AppSqlDbContext _dbContext,
     INotificationRepository _repository,
     IStoryRepository _storyRepository,
     IUserRepository _userRepository,
@@ -21,6 +24,7 @@ internal class NotificationService(
 
             string subject = "[No Subject]";
             string content = "[No Content]";
+            string roomId = "";
 
             if (notificationEvent.Metadata != null)
             {
@@ -29,6 +33,34 @@ internal class NotificationService(
 
                 if (notificationEvent.Metadata.TryGetValue("Content", out var c))
                     content = c;
+
+                if (notificationEvent.Metadata.TryGetValue("RoomId", out var r))
+                {
+                    roomId = r;
+                    var roomIdGuid = Guid.Parse(roomId);
+
+                    var roomMemberIds = await _dbContext.RoomMembers
+                        .Where(rm => rm.RoomId == roomIdGuid)
+                        .Select(rm => rm.UserId)
+                        .ToListAsync();
+
+
+                    var sendEmailToMemberTasks = users
+                            .Where(u => roomMemberIds.Contains(u.Id) && !string.IsNullOrWhiteSpace(u.Email))
+                            .Select(user =>
+                                _emailService.SendMailAsync(new EmailContent
+                                {
+                                    To = user.Email,
+                                    Subject = subject,
+                                    Body = content
+                                })
+                            );
+
+                    await Task.WhenAll(sendEmailToMemberTasks);
+
+                    return null!;
+                }
+                    
             }
 
             var sendEmailTasks = users
