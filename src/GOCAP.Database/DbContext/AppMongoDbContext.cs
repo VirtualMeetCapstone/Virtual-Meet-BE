@@ -1,4 +1,6 @@
 ﻿
+using GOCAP.Database.MongoDb_Entities;
+
 namespace GOCAP.Database;
 
 public class AppMongoDbContext
@@ -15,6 +17,9 @@ public class AppMongoDbContext
     public IMongoCollection<LogoEntity> Logos { get; set; }
     public IMongoCollection<MessagesOutsideRoomEntity> MessagesOutsideRoom { get; set; }
     public IMongoCollection<RoomStatisticsEntity> RoomStatistic { get; set; }
+    public IMongoCollection<QuizSessionEntity> QuizSessions { get; set; }
+    public IMongoCollection<QuizEntity> Quizzes { get; set; }
+
     public IMongoCollection<ReportEntity> Reports => _database.GetCollection<ReportEntity>("Reports");
 
 
@@ -32,6 +37,8 @@ public class AppMongoDbContext
         Logos = GetCollection<LogoEntity>();
         MessagesOutsideRoom = GetCollection<MessagesOutsideRoomEntity>();
         RoomStatistic = GetCollection<RoomStatisticsEntity>();
+        QuizSessions= GetCollection<QuizSessionEntity>();
+        Quizzes= GetCollection<QuizEntity>();
 
     }
 
