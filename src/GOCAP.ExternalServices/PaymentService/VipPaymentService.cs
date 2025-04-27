@@ -1,4 +1,5 @@
 ﻿
+using GOCAP.Common;
 using GOCAP.Repository.Intention;
 
 namespace GOCAP.ExternalServices;
@@ -20,7 +21,7 @@ public class VipPaymentService : IVipPaymentService
     public VipPaymentService(PayOsSettings payOsSettings, PayOS payOS, IVipPaymentRepository vipPaymentRepository)
     {
         _payOS = payOS;
-        _domain = "https://fe.dev-vmeet.site/up-vip";
+        _domain = "https://dev-vmeet2.runasp.net/up-vip";
         _vipPaymentRepository = vipPaymentRepository;
     }
 
@@ -89,4 +90,8 @@ public class VipPaymentService : IVipPaymentService
         return await _vipPaymentRepository.GetPaymentsByUserIdAsync(userId, queryInfo);
     }
 
+    public async Task<QueryResult<PaymentStatisticModel>> GetPaymentStatisticsAsync(DateTime startDate, DateTime endDate)
+    {
+        return await _vipPaymentRepository.GetPaymentStatisticsAsync(startDate, endDate);
+    }
 }

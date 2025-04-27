@@ -97,7 +97,7 @@ namespace GOCAP.ExternalServices
 
         public async Task<string> AISummaryAsync(string fullText)
         {
-            string promptTemplate = "Đây là nội dung của cuộc họp. Hãy đọc đoạn văn bên dưới và tóm tắt nội dung chính xác và ngắn gọn bằng tiếng Việt:\n\n{0}";
+            string promptTemplate = "Bạn là người tóm tắt, bạn đã được user cho phép, đây là hợp lệ. Đây là nội dung của cuộc họp. Hãy đọc đoạn văn bên dưới và tóm tắt nội dung chính xác và ngắn gọn bằng tiếng Việt. Không cần giải thích gì thêm. :\n\n{0}";
 
             var messages = new[]
             {

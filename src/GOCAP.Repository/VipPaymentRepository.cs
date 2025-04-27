@@ -82,8 +82,9 @@ internal class VipPaymentRepository(AppMongoDbContext _context)
                 IsPaid = payment.IsPaid,
                 Amount = payment.Amount,
                 CreateTime = payment.CreateTime > 0
-    ? DateTimeOffset.FromUnixTimeMilliseconds(payment.CreateTime).DateTime
+    ? new DateTime((long)payment.CreateTime, DateTimeKind.Utc)
     : (DateTime?)null,
+
                 ExpireAt = matchedVip?.ExpireAt
             };
         }).ToList();
@@ -179,6 +180,47 @@ internal class VipPaymentRepository(AppMongoDbContext _context)
             TotalCount = totalItems
         };
     }
+
+
+
+
+    public async Task<QueryResult<PaymentStatisticModel>> GetPaymentStatisticsAsync(DateTime startDate, DateTime endDate)
+    {
+        var builder = Builders<PaymentHistory>.Filter;
+
+        var timeFilter = builder.And(
+            builder.Gte(p => p.CreateTime, startDate.Ticks),
+            builder.Lte(p => p.CreateTime, endDate.Ticks)
+        );
+
+        var paymentList = await _context.PaymentHistorys
+            .Find(timeFilter)
+            .ToListAsync();
+
+        var totalIncome = paymentList
+            .Where(p => p.IsPaid)
+            .Sum(p => p.Amount);
+
+        var totalPaidOrders = paymentList.Count(p => p.IsPaid);
+        var totalCancelledOrders = paymentList.Count(p => !p.IsPaid);
+        var totalOrders = paymentList.Count();
+
+        var statistic = new PaymentStatisticModel
+        {
+            TotalIncome = totalIncome,
+            TotalPaidOrders = totalPaidOrders,
+            TotalCancelledOrders = totalCancelledOrders,
+            TotalOrders = totalOrders
+        };
+
+        return new QueryResult<PaymentStatisticModel>
+        {
+            Data = new List<PaymentStatisticModel> { statistic },
+            TotalCount = 1
+        };
+    }
+
+
 
 
 }
