@@ -45,6 +45,38 @@ namespace GOCAP.Api.Controllers
 
             return Ok(quiz); 
         }
+        [HttpDelete("deleteQuiz/{id}")]
+        public async Task<IActionResult> DeleteQuiz(Guid id)
+        {
+            var result = await _dbContext.Quizzes.DeleteOneAsync(q => q.QuizId == id);
+
+            if (result.DeletedCount == 0)
+            {
+                return NotFound("Quiz not found.");
+            }
+
+            return Ok("Quiz deleted successfully.");
+        }
+        [HttpPut("updateQuiz/{id}")]
+        public async Task<IActionResult> UpdateQuiz(Guid id, [FromBody] QuizEntity updatedQuiz)
+        {
+            // Lấy quiz cũ ra
+            var existingQuiz = await _dbContext.Quizzes.Find(q => q.QuizId == id).FirstOrDefaultAsync();
+            if (existingQuiz == null)
+            {
+                return NotFound("Quiz not found.");
+            }
+
+            // Giữ nguyên _id
+            updatedQuiz.Id = existingQuiz.Id;
+            updatedQuiz.QuizId = id; // giữ đúng QuizId nữa
+
+            var result = await _dbContext.Quizzes.ReplaceOneAsync(q => q.QuizId == id, updatedQuiz);
+
+            return Ok("Quiz updated successfully.");
+        }
+
+
         [HttpGet("getlistQuizOfUser/{id}")]
         public async Task<IActionResult> GetListQuiz(string id)
         {
