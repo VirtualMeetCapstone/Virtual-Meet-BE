@@ -6,5 +6,6 @@ public interface IVipPaymentService
     Task<bool> MarkPaymentAsPaidAsync(string orderCode);
     Task<QueryResult<PaymentHistoryModel>> GetAllPaymentsAsync(QueryInfo queryInfo);
     Task<QueryResult<PaymentHistoryModel>> GetPaymentsByUserIdAsync(Guid userId, QueryInfo queryInfo);
+    Task<QueryResult<PaymentStatisticModel>> GetPaymentStatisticsAsync(DateTime startDate, DateTime endDate);
 }
 

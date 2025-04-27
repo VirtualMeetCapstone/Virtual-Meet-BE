@@ -8,5 +8,6 @@
         Task UpdatePaymentAsync(PaymentHistory payment);
         Task<QueryResult<PaymentHistoryModel>> GetAllPaymentsAsync(QueryInfo queryInfo);
         Task<QueryResult<PaymentHistoryModel>> GetPaymentsByUserIdAsync(Guid userId, QueryInfo queryInfo);
+        Task<QueryResult<PaymentStatisticModel>> GetPaymentStatisticsAsync(DateTime startDate, DateTime endDate);
     }
 }
