@@ -170,6 +170,24 @@ namespace GOCAP.Api.Controllers
 
             return Ok(recentContacts);
         }
+        [HttpGet("GetQuantityNotRead/{userId}")]
+        public async Task<IActionResult> GetQuantityNotRead(string userId)
+        {
+            var messages = await _dbContext.MessagesOutsideRoom
+                .Find(m => !m.IsDeleted && m.Receiver.Id == userId)
+                .ToListAsync();
+
+            var unreadCount = messages
+                .GroupBy(m => m.Sender.Id) // Nhóm theo người gửi
+                .Select(g => g.OrderByDescending(m => m.CreatedAt).First()) // Tin mới nhất từ mỗi người gửi
+                .Count(m =>
+                {
+                    var readStatus = m.ReadStatuses?.FirstOrDefault(r => r.UserId.Trim().ToLower() == userId.Trim().ToLower());
+                    return readStatus == null || !readStatus.IsRead;
+                });
+
+            return Ok(unreadCount);
+        }
 
 
     }
