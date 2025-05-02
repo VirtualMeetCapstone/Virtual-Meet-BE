@@ -19,6 +19,9 @@ public class AppMongoDbContext
     public IMongoCollection<RoomStatisticsEntity> RoomStatistic { get; set; }
     public IMongoCollection<QuizSessionEntity> QuizSessions { get; set; }
     public IMongoCollection<QuizEntity> Quizzes { get; set; }
+    public IMongoCollection<WhiteBoardEntity> WhiteBoards { get; set; }
+
+
 
     public IMongoCollection<ReportEntity> Reports => _database.GetCollection<ReportEntity>("Reports");
 
@@ -39,6 +42,7 @@ public class AppMongoDbContext
         RoomStatistic = GetCollection<RoomStatisticsEntity>();
         QuizSessions= GetCollection<QuizSessionEntity>();
         Quizzes= GetCollection<QuizEntity>();
+        WhiteBoards= GetCollection<WhiteBoardEntity>();
 
     }
 

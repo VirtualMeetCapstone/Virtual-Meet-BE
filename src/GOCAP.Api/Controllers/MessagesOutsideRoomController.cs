@@ -21,7 +21,6 @@ namespace GOCAP.Api.Controllers
             _dbContext = dbContext;
         }
 
-        #region Message Operations
 
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
@@ -56,79 +55,22 @@ namespace GOCAP.Api.Controllers
                     ImageUrl = request.ReceiverImageUrl
                 };
             }
-            else 
-            {
-                message.ConversationId = request.GroupId;
-                message.GroupId = request.GroupId;
-                message.GroupName = request.GroupName;
-                message.GroupMembers = request.GroupMembers ?? new List<UserInfo>();
-            }
-
-            if (!string.IsNullOrEmpty(request.ReplyToMessageId))
-            {
-                message.ReplyToMessageId = request.ReplyToMessageId;
-                var repliedMessage = await _dbContext.MessagesOutsideRoom
-                    .Find(m => m.Id == request.ReplyToMessageId)
-                    .FirstOrDefaultAsync();
-                message.ReplyMessage = repliedMessage;
-            }
-
             await _dbContext.MessagesOutsideRoom.InsertOneAsync(message);
-
-   
-         
-
             return Ok(message);
-        }
-
-        [HttpGet("conversation/{conversationId}")]
-        public async Task<IActionResult> GetConversationMessages(string conversationId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
-        {
-            var messages = await _dbContext.MessagesOutsideRoom
-                .Find(m => m.ConversationId == conversationId && !m.IsDeleted)
-                .SortByDescending(m => m.CreatedAt)
-                .Skip((page - 1) * pageSize)
-                .Limit(pageSize)
-                .ToListAsync();
-
-            return Ok(messages.OrderBy(m => m.CreatedAt));
         }
 
         [HttpGet("private/{userId1}/{userId2}")]
         public async Task<IActionResult> GetPrivateConversation(string userId1, string userId2, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
         {
             var conversationId = GetPrivateConversationId(userId1, userId2);
-            return await GetConversationMessages(conversationId, page, pageSize);
-        }
+            var messages = await _dbContext.MessagesOutsideRoom
+                         .Find(m => m.ConversationId == conversationId && !m.IsDeleted)
+                         .SortByDescending(m => m.CreatedAt)
+                         .Skip((page - 1) * pageSize)
+                         .Limit(pageSize)
+                         .ToListAsync();
 
-        [HttpGet("group/{groupId}")]
-        public async Task<IActionResult> GetGroupMessages(string groupId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
-        {
-            return await GetConversationMessages(groupId, page, pageSize);
-        }
-
-        [HttpPut("{messageId}/edit")]
-        public async Task<IActionResult> EditMessage(string messageId, [FromBody] EditMessageRequest request)
-        {
-            var update = Builders<MessagesOutsideRoomEntity>.Update
-                .Set(m => m.Content, request.NewContent)
-                .Set(m => m.EditedAt, DateTime.UtcNow)
-                .Set(m => m.UpdatedAt, DateTime.UtcNow);
-
-            var result = await _dbContext.MessagesOutsideRoom
-                .UpdateOneAsync(m => m.Id == messageId, update);
-
-            if (result.ModifiedCount == 0)
-            {
-                return NotFound();
-            }
-
-            var updatedMessage = await _dbContext.MessagesOutsideRoom
-                .Find(m => m.Id == messageId)
-                .FirstOrDefaultAsync();
-
-
-            return Ok(updatedMessage);
+            return Ok(messages.OrderBy(m => m.CreatedAt));
         }
 
         [HttpDelete("{messageId}")]
@@ -154,66 +96,8 @@ namespace GOCAP.Api.Controllers
             return Ok(new { success = true });
         }
 
-        #endregion
 
-        #region Reaction Operations
 
-        [HttpPost("{messageId}/reactions")]
-        public async Task<IActionResult> AddReaction(string messageId, [FromBody] ReactionRequest request)
-        {
-            var message = await _dbContext.MessagesOutsideRoom
-                .Find(m => m.Id == messageId)
-                .FirstOrDefaultAsync();
-
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            message.Reactions.RemoveAll(r => r.UserId == request.UserId);
-
-            message.Reactions.Add(new ReactionInfo
-            {
-                UserId = request.UserId,
-                Emoji = request.Emoji
-            });
-
-            message.UpdatedAt = DateTime.UtcNow;
-
-            await _dbContext.MessagesOutsideRoom.ReplaceOneAsync(m => m.Id == messageId, message);
-
-           
-            return Ok(message);
-        }
-
-        [HttpDelete("{messageId}/reactions/{userId}")]
-        public async Task<IActionResult> RemoveReaction(string messageId, string userId)
-        {
-            var message = await _dbContext.MessagesOutsideRoom
-                .Find(m => m.Id == messageId)
-                .FirstOrDefaultAsync();
-
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            var removedCount = message.Reactions.RemoveAll(r => r.UserId == userId);
-
-            if (removedCount > 0)
-            {
-                message.UpdatedAt = DateTime.UtcNow;
-                await _dbContext.MessagesOutsideRoom.ReplaceOneAsync(m => m.Id == messageId, message);
-
-                // Notify recipients
-            }
-
-            return Ok(message);
-        }
-
-        #endregion
-
-        #region Read Status Operations
 
         [HttpPost("mark-last-message-as-read")]
         public async Task<IActionResult> MarkLastMessageAsRead([FromBody] MarkAsReadRequest request)
@@ -234,11 +118,6 @@ namespace GOCAP.Api.Controllers
             return Ok(message);        
 
         }
-
-
-        #endregion
-
-        #region Helper Methods
 
         private string GetPrivateConversationId(string userId1, string userId2)
         {
@@ -293,13 +172,8 @@ namespace GOCAP.Api.Controllers
         }
 
 
-
-
-
-        #endregion
     }
 
-    #region Request Models
 
     public class SendMessageRequest
     {
@@ -354,5 +228,4 @@ namespace GOCAP.Api.Controllers
     }
 
 
-    #endregion
 }

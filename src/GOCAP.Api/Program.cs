@@ -65,7 +65,7 @@ app.MapHub<ChatOutsideRoomHub>("/chatOutsideRoomHub");
 
 app.MapHub<RoomHub>("/roomHub");
 app.MapHub<QuizHub>("/quizHub");
-
+app.MapHub<WhiteBoardHub>("/whiteBoardHub");
 app.MapControllers();
 
 await app.RunAsync();
