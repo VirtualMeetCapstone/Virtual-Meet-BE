@@ -1,5 +1,7 @@
 ﻿#if DEBUG
 
+using Nest;
+
 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development", EnvironmentVariableTarget.Process);
 #endif
 
@@ -66,6 +68,7 @@ app.MapHub<ChatOutsideRoomHub>("/chatOutsideRoomHub");
 app.MapHub<RoomHub>("/roomHub");
 app.MapHub<QuizHub>("/quizHub");
 app.MapHub<WhiteBoardHub>("/whiteBoardHub");
+app.MapHub<StatusHub>("statusHub");
 app.MapControllers();
 
 await app.RunAsync();
