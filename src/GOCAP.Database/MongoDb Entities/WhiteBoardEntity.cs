@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GOCAP.Database.MongoDb_Entities
 {
-    public class WhiteBoardEntity : EntityMongoBase
+    public class WhiteBoardEntity 
     {
         public string RoomId { get; set; }
         public List<DrawingAction> DrawActions { get; set; } = new List<DrawingAction>();
