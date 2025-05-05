@@ -1,4 +1,5 @@
-﻿using GOCAP.Messaging.Producer;
+﻿using GOCAP.Api.Model;
+using GOCAP.Messaging.Producer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -11,7 +12,7 @@ public class RoomsController(IRoomService _service,
     IRedisService _redisService,
     IKafkaProducer _kafkaProducer,
     IUserContextService _userContextService,
-    IHubContext<RoomHub> _hubContext,
+    IHubContext<RoomListHub> _hubContext,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -53,7 +54,12 @@ public class RoomsController(IRoomService _service,
     {
         var room = _mapper.Map<Room>(model);
         var result = await _service.AddAsync(room);
-        return _mapper.Map<RoomModel>(result);
+        var roomModel = _mapper.Map<RoomModel>(result);
+
+        // 🔥 Push sự kiện real-time cho tất cả client
+        await _hubContext.Clients.Group("RoomsPage").SendAsync("RoomCreated", roomModel);
+
+        return roomModel;
     }
 
     /// <summary>
@@ -69,7 +75,17 @@ public class RoomsController(IRoomService _service,
     {
         var domain = _mapper.Map<Room>(model);
         domain.Id = id;
-        return await _service.UpdateAsync(id, domain);
+        var result = await _service.UpdateAsync(id, domain);
+
+        // Nếu update thành công thì push real-time
+        if (result.Success)
+        {
+            // Map lại RoomModel để client nhận
+            var updatedRoomModel = _mapper.Map<RoomModel>(domain);
+            await _hubContext.Clients.Group("RoomsPage").SendAsync("RoomUpdated", updatedRoomModel);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -81,7 +97,15 @@ public class RoomsController(IRoomService _service,
     [Authorize]
     public async Task<OperationResult> Delete([FromRoute] Guid id)
     {
-        return await _service.DeleteByIdAsync(id);
+        var result = await _service.DeleteByIdAsync(id);
+
+        // Nếu xoá thành công thì push real-time
+        if (result.Success)
+        {
+            await _hubContext.Clients.Group("RoomsPage").SendAsync("RoomDeleted", id);
+        }
+
+        return result;
     }
 
     /// <summary>

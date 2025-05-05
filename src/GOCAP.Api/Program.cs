@@ -66,6 +66,7 @@ app.MapHub<ChatHub>("/chatHub");
 app.MapHub<ChatOutsideRoomHub>("/chatOutsideRoomHub");
 
 app.MapHub<RoomHub>("/roomHub");
+app.MapHub<RoomListHub>("/roomListHub");
 app.MapHub<QuizHub>("/quizHub");
 app.MapHub<WhiteBoardHub>("/whiteBoardHub");
 app.MapHub<StatusHub>("statusHub");
