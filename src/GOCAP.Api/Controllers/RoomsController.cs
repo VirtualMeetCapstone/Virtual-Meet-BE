@@ -1,5 +1,7 @@
 ﻿using GOCAP.Api.Model;
 using GOCAP.Messaging.Producer;
+﻿using GOCAP.Messaging.Producer;
+using GOCAP.Repository;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -13,6 +15,7 @@ public class RoomsController(IRoomService _service,
     IKafkaProducer _kafkaProducer,
     IUserContextService _userContextService,
     IHubContext<RoomListHub> _hubContext,
+    IRoomMemberRepository roomMemberRepository,
     IMapper _mapper) : ApiControllerBase
 {
     /// <summary>
@@ -167,6 +170,23 @@ public class RoomsController(IRoomService _service,
         await _kafkaProducer.ProduceAsync(KafkaConstants.Topics.Notification, notificationEvent);
 
         return new OperationResult(true);
+    }
+
+    [HttpGet("{roomId}/member-info")]
+    public async Task<IActionResult> GetRoomMemberInfo([FromRoute] Guid roomId)
+    {
+        var room = await _service.GetDetailByIdAsync(roomId);
+        if (room == null)
+            return NotFound();
+
+        var count = await roomMemberRepository.CountByRoomIdAsync(roomId);
+
+        return Ok(new
+        {
+            RoomId = roomId,
+            CurrentCount = count,
+            MaxCount = room.MaximumMembers
+        });
     }
 }
 

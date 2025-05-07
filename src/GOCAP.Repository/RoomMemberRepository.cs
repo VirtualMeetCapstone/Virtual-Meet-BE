@@ -12,11 +12,11 @@ internal class RoomMemberRepository(AppSqlDbContext context) : SqlRepositoryBase
                                 .ExecuteDeleteAsync();
     }
 
-    public async Task<List<RoomMemberEntity>> GetMembersByRoomIdAsync(Guid roomId)
+    public async Task<int> CountByRoomIdAsync(Guid roomId)
     {
         return await _context.RoomMembers
-                             .Where(rm => rm.RoomId == roomId)
-                             .ToListAsync();
+                             .CountAsync(rm => rm.RoomId == roomId);
     }
+
 
 }

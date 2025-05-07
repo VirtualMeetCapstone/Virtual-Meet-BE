@@ -21,7 +21,7 @@ public class VipPaymentService : IVipPaymentService
     public VipPaymentService(PayOsSettings payOsSettings, PayOS payOS, IVipPaymentRepository vipPaymentRepository)
     {
         _payOS = payOS;
-        _domain = "https://dev-vmeet2.runasp.net/up-vip";
+        _domain = "https://fe.dev-vmeet.site/up-vip";
         _vipPaymentRepository = vipPaymentRepository;
     }
 
